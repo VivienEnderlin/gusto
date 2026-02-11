@@ -1,6 +1,3 @@
-<?php
-  session_start();
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,7 +36,7 @@
                 <input type="text" name="login" class="form-control" placeholder="Votre login" required/>
               </div>
               <div class="col-lg-12 form-group">
-                <input type="password" class="form-control" name="id_unique_etablissement" placeholder="Votre mot de passe" required/>
+                <input type="password" class="form-control" name="password" placeholder="Votre mot de passe" required/>
               </div>
             </div>
             <div class="form-group">
@@ -63,7 +60,7 @@
 
     var postdata = {
         login: $('input[name="login"]').val(),
-        id_unique_etablissement: $('input[name="id_unique_etablissement"]').val()
+        password: $('input[name="password"]').val()
     };
 
     $.ajax({

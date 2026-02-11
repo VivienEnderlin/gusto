@@ -13,8 +13,8 @@ return [
     'JWT_ALGO'   => 'HS256',
 
     // ⏱️ Durée de validité du token en secondes
-    // Ici : 3600 secondes = 1 heure
-    'JWT_EXPIRE' => 3600
+    // Ici : 3600 secondes = 24h
+    'JWT_EXPIRE' => 86400
 ];
 
 //echo bin2hex(random_bytes(64)); pour genrer la clé secrete

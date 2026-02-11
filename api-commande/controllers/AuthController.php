@@ -4,18 +4,22 @@ require_once __DIR__ . '/../core/Response.php';
 require_once __DIR__ . '/../core/Auth.php';
 
 class AuthController extends BaseModel {
-
+//On récupère juste l’utilisateur par son login, puis on utilise password_verify($key, $hash) pour comparer le mot de passe en PHP
     public function login($login, $key) {
 
         $stmt = $this->getAll(
             "utilisateur",
-            "WHERE login = ? AND id_unique_etablissement = ?",
-            [$login, hash('sha256', $key)]
+            "WHERE login = ?",
+            [$login]
         );
 
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$user) {
+            Response::error("Identifiants incorrects", 401);
+        }
+
+         if (!password_verify($key, $user['password'])) {
             Response::error("Identifiants incorrects", 401);
         }
 

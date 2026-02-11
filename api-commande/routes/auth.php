@@ -9,9 +9,9 @@ header('Content-Type: application/json');
 $data = json_decode(file_get_contents('php://input'), true);
 
 $login = $data['login'] ?? '';
-$id_unique_etablissement = $data['id_unique_etablissement'] ?? '';
+$password = $data['password'] ?? '';
 
-if (!$login || !$id_unique_etablissement) {
+if (!$login || !$password) {
     echo json_encode([
         'success' => false,
         'html' => '<div class="alert alert-block alert-danger">
@@ -23,9 +23,9 @@ if (!$login || !$id_unique_etablissement) {
 }
 
 $userModel = new Utilisateur();
-$user = $userModel->login($login, hash('sha256', $id_unique_etablissement));
+$user = $userModel->login($login);
 
-if ($user) {
+if ($user && password_verify($password, $user['password'])) {
     $token = Auth::generateToken($user);
     echo json_encode([
         'success' => true,

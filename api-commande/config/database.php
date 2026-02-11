@@ -77,10 +77,11 @@ class Database {
                         email VARCHAR(50) NOT NULL,
                         telephone VARCHAR(20) NOT NULL,
                         login VARCHAR(50) NOT NULL,
-                        id_unique_etablissement VARCHAR(100) NOT NULL,
+                        password VARCHAR(255) NOT NULL,
+                        id_etablissement INT NOT NULL,
                         role VARCHAR(10) NOT NULL,
                         date_enreg DATE,
-                        FOREIGN KEY (id_unique_etablissement) REFERENCES etablissement(id_unique_etablissement)
+                        FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
 
@@ -149,9 +150,10 @@ class Database {
             if ($stmt->fetchColumn() == 0) {
                 $stmt = $this->pdo->prepare("
                     INSERT INTO utilisateur 
-                    (nom, prenom, adresse, email, telephone, login, id_unique_etablissement, role, date_enreg) 
-                    VALUES (:nom, :prenom, :adresse, :email, :telephone, :login, :id_unique_etablissement, :role, :date_enreg)
+                    (nom, prenom, adresse, email, telephone, login, password, id_etablissement, role, date_enreg) 
+                    VALUES (:nom, :prenom, :adresse, :email, :telephone, :login, :password, :id_etablissement, :role, :date_enreg)
                 ");
+
                 $stmt->execute([
                     ':nom' => '',
                     ':prenom' => '',
@@ -159,7 +161,8 @@ class Database {
                     ':email' => '',
                     ':telephone' => '',
                     ':login' => 'admin',
-                    ':id_unique_etablissement' => hash('sha256','admin'),
+                    ':id_etablissement' => 1,
+                    ':password' => password_hash("admin", PASSWORD_DEFAULT),
                     ':role' => 'admin',
                     ':date_enreg' => date("Y-m-d")
                 ]);

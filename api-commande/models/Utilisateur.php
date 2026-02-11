@@ -36,7 +36,8 @@ class Utilisateur extends BaseModel {
                 "email",
                 "telephone",
                 "login",
-                "id_unique_etablissement",
+                "password",
+                "id_etablissement",
                 "role",
                 "date_enreg"
             ],
@@ -66,7 +67,8 @@ class Utilisateur extends BaseModel {
                 "email",
                 "telephone",
                 "login",
-                "id_unique_etablissement",
+                "password",
+                "id_etablissement",
                 "role",
                 "date_enreg"
             ],
@@ -78,7 +80,7 @@ class Utilisateur extends BaseModel {
                 $data['email'],
                 $data['telephone'],
                 $data['login'],
-                $data['id_unique_etablissement'],
+                $data['id_etablissement'],
                 $data['role'],
                 date('Y-m-d')
             ],
@@ -97,13 +99,17 @@ class Utilisateur extends BaseModel {
 
     /* =======================
        AUTHENTIFICATION
+       On ne prend que le login et pas le mot de passe. La raison est simple :
+
+1️⃣ Le mot de passe est hashé dans la base
+Quand tu fais password_hash("admin", PASSWORD_DEFAULT), le mot de passe stocké n’est pas “admin”, mais une chaîne cryptée complexe
     ======================= */
 
-    public function login($login, $key) {
+    public function login($login) {
         $stmt = parent::getAll(
             "utilisateur",
-            "WHERE login = ? AND id_unique_etablissement = ?",
-            [$login, $key]
+            "WHERE login = ?",
+            [$login]
         );
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
