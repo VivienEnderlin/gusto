@@ -6,6 +6,10 @@ switch ($route) {
         require '../routes/auth.php';
         break;
 
+    case 'etablissement':
+        require '../routes/etablissement.php';
+        break;
+
     case 'commandes':
         require '../routes/commandes.php';
         break;

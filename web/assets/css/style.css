@@ -651,6 +651,7 @@ select,
 .modal .php-form input[type=number],
 .modal .php-form input[type=email],
 .modal .php-form input[type=url],
+.modal .php-form input[type=tel],
 .modal .php-form textarea,
 .modal .php-form input[type=password] {
   font-size: 14px;
@@ -672,6 +673,7 @@ select, input[type=number]{
 .modal .php-form input[type=text]:focus,
 .modal .php-form input[type=email]:focus,
 .modal .php-form input[type=url]:focus,
+.modal .php-form input[type=tel]:focus,
 .modal .php-form textarea:focus,
 .modal .php-form input[type=password]:focus {
   border-color: var(--accent-color);
@@ -684,6 +686,7 @@ select, input[type=number]{
 .modal .php-form input[type=text]::placeholder,
 .modal .php-form input[type=email]::placeholder,
 .modal .php-form input[type=url]::placeholder,
+.modal .php-form input[type=tel]::placeholder,
 .modal .php-form textarea::placeholder,
 .modal .php-form input[type=password]::placeholder {
   color: color-mix(in srgb, var(--default-color), transparent 70%);
@@ -813,7 +816,7 @@ button.loading.show-loader::after {
   border-color: var(--accent-color);
 }
 
-.btn-menu, .btn-f,.btn-serveur, .btn-user {
+.btn-user, .btn-ets, .btn-app, .btn-licence {
   margin-left: 10px;
   background: var(--accent-color);
   border: var(--accent-color);
@@ -827,7 +830,7 @@ button.loading.show-loader::after {
   display: inline-block;
 }
 
-#commande, #menu, #utilisateur, #serveur, .qrcode-btn{
+#utilisateur, #appareil, #licence{
   display: none;
 }
 
@@ -934,7 +937,7 @@ button.loading.show-loader::after {
   margin-bottom: 6px;
 }
 
-#blah ,#logo{
+#logo{
   height: 100px; 
   width: 100px;
   border-radius: 10px; 

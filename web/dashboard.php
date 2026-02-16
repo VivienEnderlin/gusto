@@ -48,26 +48,28 @@
 
             <!-- Divider -->
             <hr class="sidebar-divider">
-               <li class="nav-item link_page active">
+
+              <li class="nav-item link_page active">
+                  <a class="nav-link" href="#" data-target="etablissement">
+                      <span>Gestion des etablissements</span>
+                  </a>
+              </li>
+
+               <li class="nav-item link_page">
                     <a class="nav-link" href="#" data-target="utilisateur">
                         <span>Gestion des utilisateurs</span>
                     </a>
                 </li>
+
                 <li class="nav-item link_page">
-                    <a class="nav-link" href="#" data-target="serveur">
-                        <span>Gestion des serveurs</span>
+                    <a class="nav-link" href="#" data-target="appareil">
+                        <span>Gestion des appareils</span>
                     </a>
                 </li>
 
                 <li class="nav-item link_page">
-                    <a class="nav-link" href="#" data-target="menu">
-                        <span>Gestion des menus</span>
-                    </a>
-                </li>
-
-                <li class="nav-item link_page">
-                    <a class="nav-link" href="#" data-target="commande">
-                        <span>Gestion des commandes</span>
+                    <a class="nav-link" href="#" data-target="licence">
+                        <span>Gestion des licences</span>
                     </a>
                 </li>
 
@@ -115,85 +117,59 @@
           </div>
 
             <!-- End of Topbar -->
-          <div class="container-fluid content" id="serveur">
-            <button class="btn-serveur mb-4">Ajouter un serveur</button>
+
+          <div class="container-fluid content" id="etablissement">
+            <button class="btn-ets mb-4">Ajouter un etablissement</button>
             <div class="row"> 
               <div class="card shadow mb-4 col-lg-12">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">LISTE DES SERVEURS</h6>
+                    <h6 class="m-0 font-weight-bold">LISTE DES ETABLISSEMENTS</h6>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
-                    <table class="table table-bordered dataTable info-serveur" width="100%" cellspacing="0">
+                    <table class="table table-bordered dataTable info-ets" width="100%" cellspacing="0">
                       <thead class="text-light">
                         <tr>
+                          <th>Logo</th>
                           <th>Nom</th>
-                          <th>Login</th>
+                          <th>Type</th>
+                          <th>Adresse</th>
+                          <th>Date</th>
                           <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
+                        <?php
+                            require_once './../api-commande/models/Etablissement.php';
+                            $etablissementModel = new Etablissement();
+                            $etablissements = $etablissementModel->getAllEtablissements(); // récupère tous les établissements
+
+                            foreach($etablissements as $e) {
+                                $logos = json_decode($e['logo'], true); // logo stocké en JSON
+                                $logoHTML = '';
+                                if(!empty($logos)) {
+                                    foreach($logos as $l) {
+                                        $logoHTML .= "<img src='$l' width='50'> ";
+                                    }
+                                }
+
+                                echo "<tr>
+                                        <td>$logoHTML</td>
+                                        <td>{$e['nom']}</td>
+                                        <td>{$e['type']}</td>
+                                        <td>{$e['adresse']}</td>
+                                        <td>{$e['dateenreg']}</td>
+                                        <td>
+                                            <button class='btn btn-sm btn-primary edit-btn' data-id='{$e['id_etablissement']}'>Modifier</button>
+                                            <button class='btn btn-sm btn-success change-btn' data-id='{$e['id_etablissement']}'>Débloquer</button>
+                                            <button class='btn btn-sm btn-danger delete-btn' data-id='{$e['id_etablissement']}'>Bloquer</button>
+                                        </td>
+                                      </tr>";
+                            }
+                          ?>
                        
                       </tbody>
                     </table>
-                  </div>
-                </div>
-              </div>
-            </div> 
-          </div>
-
-          <div class="container-fluid content" id="menu">
-            <button class="btn-menu mb-4">Ajouter un menu</button>
-            <div class="row"> 
-              <div class="card shadow mb-4 col-lg-12">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">LISTE DES MENUS</h6>
-                </div>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table table-bordered dataTable info-menu" width="100%" cellspacing="0">
-                      <thead class="text-light">
-                        <tr>
-                          <th>Libelle</th>
-                          <th>Catégorie</th>
-                          <th>Prix de vente</th>
-                          <th>Description</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                       
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div> 
-          </div>
-
-          <div class="container-fluid content" id="commande">
-            <div class="row"> 
-              <div class="card shadow mb-4 col-lg-12">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">LISTE DES COMMANDES</h6>
-                </div>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table table-bordered dataTable info-commande" width="100%" cellspacing="0">
-                        <thead class="text-light">
-                          <tr>
-                            <th>N° table</th>
-                            <th>Commande</th>
-                            <th>Montant</th>
-                            <th>Date</th>
-                            <th>Statu</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                        
-                        </tbody>
-                      </table>
                   </div>
                 </div>
               </div>
@@ -212,11 +188,68 @@
                     <table class="table table-bordered dataTable info-user" width="100%" cellspacing="0">
                       <thead class="text-light">
                         <tr>
-                          <th>Logo</th>
-                          <th>Utilisateur</th>
-                          <th>Adresse</th>
-                          <th>Telephone</th>
+                          <th>Nom</th>
+                          <th>Téléphone</th>
+                          <th>Etablissement</th>
                           <th>Date</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                       
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div> 
+          </div>
+
+          <div class="container-fluid content" id="appareil">
+            <button class="btn-app mb-4">Ajouter un appareil</button>
+            <div class="row"> 
+              <div class="card shadow mb-4 col-lg-12">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold">LISTE DES APPAREILS</h6>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-bordered dataTable info-app" width="100%" cellspacing="0">
+                        <thead class="text-light">
+                          <tr>
+                            <th>Model</th>
+                            <th>N° serie</th>
+                            <th>Système</th>
+                            <th>Etablissement</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        
+                        </tbody>
+                      </table>
+                  </div>
+                </div>
+              </div>
+            </div> 
+          </div>
+
+          <div class="container-fluid content" id="licence">
+            <button class="btn-licence mb-4">Ajouter une licence</button>
+            <div class="row"> 
+              <div class="card shadow mb-4 col-lg-12">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold">LISTE DES LICENCES</h6>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-bordered dataTable info-licence" width="100%" cellspacing="0">
+                      <thead class="text-light">
+                        <tr>
+                          <th>Model</th>
+                          <th>Etablissement</th>
+                          <th>Code licence</th>
+                          <th>Date de validité</th>
                           <th>Action</th>
                         </tr>
                       </thead>
@@ -235,7 +268,7 @@
     </div>
 
 
-    <div class="modal fade modal-s" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal fade modal-ets" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
       <div class="modal-dialog modal-md" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -245,102 +278,36 @@
               </button>
           </div>
           <div class="modal-body">
-            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>" method="post" role="form" id='server' class="php-form">
-              <div class="row">
-                <div class="col-lg-12">
-                  <input type="text" name="nom" class="form-control nom" placeholder="Entrez le nom du serveur" required>
-                </div>
-                <div class="col-lg-12">
-                  <input type="text" name="login" class="form-control login" placeholder="Creer son login" required>
-                </div>
-                <input type="hidden" name="idserveur" class="id">
-                <div class="col-md-12 text-center">
-                  <button class="loading" type="submit"></button>
-                </div>
-              </div>
-            </form>  
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade modal-f" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-md" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title m-0 font-weight-bold" id="modalLabel"></h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">×</span>
-              </button>
-          </div>
-          <div class="modal-body" id="facture">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Commande</th>
-                        <th>Qte</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody class="fichePanier"></tbody>
-            </table>
-            <hr>
-            <div class="d-flex justify-content-between">
-              <input type="hidden" name="idcommande" class="id">
-                <h5 class="TG font-weight-bold">Total général :</h5>
-                <h5 class="montantFinal font-weight-bold">0 FCFA</h5>
-            </div>
-          </div>
-          <div>
-              <button type="submit" class="loading btn btn-warning text-dark mb-3 mr-3 float-right" id="btn-print">Imprimer la facture</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade modal-user" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-md" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title m-0 font-weight-bold" id="modalLabel"></h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">×</span>
-              </button>
-          </div>
-          <div class="modal-body">
-            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>" method="post" role="form" id='user' class="php-form">
+            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>" method="post" role="form" id='ets' class="php-form">
               <center>
-                <img id="logo" src='' class="img-fluid mb-3">
-                <div class="cam"></div>
-                <label for="imgLogo" class="btn-img">Entrer le logo</label>             
-                <input type="file" name="logo[]" accept=".png, .jpg, .jpeg, .gif, .ico" id="imgLogo">
-              </center>
+                  <img id="logo" src='' class="img-fluid mb-3">
+                  <div class="cam"></div>
+                  <label for="imgInp" class="btn-img">Entrer le logo</label>             
+                  <input type="file" name="logo" accept=".png, .jpg, .jpeg, .gif, .ico" id="imgInp">
+                </center>
               <div class="row">
                 <div class="col-lg-6">
-                  <input type="text" name="nomutilisateur" class="form-control etablisement" placeholder="Entrez le nom de l'établissement">
+                  <input type="text" name="nom" class="form-control nom" placeholder="Nom de l'etablissement" required>
                 </div>
-
                 <div class="col-lg-6">
-                  <input type="text" name="adresse" class="form-control adresse" placeholder="Entrez le l'adresse">
+                  <input type="text" name="type" class="form-control type" placeholder="Type d'etablissement" required>
                 </div>
-
-                <div class="col-lg-6">
-                  <input type="text" name="nomproprietaire" class="form-control proprietaire" placeholder="Entrez le nom du proprietaire">
-                </div>
-
-                <div class="col-lg-6">
-                  <input type="text" name="telephone" class="form-control telephone" placeholder="Entrez le téléphone">
-                </div>
-
                 <div class="col-lg-12">
-                  <input type="text" name="email" class="form-control email" placeholder="Entrez l'email">
+                  <input type="text" name="adresse" class="form-control adresse" placeholder="Adresse de l'etablissement" required>
                 </div>
-
+                <div class="col-lg-6">
+                  <input type="email" name="email" class="form-control email" placeholder="Email de l'établissement">
+                </div>
+                <div class="col-lg-6">
+                  <input type="tel" name="telephone" class="form-control telephone" placeholder="Téléphone de l'établissement">
+                </div>
+                <div class="col-lg-12">
+                  <input type="url" name="site_web" class="form-control site_web" placeholder="Site web de l'établissement">
+                </div>
                 <div class="col-lg-12">
                   <textarea name="description" class="form-control description" rows="4" placeholder="Ecrivez quelques choses"></textarea>
                 </div>
-                <input type="hidden" name="idutilisateur" class="id">
-                <input type="hidden" name="idunique" class="idunique">
+                <input type="hidden" name="id" class="ets-id">
                 <div class="col-md-12 text-center">
                   <button class="loading" type="submit"></button>
                 </div>
@@ -351,6 +318,7 @@
       </div>
     </div>
 
+   
     <script src="./assets/vendor/jquery/jquery.min.js"></script>
     <script src="./assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="./assets/vendor/admin-2/sb-admin-2.min.js"></script>

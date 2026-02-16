@@ -30,11 +30,12 @@ class Database {
                 "etablissement" => "
                     CREATE TABLE IF NOT EXISTS etablissement (
                         id_etablissement INT AUTO_INCREMENT PRIMARY KEY,
-                        id_unique_etablissement VARCHAR(100) NOT NULL UNIQUE,
                         logo TEXT NOT NULL,
                         nom VARCHAR(50) NOT NULL,
+                        type VARCHAR(50) NOT NULL,
                         adresse VARCHAR(50) NOT NULL,
                         email VARCHAR(50) NOT NULL,
+                        telephone VARCHAR(50) NOT NULL,
                         site_web VARCHAR(50) NOT NULL,
                         description TEXT NOT NULL,
                         dateenreg DATE
@@ -43,15 +44,15 @@ class Database {
                 "appareil" => "
                     CREATE TABLE IF NOT EXISTS appareil (
                         id_appareil INT AUTO_INCREMENT PRIMARY KEY,
-                        id_unique_etablissement VARCHAR(100) NOT NULL,
+                        id_etablissement INT,
                         marque VARCHAR(50) NOT NULL,
                         model VARCHAR(50) NOT NULL,
                         numero_serie VARCHAR(50) NOT NULL,
                         systeme_exploitation VARCHAR(50) NOT NULL,
                         annee_fabrication VARCHAR(50) NOT NULL,
                         date_fin_support DATE,
-                        description TEXT NOT NULL,
-                        FOREIGN KEY (id_unique_etablissement) REFERENCES etablissement(id_unique_etablissement)
+                        description TEXT,
+                        FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
 
@@ -59,10 +60,10 @@ class Database {
                     CREATE TABLE IF NOT EXISTS licence (
                         id_licence INT AUTO_INCREMENT PRIMARY KEY,
                         id_appareil INT,
-                        id_unique_etablissement VARCHAR(100) NOT NULL,
+                        id_etablissement INT,
                         code VARCHAR(50) NOT NULL,
                         date_validite DATE,
-                        FOREIGN KEY (id_unique_etablissement) REFERENCES etablissement(id_unique_etablissement)
+                        FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE,
                         FOREIGN KEY (id_appareil) REFERENCES appareil(id_appareil)
                         ON DELETE CASCADE ON UPDATE CASCADE
@@ -77,8 +78,8 @@ class Database {
                         email VARCHAR(50) NOT NULL,
                         telephone VARCHAR(20) NOT NULL,
                         login VARCHAR(50) NOT NULL,
-                        password VARCHAR(255) NOT NULL,
-                        id_etablissement INT NOT NULL,
+                        password TEXT,
+                        id_etablissement INT,
                         role VARCHAR(10) NOT NULL,
                         date_enreg DATE,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
@@ -89,39 +90,45 @@ class Database {
                     CREATE TABLE IF NOT EXISTS tables_restaurant (
                         id_table INT AUTO_INCREMENT PRIMARY KEY,
                         id_unique_table VARCHAR(10) NOT NULL,
-                        id_unique_etablissement VARCHAR(100) NOT NULL,
+                        id_etablissement INT,
                         id_utilisateur INT,
                         FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur)
                         ON DELETE CASCADE ON UPDATE CASCADE,
-                        FOREIGN KEY (id_unique_etablissement) REFERENCES etablissement(id_unique_etablissement)
+                        FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
 
                 "categorie" => "
                     CREATE TABLE IF NOT EXISTS categorie (
                         idcategorie INT AUTO_INCREMENT PRIMARY KEY,
-                        libelle VARCHAR(50) NOT NULL
+                        id_etablissement INT,
+                        libelle VARCHAR(50) NOT NULL,
+                        FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
+                        ON DELETE CASCADE ON UPDATE CASCADE
                     )",
 
                 "produit" => "
                     CREATE TABLE IF NOT EXISTS produit (
                         id_produit INT AUTO_INCREMENT PRIMARY KEY,
-                        id_unique_etablissement VARCHAR(100) NOT NULL,
+                        id_etablissement INT,
                         nom VARCHAR(50) NOT NULL,
-                        image TEXT NOT NULL,
+                        image TEXT,
                         idcategorie INT,
-                        prix INT NOT NULL,
-                        description TEXT NOT NULL,
-                        FOREIGN KEY (id_unique_etablissement) REFERENCES etablissement(id_unique_etablissement)
+                        prix INT,
+                        description TEXT,
+                        FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE,
                         FOREIGN KEY (idcategorie) REFERENCES categorie(idcategorie)
                         ON DELETE SET NULL
                     )",
 
+                    //lorsque le serveur installe le clien il ouvre la commande ces element s'enregistrent dans la table service sauf date de fermeture. lui meme apres que le service soit fini il ferme le service et la date de fermeture marque la fin d'un servce. lorsque le clien commande ca verifie le dernier id  de la table service si ca corresond avec l'id de sa table si il ya pas la date de fermeture il peu comande si y'en a ca bloc ca bloque ou alors ca alerte (serveur gerant) pour voir si c'est pas un individu qui derange ou pas
+
                 "service" => "
                     CREATE TABLE IF NOT EXISTS service (
                         id_service INT AUTO_INCREMENT PRIMARY KEY,
                         id_table INT,
+                        id_etablissement INT,
                         date_heure_ouverture DATETIME,
                         date_heure_fermeture DATETIME,
                         FOREIGN KEY (id_table) REFERENCES tables_restaurant(id_table)
@@ -131,12 +138,12 @@ class Database {
                 "commande" => "
                     CREATE TABLE IF NOT EXISTS commande (
                         id_commande INT AUTO_INCREMENT PRIMARY KEY,
-                        id_unique_etablissement VARCHAR(100) NOT NULL,
+                        id_etablissement INT,
                         commande TEXT,
                         montant_a_payer VARCHAR(50) NOT NULL,
                         date_jour DATETIME,
                         etat VARCHAR(50) NOT NULL,
-                        FOREIGN KEY (id_unique_etablissement) REFERENCES etablissement(id_unique_etablissement)
+                        FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )"
             ];
@@ -166,15 +173,6 @@ class Database {
                     ':role' => 'admin',
                     ':date_enreg' => date("Y-m-d")
                 ]);
-            }
-
-            // Catégories par défaut
-            $stmt = $this->pdo->query("SELECT COUNT(*) FROM categorie");
-            if ($stmt->fetchColumn() == 0) {
-                $stmt = $this->pdo->prepare("INSERT INTO categorie (libelle) VALUES (:libelle)");
-                foreach (['Plat','Boisson','Dessert'] as $libelle) {
-                    $stmt->execute([':libelle' => $libelle]);
-                }
             }
 
         } catch (PDOException $e) {
