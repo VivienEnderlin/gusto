@@ -119,61 +119,58 @@
             <!-- End of Topbar -->
 
           <div class="container-fluid content" id="etablissement">
-            <button class="btn-ets mb-4">Ajouter un etablissement</button>
-            <div class="row"> 
-              <div class="card shadow mb-4 col-lg-12">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">LISTE DES ETABLISSEMENTS</h6>
-                </div>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table table-bordered dataTable info-ets" width="100%" cellspacing="0">
-                      <thead class="text-light">
-                        <tr>
-                          <th>Logo</th>
-                          <th>Nom</th>
-                          <th>Type</th>
-                          <th>Adresse</th>
-                          <th>Date</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <?php
-                            require_once './../api-commande/models/Etablissement.php';
-                            $etablissementModel = new Etablissement();
-                            $etablissements = $etablissementModel->getAllEtablissements(); // récupère tous les établissements
+            <button class="btn-ets mb-4">Ajouter un établissement</button>
+              <div class="row"> 
+                <div class="card shadow mb-4 col-lg-12">
+                  <div class="card-header py-3">
+                      <h6 class="m-0 font-weight-bold">LISTE DES ETABLISSEMENTS</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-bordered dataTable info-ets" width="100%" cellspacing="0">
+                        <thead class="text-light">
+                            <tr>
+                                <th>Logo</th>
+                                <th>Nom</th>
+                                <th>Type</th>
+                                <th>Adresse</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                                require_once './../api-commande/models/Etablissement.php';
+                                $etablissementModel = new Etablissement();
+                                $etablissements = $etablissementModel->getAllEtablissements();
 
-                            foreach($etablissements as $e) {
-                                $logos = json_decode($e['logo'], true); // logo stocké en JSON
-                                $logoHTML = '';
-                                if(!empty($logos)) {
-                                    foreach($logos as $l) {
-                                        $logoHTML .= "<img src='$l' width='50'> ";
+                                foreach($etablissements as $e) {
+                                    $logos = json_decode($e['logo'], true);
+                                    $logoHTML = '';
+                                    if(!empty($logos)) {
+                                        foreach($logos as $l) $logoHTML .= "<img src='$l' width='50'> ";
                                     }
-                                }
 
-                                echo "<tr>
-                                        <td>$logoHTML</td>
-                                        <td>{$e['nom']}</td>
-                                        <td>{$e['type']}</td>
-                                        <td>{$e['adresse']}</td>
-                                        <td>{$e['dateenreg']}</td>
-                                        <td>
-                                            <button class='btn btn-sm btn-primary edit-btn' data-id='{$e['id_etablissement']}'>Modifier</button>
-                                            <button class='btn btn-sm btn-success change-btn' data-id='{$e['id_etablissement']}'>Débloquer</button>
-                                            <button class='btn btn-sm btn-danger delete-btn' data-id='{$e['id_etablissement']}'>Bloquer</button>
-                                        </td>
-                                      </tr>";
-                            }
-                          ?>
-                       
-                      </tbody>
-                    </table>
+                                    echo "<tr>
+                                            <td>$logoHTML</td>
+                                            <td>{$e['nom']}</td>
+                                            <td>{$e['type']}</td>
+                                            <td>{$e['adresse']}</td>
+                                            <td>{$e['dateenreg']}</td>
+                                            <td>
+                                                <button class='btn btn-sm btn-primary edit-btn' data-id='{$e['id_etablissement']}'>Modifier</button>
+                                                <button class='btn btn-sm btn-success change-btn' data-id='{$e['id_etablissement']}'>Débloquer</button>
+                                                <button class='btn btn-sm btn-danger delete-btn' data-id='{$e['id_etablissement']}'>Bloquer</button>
+                                            </td>
+                                          </tr>";
+                                }
+                            ?>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div> 
+              </div> 
           </div>
 
           <div class="container-fluid content" id="utilisateur">
@@ -307,7 +304,7 @@
                 <div class="col-lg-12">
                   <textarea name="description" class="form-control description" rows="4" placeholder="Ecrivez quelques choses"></textarea>
                 </div>
-                <input type="hidden" name="id" class="ets-id">
+                <input type="text" name="id" class="ets-id">
                 <div class="col-md-12 text-center">
                   <button class="loading" type="submit"></button>
                 </div>

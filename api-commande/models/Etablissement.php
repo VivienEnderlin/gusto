@@ -3,22 +3,28 @@ require_once 'BaseModel.php';
 
 class Etablissement extends BaseModel {
 
+    // Récupérer tous les établissements
     public function getAllEtablissements() {
-        return $this->getAll("etablissement")
-            ->fetchAll(PDO::FETCH_ASSOC);
+        // getAll() existe dans bdFonctions
+        $stmt = $this->getAll("etablissement");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Récupérer un établissement par ID
     public function getById($id) {
-        $stmt = $this->get(
+        // get() n'existe plus → utiliser personnalSelect()
+        $stmt = $this->personnalSelect(
             "etablissement",
+            "*",
             "WHERE id_etablissement = ?",
             [$id]
         );
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Créer un nouvel établissement
     public function create($data) {
-        return $this->insert(
+        $this->insert(
             "etablissement",
             ["logo", "nom", "type", "adresse", "email", "telephone", "site_web", "description", "dateenreg"],
             [
@@ -33,10 +39,15 @@ class Etablissement extends BaseModel {
                 date('Y-m-d')
             ]
         );
+
+        // Retourne le dernier ID inséré
+        return $this->pdo->lastInsertId();
     }
 
+
+    // Mettre à jour un établissement
     public function update($id, $data) {
-        return $this->updateData(
+        return $this->set(
             "etablissement",
             ["logo", "nom", "type", "adresse", "email", "telephone", "site_web", "description"],
             [
@@ -54,6 +65,7 @@ class Etablissement extends BaseModel {
         );
     }
 
+    // Supprimer un établissement
     public function delete($id) {
         return $this->personalDelete(
             "etablissement",
@@ -62,3 +74,4 @@ class Etablissement extends BaseModel {
         );
     }
 }
+?>
