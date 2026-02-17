@@ -135,36 +135,54 @@
                                 <th>Type</th>
                                 <th>Adresse</th>
                                 <th>Date</th>
+                                <th>Statu</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                                require_once './../api-commande/models/Etablissement.php';
-                                $etablissementModel = new Etablissement();
-                                $etablissements = $etablissementModel->getAllEtablissements();
+                            
+                          <?php
+                            require_once './../api-commande/models/Etablissement.php';
+                            $etablissementModel = new Etablissement();
+                            $etablissements = $etablissementModel->getAllEtablissements();
 
-                                foreach($etablissements as $e) {
-                                    $logos = json_decode($e['logo'], true);
-                                    $logoHTML = '';
-                                    if(!empty($logos)) {
-                                        foreach($logos as $l) $logoHTML .= "<img src='$l' width='50'> ";
+                            foreach ($etablissements as $e) {
+
+                                // LOGO
+                                $logos = json_decode($e['logo'], true);
+                                $logoHTML = '';
+                                if (!empty($logos)) {
+                                    foreach ($logos as $l) {
+                                        $logoHTML .= "<img src='$l' width='50'> ";
                                     }
-
-                                    echo "<tr>
-                                            <td>$logoHTML</td>
-                                            <td>{$e['nom']}</td>
-                                            <td>{$e['type']}</td>
-                                            <td>{$e['adresse']}</td>
-                                            <td>{$e['dateenreg']}</td>
-                                            <td>
-                                                <button class='btn btn-sm btn-primary edit-btn' data-id='{$e['id_etablissement']}'>Modifier</button>
-                                                <button class='btn btn-sm btn-success change-btn' data-id='{$e['id_etablissement']}'>Débloquer</button>
-                                                <button class='btn btn-sm btn-danger delete-btn' data-id='{$e['id_etablissement']}'>Bloquer</button>
-                                            </td>
-                                          </tr>";
                                 }
-                            ?>
+
+                                // STATUT (couleur)
+                                if ($e['statu'] === 'Activer') {
+                                    $statutHTML = "<span class='statu-actif'>Activer</span>";
+                                    $btnStatut  = "<button class='btn btn-sm btn-danger change-btn' data-id='{$e['id_etablissement']}'>Bloquer</button>";
+                                } else {
+                                    $statutHTML = "<span class='statu-bloque'>Bloquer</span>";
+                                    $btnStatut  = "<button class='btn btn-sm btn-success change-btn' data-id='{$e['id_etablissement']}'>Activer</button>";
+                                }
+
+                                // AFFICHAGE
+                                echo "
+                                    <tr>
+                                        <td>$logoHTML</td>
+                                        <td>{$e['nom']}</td>
+                                        <td>{$e['type']}</td>
+                                        <td>{$e['adresse']}</td>
+                                        <td>{$e['dateenreg']}</td>
+                                        <td>$statutHTML</td>
+                                        <td>
+                                            <button class='btn btn-sm btn-primary edit-btn' data-id='{$e['id_etablissement']}'>Modifier</button>
+                                            $btnStatut
+                                        </td>
+                                    </tr>
+                                ";
+                            }
+                          ?>  
                         </tbody>
                       </table>
                     </div>

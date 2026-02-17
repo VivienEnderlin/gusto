@@ -38,7 +38,8 @@ class Database {
                         telephone VARCHAR(50) NOT NULL,
                         site_web VARCHAR(50) NOT NULL,
                         description TEXT NOT NULL,
-                        dateenreg DATE
+                        dateenreg DATE,
+                        statu varchar(20)
                     )",
 
                 "appareil" => "

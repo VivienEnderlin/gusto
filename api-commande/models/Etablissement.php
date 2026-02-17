@@ -5,14 +5,12 @@ class Etablissement extends BaseModel {
 
     // Récupérer tous les établissements
     public function getAllEtablissements() {
-        // getAll() existe dans bdFonctions
         $stmt = $this->getAll("etablissement");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Récupérer un établissement par ID
     public function getById($id) {
-        // get() n'existe plus → utiliser personnalSelect()
         $stmt = $this->personnalSelect(
             "etablissement",
             "*",
@@ -24,9 +22,12 @@ class Etablissement extends BaseModel {
 
     // Créer un nouvel établissement
     public function create($data) {
+        // Définir le statut par défaut si absent
+        $data['statu'] = $data['statu'] ?? 'Activer';
+
         $this->insert(
             "etablissement",
-            ["logo", "nom", "type", "adresse", "email", "telephone", "site_web", "description", "dateenreg"],
+            ["logo", "nom", "type", "adresse", "email", "telephone", "site_web", "description", "dateenreg", "statu"],
             [
                 $data['logo'],
                 $data['nom'],
@@ -36,14 +37,13 @@ class Etablissement extends BaseModel {
                 $data['telephone'],
                 $data['site_web'],
                 $data['description'],
-                date('Y-m-d')
+                date('Y-m-d'),
+                $data['statu']
             ]
         );
 
-        // Retourne le dernier ID inséré
         return $this->pdo->lastInsertId();
     }
-
 
     // Mettre à jour un établissement
     public function update($id, $data) {
@@ -73,5 +73,22 @@ class Etablissement extends BaseModel {
             [$id]
         );
     }
+
+    // Changer le statut
+    public function toggleStatut($id) {
+        $e = $this->getById($id);
+        if (!$e) return false;
+
+        $newStatu = ($e['statu'] === 'Activer') ? 'Bloquer' : 'Activer';
+
+        return $this->set(
+            "etablissement",
+            ["statu"],
+            [$newStatu],
+            "WHERE id_etablissement = ?",
+            [$id]
+        );
+    }
+
 }
 ?>

@@ -965,4 +965,13 @@ button.loading.show-loader::after {
   font-size: 17px;
 }
 
+.statu-actif {
+    color: #28a745; /* vert bootstrap */
+}
+
+/* Statut Bloquer */
+.statu-bloque {
+    color: #dc3545; /* rouge bootstrap */
+}
+
 

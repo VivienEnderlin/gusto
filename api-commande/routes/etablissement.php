@@ -24,6 +24,11 @@ if ($method === 'GET') {
     exit;
 }
 
+if ($method === 'PATCH' && isset($_GET['id'])) {
+    $controller->changeStatus($_GET['id']);
+    exit;
+}
+
 // POST : ajouter ou modifier
 if ($method === 'POST') {
     $data = $_POST;
@@ -35,7 +40,7 @@ if ($method === 'POST') {
     exit;
 }
 
-// Autres méthodes non autorisées
+// Méthodes non autorisées
 http_response_code(405);
 echo json_encode(['success'=>false,'message'=>'Méthode non autorisée']);
 exit;
