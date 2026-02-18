@@ -59,6 +59,19 @@ class EtablissementController {
         exit;
     }
 
+    public function show($id) {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $e = $this->etablissement->getById($id);
+        if ($e) {
+            echo json_encode(['success'=>true, 'data'=>$e]);
+        } else {
+            echo json_encode(['success'=>false, 'message'=>'Etablissement introuvable']);
+        }
+        exit;
+    }
+
+
     // =========================
     // AJOUT
     // =========================
@@ -87,6 +100,67 @@ class EtablissementController {
         echo json_encode(['success'=>true,'data'=>$row]);
         exit;
     }
+
+    // =========================
+// MODIFIER
+    // =========================
+    public function update($id, $data) {
+        header('Content-Type: application/json; charset=utf-8');
+
+        // Récupération de l'existant
+        $e = $this->etablissement->getById($id);
+        if (!$e) {
+            echo json_encode(['success'=>false,'message'=>'Etablissement introuvable']);
+            exit;
+        }
+
+        // Gestion du logo
+        if (!empty($_FILES['logo']) && $_FILES['logo']['error'] !== 4) {
+            $upload = uploadfile(
+                ['png','jpg','jpeg','gif','ico'],
+                __DIR__.'/../uploads/etablissements/'
+            );
+            $data['logo'] = json_encode($upload);
+        } else {
+            $data['logo'] = $e['logo']; // garder l'ancien
+        }
+
+        // Mise à jour
+        $this->etablissement->update($id, $data);
+
+        // Relecture
+        $e = $this->etablissement->getById($id);
+
+        // Statut + boutons
+        if ($e['statu'] === 'Activer') {
+            $statutHTML = "<span class='statu-actif'>Activer</span>";
+            $btnClass = 'danger';
+            $btnText  = 'Bloquer';
+        } else {
+            $statutHTML = "<span class='statu-bloque'>Bloquer</span>";
+            $btnClass = 'success';
+            $btnText  = 'Activer';
+        }
+
+        // Ligne tableau
+        $row = [
+            implode(' ', array_map(
+                fn($l)=>"<img src='$l' width='40'>",
+                json_decode($e['logo'], true)
+            )),
+            $e['nom'],
+            $e['type'],
+            $e['adresse'],
+            $e['dateenreg'],
+            $statutHTML,
+            "<button class='btn btn-sm btn-primary edit-btn' data-id='{$e['id_etablissement']}'>Modifier</button>
+             <button class='btn btn-sm btn-$btnClass change-btn' data-id='{$e['id_etablissement']}'>$btnText</button>"
+        ];
+
+        echo json_encode(['success'=>true,'data'=>$row]);
+        exit;
+    }
+
 
     // =========================
     // CHANGER STATUT

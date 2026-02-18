@@ -67,13 +67,6 @@ $(document).ready(function(){
     })
 })
 
-
-let table;
-
-// ⚡ Initialisation DataTable
-table = $('.dataTable.info-ets').DataTable({});
-
-
 $('.btn-ets').on('click', function() {
     $('#ets')[0].reset();
     $('#logo').attr('src', '');
@@ -83,22 +76,59 @@ $('.btn-ets').on('click', function() {
     $('.modal-ets').modal({backdrop: 'static', keyboard: false});
 });
 
-// 🔹 Bouton "Modifier"
-let editingRow; // variable globale pour la ligne en cours d'édition
+// ⚡ Initialisation DataTable
+let table = $('.dataTable.info-ets').DataTable({});
+let editingRow;
+
+// Submit form pour modification
+$('#ets').on('submit', async function(e) {
+    e.preventDefault();
+    $('button.loading').addClass('show-loader').prop('disabled', true);
+    const form = this;
+    const formData = new FormData(form);
+    const isEdit = formData.get('id') ? true : false;
+    const submitBtn = $(form).find('button[type="submit"]');
+    submitBtn.prop('disabled', true).text("Chargement...");
+    try {
+        const response = await fetch('http://gusto/api-commande/routes/etablissement.php', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+        });
+        const result = await response.json();
+        submitBtn.prop('disabled', false).text(isEdit ? "Modifier" : "Ajouter");
+        if(result.success) {
+            $('button.loading').removeClass('show-loader').prop('disabled', false);
+            $('.modal-ets').modal('hide');
+            form.reset();
+            $('#logo').attr('src','');
+
+            if(isEdit && editingRow) {
+                // ⚡ Mettre à jour uniquement la ligne modifiée
+                editingRow.data(result.data).draw(false);
+                editingRow = null; // reset la référence
+            } else {
+                table.row.add(result.data).draw(false);
+            }
+        } else {
+            alert(result.message || "Erreur lors de l'enregistrement");
+        }
+    } catch(err) {
+        console.error(err);
+        submitBtn.prop('disabled', false).text(isEdit ? "Modifier" : "Ajouter");
+        alert("Erreur serveur : " + err.message);
+    }
+});
 
 // Bouton Edit
 $(document).on('click', '.edit-btn', async function() {
     const etabId = $(this).data('id');
-
-    // Stocker la ligne DataTable
     editingRow = table.row($(this).closest('tr'));
-
     try {
         const response = await fetch(`http://gusto/api-commande/routes/etablissement.php?id=${etabId}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await response.json();
-
         if(result.success) {
             const e = result.data;
             $('#ets input[name="id"]').val(etabId);
@@ -124,50 +154,10 @@ $(document).on('click', '.edit-btn', async function() {
     }
 });
 
-// Submit form pour modification
-$('#ets').on('submit', async function(e) {
-    e.preventDefault();
-    const form = this;
-    const formData = new FormData(form);
-    const isEdit = formData.get('id') ? true : false;
-    const submitBtn = $(form).find('button[type="submit"]');
-    submitBtn.prop('disabled', true).text("Chargement...");
-
-    try {
-        const response = await fetch('http://gusto/api-commande/routes/etablissement.php', {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token },
-            body: formData
-        });
-
-        const result = await response.json();
-        submitBtn.prop('disabled', false).text(isEdit ? "Modifier" : "Ajouter");
-
-        if(result.success) {
-            $('.modal-ets').modal('hide');
-            form.reset();
-            $('#logo').attr('src','');
-
-            if(isEdit && editingRow) {
-                // ⚡ Mettre à jour uniquement la ligne modifiée
-                editingRow.data(result.data).draw(false);
-                editingRow = null; // reset la référence
-            } else {
-                table.row.add(result.data).draw(false);
-            }
-        } else {
-            alert(result.message || "Erreur lors de l'enregistrement");
-        }
-    } catch(err) {
-        console.error(err);
-        submitBtn.prop('disabled', false).text(isEdit ? "Modifier" : "Ajouter");
-        alert("Erreur serveur : " + err.message);
-    }
-});
+//change
 
 $(document).on('click', '.change-btn', async function () {
     const id = $(this).data('id');
-
     try {
         const response = await fetch(
             `http://gusto/api-commande/routes/etablissement.php?id=${id}`,
@@ -178,7 +168,6 @@ $(document).on('click', '.change-btn', async function () {
                 }
             }
         );
-
         const result = await response.json();
 
         if (result.success) {
@@ -192,7 +181,6 @@ $(document).on('click', '.change-btn', async function () {
         } else {
             alert(result.message);
         }
-
     } catch (err) {
         console.error(err);
         alert("Erreur serveur");

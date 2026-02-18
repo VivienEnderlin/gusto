@@ -17,9 +17,9 @@ if (!isset($headers['Authorization'])) {
 // GET : lister ou récupérer un établissement
 if ($method === 'GET') {
     if (isset($_GET['id'])) {
-        $controller->show($_GET['id']);
+        $controller->show($_GET['id']); //S’il y a un ID → afficher un établissement
     } else {
-        $controller->index();
+        $controller->index(); //Sinon → afficher tous les établissements
     }
     exit;
 }
