@@ -23,13 +23,26 @@ if (!$login || !$password) {
 }
 
 $userModel = new Utilisateur();
-$user = $userModel->login($login);
+$user = $userModel->getByLogin($login);
 
 if ($user && password_verify($password, $user['password'])) {
+
+    if ((int)$user['role'] !== 0) {
+        echo json_encode([
+            'success' => false,
+            'html' => '<div class="alert alert-block alert-danger">
+                        <i class="icofont-close" style="margin-right: 10px; font-weight: bold;"></i>
+                        Information incorrect
+                       </div>'
+        ]);
+        exit;
+    }
+    
     $token = Auth::generateToken($user);
     echo json_encode([
         'success' => true,
         'token' => $token,
+        'role'  => $user['role'],
         'html' => '<div class="alert alert-block alert-success">
                     <i class="icofont-check" style="margin-right: 10px; font-weight: bold;"></i>
                     Vous êtes connecté

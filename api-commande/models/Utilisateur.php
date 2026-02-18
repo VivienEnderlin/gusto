@@ -105,13 +105,14 @@ class Utilisateur extends BaseModel {
 Quand tu fais password_hash("admin", PASSWORD_DEFAULT), le mot de passe stocké n’est pas “admin”, mais une chaîne cryptée complexe
     ======================= */
 
-    public function login($login) {
-        $stmt = parent::getAll(
+    public function getByLogin($login) {
+        $stmt = $this->personnalSelect(
             "utilisateur",
+            "*",
             "WHERE login = ?",
             [$login]
         );
-
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
 }

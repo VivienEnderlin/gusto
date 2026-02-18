@@ -5,12 +5,12 @@ require_once __DIR__ . '/../core/Auth.php';
 
 class AuthController extends BaseModel {
 //On récupère juste l’utilisateur par son login, puis on utilise password_verify($key, $hash) pour comparer le mot de passe en PHP
-    public function login($login, $key) {
+    public function login($login, $key, $role) {
 
         $stmt = $this->getAll(
             "utilisateur",
-            "WHERE login = ?",
-            [$login]
+            "WHERE login = ? AND role = ?",
+            [$login,$role]
         );
 
         $user = $stmt->fetch(PDO::FETCH_ASSOC);

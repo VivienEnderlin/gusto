@@ -171,7 +171,7 @@ class Database {
                     ':login' => 'admin',
                     ':id_etablissement' => 1,
                     ':password' => password_hash("admin", PASSWORD_DEFAULT),
-                    ':role' => 'admin',
+                    ':role' => 0,
                     ':date_enreg' => date("Y-m-d")
                 ]);
             }

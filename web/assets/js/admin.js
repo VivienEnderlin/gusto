@@ -77,7 +77,7 @@ $('.btn-ets').on('click', function() {
 });
 
 // ⚡ Initialisation DataTable
-let table = $('.dataTable.info-ets').DataTable({});
+let ets = $('.dataTable.info-ets').DataTable();
 let editingRow;
 
 // Submit form pour modification
@@ -108,7 +108,7 @@ $('#ets').on('submit', async function(e) {
                 editingRow.data(result.data).draw(false);
                 editingRow = null; // reset la référence
             } else {
-                table.row.add(result.data).draw(false);
+                ets.row.add(result.data).draw(false);
             }
         } else {
             alert(result.message || "Erreur lors de l'enregistrement");
@@ -123,7 +123,7 @@ $('#ets').on('submit', async function(e) {
 // Bouton Edit
 $(document).on('click', '.edit-btn', async function() {
     const etabId = $(this).data('id');
-    editingRow = table.row($(this).closest('tr'));
+    editingRow = ets.row($(this).closest('tr'));
     try {
         const response = await fetch(`http://gusto/api-commande/routes/etablissement.php?id=${etabId}`, {
             headers: { 'Authorization': 'Bearer ' + token }
@@ -169,21 +169,20 @@ $(document).on('click', '.change-btn', async function () {
             }
         );
         const result = await response.json();
-
-        if (result.success) {
+        if (result.success && result.data) {
             // Met à jour UNIQUEMENT la ligne concernée
-            table.rows().every(function () {
+            ets.rows().every(function () {
                 const row = this.node();
                 if ($(row).find('.change-btn').data('id') == id) {
                     this.data(result.data).draw(false);
                 }
             });
         } else {
-            alert(result.message);
+            alert(result.message || "Impossible de mettre à jour la ligne");
         }
     } catch (err) {
         console.error(err);
-        alert("Erreur serveur");
+        alert("Erreur serveur : " + err.message);
     }
 });
 
