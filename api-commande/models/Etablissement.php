@@ -27,7 +27,7 @@ class Etablissement extends BaseModel {
 
         $this->insert(
             "etablissement",
-            ["logo", "nom", "type", "adresse", "email", "telephone", "site_web", "description", "dateenreg", "statu"],
+            ["logo", "nom", "type", "adresse", "email", "telephone", "site_web", "description", "date_enreg", "statu"],
             [
                 $data['logo'],
                 $data['nom'],

@@ -38,7 +38,7 @@ class Database {
                         telephone VARCHAR(50) NOT NULL,
                         site_web VARCHAR(50) NOT NULL,
                         description TEXT NOT NULL,
-                        dateenreg DATE,
+                        date_enreg DATE,
                         statu varchar(20)
                     )",
 
@@ -74,15 +74,15 @@ class Database {
                     CREATE TABLE IF NOT EXISTS utilisateur (
                         id_utilisateur INT AUTO_INCREMENT PRIMARY KEY,
                         nom VARCHAR(50) NOT NULL,
-                        prenom VARCHAR(50) NOT NULL,
                         adresse VARCHAR(50) NOT NULL,
                         email VARCHAR(50) NOT NULL,
                         telephone VARCHAR(20) NOT NULL,
                         login VARCHAR(50) NOT NULL,
                         password TEXT,
                         id_etablissement INT,
-                        role VARCHAR(10) NOT NULL,
+                        role INT,
                         date_enreg DATE,
+                        statu varchar(20),
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
@@ -158,18 +158,17 @@ class Database {
             if ($stmt->fetchColumn() == 0) {
                 $stmt = $this->pdo->prepare("
                     INSERT INTO utilisateur 
-                    (nom, prenom, adresse, email, telephone, login, password, id_etablissement, role, date_enreg) 
-                    VALUES (:nom, :prenom, :adresse, :email, :telephone, :login, :password, :id_etablissement, :role, :date_enreg)
+                    (nom, adresse, email, telephone, login, password, id_etablissement, role, date_enreg) 
+                    VALUES (:nom, :adresse, :email, :telephone, :login, :password, :id_etablissement, :role, :date_enreg)
                 ");
 
                 $stmt->execute([
                     ':nom' => '',
-                    ':prenom' => '',
                     ':adresse' => '',
                     ':email' => '',
                     ':telephone' => '',
                     ':login' => 'admin',
-                    ':id_etablissement' => 1,
+                    ':id_etablissement' => 0,
                     ':password' => password_hash("admin", PASSWORD_DEFAULT),
                     ':role' => 0,
                     ':date_enreg' => date("Y-m-d")

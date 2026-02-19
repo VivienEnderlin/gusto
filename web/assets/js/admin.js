@@ -76,8 +76,16 @@ $('.btn-ets').on('click', function() {
     $('.modal-ets').modal({backdrop: 'static', keyboard: false});
 });
 
+$('.btn-user').on('click', function() {
+    $('#user')[0].reset();
+    $('#user input[name="id"]').val('');
+    $('.modal-user .modal-title').text("Ajouter un utilisateur");
+    $('.modal-user button[type=submit]').text("Ajouter");
+    $('.modal-user').modal({backdrop: 'static', keyboard: false});
+});
+
 // ⚡ Initialisation DataTable
-let ets = $('.dataTable.info-ets').DataTable();
+let ets = $('.info-ets').DataTable();
 let editingRow;
 
 // Submit form pour modification
@@ -121,7 +129,7 @@ $('#ets').on('submit', async function(e) {
 });
 
 // Bouton Edit
-$(document).on('click', '.edit-btn', async function() {
+$(document).on('click', '.edit-ets', async function() {
     const etabId = $(this).data('id');
     editingRow = ets.row($(this).closest('tr'));
     try {
@@ -156,7 +164,7 @@ $(document).on('click', '.edit-btn', async function() {
 
 //change
 
-$(document).on('click', '.change-btn', async function () {
+$(document).on('click', '.change-ets', async function () {
     const id = $(this).data('id');
     try {
         const response = await fetch(
@@ -173,7 +181,7 @@ $(document).on('click', '.change-btn', async function () {
             // Met à jour UNIQUEMENT la ligne concernée
             ets.rows().every(function () {
                 const row = this.node();
-                if ($(row).find('.change-btn').data('id') == id) {
+                if ($(row).find('.change-ets').data('id') == id) {
                     this.data(result.data).draw(false);
                 }
             });

@@ -52,21 +52,22 @@ class bdFonctions extends Database
      * $params = valeurs à binder
      */
     public function personnalSelect($tableName, $colSelect, $condi = '', $params = [])
-{
-    $tableName = $this->validateName($tableName);
+    {
+        $tableName = $this->validateName($tableName);
 
-    // ❌ NE PAS faire de validation ici (permet SUM, COUNT, alias, etc.)
+        // ❌ NE PAS faire de validation ici (permet SUM, COUNT, alias, etc.)
 
-    $sql = "SELECT $colSelect FROM $tableName";
-    if ($condi) {
-        $sql .= " $condi";
+        $sql = "SELECT $colSelect FROM $tableName";
+        if ($condi) {
+            $sql .= " $condi";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt;
     }
 
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute($params);
-
-    return $stmt;
-}
     /**
      * set (UPDATE) sécurisé
      * $colunms = tableau des colonnes à mettre à jour

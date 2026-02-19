@@ -48,10 +48,10 @@ class EtablissementController {
                 $e['nom'],
                 $e['type'],
                 $e['adresse'],
-                $e['dateenreg'],
+                $e['date_enreg'],
                 $statutHTML,
-                "<button class='btn btn-sm btn-primary edit-btn' data-id='{$e['id_etablissement']}'>Modifier</button>
-                 <button class='btn btn-sm btn-$btnClass change-btn' data-id='{$e['id_etablissement']}'>$btnText</button>"
+                "<button class='btn btn-sm btn-primary edit-ets' data-id='{$e['id_etablissement']}'>Modifier</button>
+                 <button class='btn btn-sm btn-$btnClass change-ets' data-id='{$e['id_etablissement']}'>$btnText</button>"
             ];
         }
 
@@ -91,10 +91,10 @@ class EtablissementController {
             $e['nom'],
             $e['type'],
             $e['adresse'],
-            $e['dateenreg'],
+            $e['date_enreg'],
             "<span class='statu-actif'>Activer</span>",
-            "<button class='btn btn-sm btn-primary edit-btn' data-id='$id'>Modifier</button>
-             <button class='btn btn-sm btn-danger change-btn' data-id='$id'>Bloquer</button>"
+            "<button class='btn btn-sm btn-primary edit-ets' data-id='$id'>Modifier</button>
+             <button class='btn btn-sm btn-danger change-ets' data-id='$id'>Bloquer</button>"
         ];
 
         echo json_encode(['success'=>true,'data'=>$row]);
@@ -151,10 +151,10 @@ class EtablissementController {
             $e['nom'],
             $e['type'],
             $e['adresse'],
-            $e['dateenreg'],
+            $e['date_enreg'],
             $statutHTML,
-            "<button class='btn btn-sm btn-primary edit-btn' data-id='{$e['id_etablissement']}'>Modifier</button>
-             <button class='btn btn-sm btn-$btnClass change-btn' data-id='{$e['id_etablissement']}'>$btnText</button>"
+            "<button class='btn btn-sm btn-primary edit-ets' data-id='{$e['id_etablissement']}'>Modifier</button>
+             <button class='btn btn-sm btn-$btnClass change-ets' data-id='{$e['id_etablissement']}'>$btnText</button>"
         ];
 
         echo json_encode(['success'=>true,'data'=>$row]);
@@ -186,10 +186,10 @@ class EtablissementController {
             $e['nom'],
             $e['type'],
             $e['adresse'],
-            $e['dateenreg'],
+            $e['date_enreg'],
             $statutHTML,
-            "<button class='btn btn-sm btn-primary edit-btn' data-id='{$e['id_etablissement']}'>Modifier</button>
-             <button class='btn btn-sm btn-$btnClass change-btn' data-id='{$e['id_etablissement']}'>$btnText</button>"
+            "<button class='btn btn-sm btn-primary edit-ets' data-id='{$e['id_etablissement']}'>Modifier</button>
+             <button class='btn btn-sm btn-$btnClass change-ets' data-id='{$e['id_etablissement']}'>$btnText</button>"
         ];
 
         echo json_encode(['success'=>true,'data'=>$row]);

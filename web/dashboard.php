@@ -120,75 +120,66 @@
 
           <div class="container-fluid content" id="etablissement">
             <button class="btn-ets mb-4">Ajouter un établissement</button>
-              <div class="row"> 
-                <div class="card shadow mb-4 col-lg-12">
-                  <div class="card-header py-3">
-                      <h6 class="m-0 font-weight-bold">LISTE DES ETABLISSEMENTS</h6>
-                  </div>
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table table-bordered dataTable info-ets" width="100%" cellspacing="0">
-                        <thead class="text-light">
-                            <tr>
-                                <th>Logo</th>
-                                <th>Nom</th>
-                                <th>Type</th>
-                                <th>Adresse</th>
-                                <th>Date</th>
-                                <th>Statu</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
+            <div class="row"> 
+              <div class="card shadow mb-4 col-lg-12">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold">LISTE DES ETABLISSEMENTS</h6>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-bordered dataTable info-ets" width="100%" cellspacing="0">
+                      <thead class="text-light">
+                          <tr>
+                              <th>Logo</th>
+                              <th>Nom</th>
+                              <th>Type</th>
+                              <th>Adresse</th>
+                              <th>Date</th>
+                              <th>Statu</th>
+                              <th>Action</th>
+                          </tr>
+                      </thead>
+                      <tbody>      
                           <?php
                             require_once './../api-commande/models/Etablissement.php';
                             $etablissementModel = new Etablissement();
                             $etablissements = $etablissementModel->getAllEtablissements();
-
                             foreach ($etablissements as $e) {
-
-                                // LOGO
-                                $logos = json_decode($e['logo'], true);
-                                $logoHTML = '';
-                                if (!empty($logos)) {
-                                    foreach ($logos as $l) {
-                                        $logoHTML .= "<img src='$l' width='50'> ";
-                                    }
-                                }
-
-                                // STATUT (couleur)
-                                if ($e['statu'] === 'Activer') {
-                                    $statutHTML = "<span class='statu-actif'>Activer</span>";
-                                    $btnStatut  = "<button class='btn btn-sm btn-danger change-btn' data-id='{$e['id_etablissement']}'>Bloquer</button>";
-                                } else {
-                                    $statutHTML = "<span class='statu-bloque'>Bloquer</span>";
-                                    $btnStatut  = "<button class='btn btn-sm btn-success change-btn' data-id='{$e['id_etablissement']}'>Activer</button>";
-                                }
-
-                                // AFFICHAGE
-                                echo "
-                                    <tr>
-                                        <td>$logoHTML</td>
-                                        <td>{$e['nom']}</td>
-                                        <td>{$e['type']}</td>
-                                        <td>{$e['adresse']}</td>
-                                        <td>{$e['dateenreg']}</td>
-                                        <td>$statutHTML</td>
-                                        <td>
-                                            <button class='btn btn-sm btn-primary edit-btn' data-id='{$e['id_etablissement']}'>Modifier</button>
-                                            $btnStatut
-                                        </td>
-                                    </tr>
-                                ";
-                            }
-                          ?>  
-                        </tbody>
-                      </table>
-                    </div>
+                              $logos = json_decode($e['logo'], true);
+                              $logoHTML = '';
+                              if (!empty($logos)) {
+                                  foreach ($logos as $l) {
+                                      $logoHTML .= "<img src='$l' width='50'> ";
+                                  }
+                              }
+                              if ($e['statu'] === 'Activer') {
+                                  $statutHTML = "<span class='statu-actif'>Activer</span>";
+                                  $btnStatut  = "<button class='btn btn-sm btn-danger change-ets' data-id='{$e['id_etablissement']}'>Bloquer</button>";
+                              } else {
+                                  $statutHTML = "<span class='statu-bloque'>Bloquer</span>";
+                                  $btnStatut  = "<button class='btn btn-sm btn-success change-ets' data-id='{$e['id_etablissement']}'>Activer</button>";
+                              }
+                              echo "
+                              <tr>
+                                  <td>$logoHTML</td>
+                                  <td>{$e['nom']}</td>
+                                  <td>{$e['type']}</td>
+                                  <td>{$e['adresse']}</td>
+                                  <td>{$e['date_enreg']}</td>
+                                  <td>$statutHTML</td>
+                              <td>
+                                  <button class='btn btn-sm btn-primary edit-ets' data-id='{$e['id_etablissement']}'>Modifier</button>
+                                  $btnStatut
+                              </td>
+                            </tr>";
+                          }
+                        ?>  
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-              </div> 
+              </div>
+            </div> 
           </div>
 
           <div class="container-fluid content" id="utilisateur">
@@ -204,14 +195,43 @@
                       <thead class="text-light">
                         <tr>
                           <th>Nom</th>
+                          <th>Adresse</th>
                           <th>Téléphone</th>
                           <th>Etablissement</th>
                           <th>Date</th>
+                          <th>Statu</th>
                           <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                       
+                        <?php
+                            require_once './../api-commande/models/Utilisateur.php';
+                            $utilisateurModel = new utilisateur();
+                            $utilisateur = $utilisateurModel->getAllUsers();
+                            foreach ($utilisateur as $e) {
+                              if ($e['statu'] === 'Activer') {
+                                  $statutHTML = "<span class='statu-actif'>Activer</span>";
+                                  $btnStatut  = "<button class='btn btn-sm btn-danger change-user' data-id='{$e['id_utilisateur']}'>Bloquer</button>";
+                              } else {
+                                  $statutHTML = "<span class='statu-bloque'>Bloquer</span>";
+                                  $btnStatut  = "<button class='btn btn-sm btn-success change-user' data-id='{$e['id_utilisateur']}'>Activer</button>";
+                              }
+                              echo "
+                                  <tr>
+                                      <td>{$e['nom']}</td>
+                                      <td>{$e['adresse']}</td>
+                                      <td>{$e['telephone']}</td>
+                                      <td>{$e['id_etablissement']}</td>
+                                      <td>{$e['date_enreg']}</td>
+                                      <td>$statutHTML</td>
+                                      <td width=120>
+                                          <button class='btn btn-sm btn-primary edit-user' data-id='{$e['id_utilisateur']}'>Modifier</button>
+                                          $btnStatut
+                                      </td>
+                                  </tr>
+                              ";
+                            }
+                          ?> 
                       </tbody>
                     </table>
                   </div>
@@ -322,7 +342,65 @@
                 <div class="col-lg-12">
                   <textarea name="description" class="form-control description" rows="4" placeholder="Ecrivez quelques choses"></textarea>
                 </div>
-                <input type="text" name="id" class="ets-id">
+                <input type="hidden" name="id" class="ets-id">
+                <div class="col-md-12 text-center">
+                  <button class="loading" type="submit"></button>
+                </div>
+              </div>
+            </form>  
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade modal-user" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title m-0 font-weight-bold" id="modalLabel"></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">×</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>" method="post" role="form" id='user' class="php-form">
+              <div class="row">
+                <div class="col-lg-12">
+                  <input type="text" name="nom" class="form-control nom" placeholder="Nom de l'utilisateur" required>
+                </div>
+                <div class="col-lg-6">
+                  <input type="text" name="adresse" class="form-control adresse" placeholder="Adresse de l'utilisateur" required>
+                </div>
+                <div class="col-lg-6">
+                  <input type="email" name="email" class="form-control email" placeholder="Email de l'utilisateur">
+                </div>
+                <div class="col-lg-6">
+                  <input type="tel" name="telephone" class="form-control telephone" placeholder="Téléphone de l'établissement">
+                </div>
+                <div class="col-lg-6">
+                  <input type="text" name="login" class="form-control login" placeholder="Entrez le login de l'utilisateur">
+                </div>
+                <div class="col-lg-6 mb-4">
+                  <select name="role" class="role bg-white w-100 h-100">
+                    <option value="" disabled selected>Choisir le rôle</option>
+                    <option value="0">Admin</option>
+                    <option value="1">Gérant</option>
+                  </select>
+                </div>
+                <div class="col-lg-6 mb-4">
+                  <select name="id_etablissement" class="etablissement bg-white w-100 h-100">
+                    <option value="" disabled selected>Choisir l'etablissement</option>
+                    <?php
+                      require_once './../api-commande/models/Etablissement.php';
+                      $etablissementModel = new Etablissement();
+                      $etablissement = $etablissementModel->getAllEtablissements();
+                      foreach ($etablissement as $e) {
+                        echo '<option value="'.$e['id_etablissement'].'">'.$e['nom'].'</option>';
+                      }
+                    ?> 
+                  </select>
+                </div>
+                <input type="hidden" name="id" class="user-id">
                 <div class="col-md-12 text-center">
                   <button class="loading" type="submit"></button>
                 </div>

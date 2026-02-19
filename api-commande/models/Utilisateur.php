@@ -8,14 +8,15 @@ class Utilisateur extends BaseModel {
     ======================= */
 
     public function getAllUsers() {
-        $stmt = parent::getAll("utilisateur");
+        $stmt = $this->getAll("utilisateur");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getById($id) {
-        $stmt = parent::getAll(
+        $stmt = $this->personnalSelect(
             "utilisateur",
-            "WHERE login = ?",
+            "*",
+            "WHERE id_utilisateur = ?",
             [$id]
         );
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -29,10 +30,9 @@ class Utilisateur extends BaseModel {
         return $this->insert(
             "utilisateur",
             [
-                "id_utilisateur",
                 "nom",
                 "prenom",
-                "adesse",
+                "adresse",
                 "email",
                 "telephone",
                 "login",
@@ -42,14 +42,14 @@ class Utilisateur extends BaseModel {
                 "date_enreg"
             ],
             [
-                $data['id_utilisateur'],
                 $data['nom'],
                 $data['prenom'],
-                $data['adesse'],
+                $data['adresse'],
                 $data['email'],
                 $data['telephone'],
                 $data['login'],
-                $data['id_unique_etablissement'],
+                password_hash($data['password'], PASSWORD_DEFAULT),
+                $data['id_etablissement'],
                 $data['role'],
                 date('Y-m-d')
             ]
@@ -60,29 +60,24 @@ class Utilisateur extends BaseModel {
         return $this->set(
             "utilisateur",
             [
-                "id_utilisateur",
                 "nom",
                 "prenom",
-                "adesse",
+                "adresse",
                 "email",
                 "telephone",
                 "login",
-                "password",
                 "id_etablissement",
-                "role",
-                "date_enreg"
+                "role"
             ],
             [
-                $data['id_utilisateur'],
                 $data['nom'],
                 $data['prenom'],
-                $data['adesse'],
+                $data['adresse'],
                 $data['email'],
                 $data['telephone'],
                 $data['login'],
                 $data['id_etablissement'],
-                $data['role'],
-                date('Y-m-d')
+                $data['role']
             ],
             "WHERE id_utilisateur = ?",
             [$id]
@@ -98,11 +93,7 @@ class Utilisateur extends BaseModel {
     }
 
     /* =======================
-       AUTHENTIFICATION
-       On ne prend que le login et pas le mot de passe. La raison est simple :
-
-1️⃣ Le mot de passe est hashé dans la base
-Quand tu fais password_hash("admin", PASSWORD_DEFAULT), le mot de passe stocké n’est pas “admin”, mais une chaîne cryptée complexe
+       AUTH
     ======================= */
 
     public function getByLogin($login) {
@@ -114,5 +105,4 @@ Quand tu fais password_hash("admin", PASSWORD_DEFAULT), le mot de passe stocké 
         );
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
 }
