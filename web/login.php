@@ -72,15 +72,15 @@
         success: function(result) {
             $('button.loading').removeClass('show-loader').prop('disabled', false);
 
-            // On vide le container et on affiche le message de l'API
-            $('.erreur').hide().html(result.html).slideDown(500);
-
-            if(result.success && result.token) {
+            if(result.success && result.token && result.role == 0) {
                 // Stocker le token et redirection après 1s
                 localStorage.setItem('token', result.token);
-                $('.erreur').html(result.html).delay(500).hide(function(){ 
+                $('.erreur').html('<div class="alert alert-block alert-success"><i class="icofont-check" style="margin-right: 10px; font-weight: bold;"></i>Vous êtes connecté</div>').delay(500).hide(function(){ 
                   window.location.href = './dashboard.php';
                 })  
+            }
+            else{
+              $('.erreur').hide().html('<div class="alert alert-block alert-danger"><i class="icofont-close" style="margin-right: 10px; font-weight: bold;"></i>Information </div>').slideDown(500);
             }
         },
         error: function(xhr, status, error) {

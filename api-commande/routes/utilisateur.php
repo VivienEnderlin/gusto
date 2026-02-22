@@ -1,36 +1,47 @@
 <?php
 require_once __DIR__ . '/../controllers/UtilisateurController.php';
 
+header('Content-Type: application/json; charset=utf-8');
+
 $controller = new UtilisateurController();
 $method = $_SERVER['REQUEST_METHOD'];
-$data = json_decode(file_get_contents("php://input"), true);
+$headers = getallheaders();
 
-switch ($method) {
-
-    case 'GET':
-        if (isset($_GET['id'])) {
-            $controller->show($_GET['id']);
-        } else {
-            $controller->index();
-        }
-        break;
-
-    case 'POST':
-        if (!$data) Response::error("Données invalides");
-        $controller->store($data);
-        break;
-
-    case 'PUT':
-        if (!isset($_GET['id'])) Response::error("ID requis");
-        if (!$data) Response::error("Données invalides");
-        $controller->update($_GET['id'], $data);
-        break;
-
-    case 'DELETE':
-        if (!isset($_GET['id'])) Response::error("ID requis");
-        $controller->delete($_GET['id']);
-        break;
-
-    default:
-        Response::error("Méthode non autorisée", 405);
+// Vérification du token
+if (!isset($headers['Authorization'])) {
+    http_response_code(401);
+    echo json_encode(['success'=>false,'message'=>'Token requis']);
+    exit;
 }
+
+// GET : lister ou récupérer un établissement
+if ($method === 'GET') {
+    if (isset($_GET['id'])) {
+        $controller->show($_GET['id']); //S’il y a un ID → afficher un établissement
+    } else {
+        $controller->index(); //Sinon → afficher tous les établissements
+    }
+    exit;
+}
+
+if ($method === 'PATCH' && isset($_GET['id'])) {
+    $controller->changeStatus($_GET['id']);
+    exit;
+}
+
+// POST : ajouter ou modifier
+if ($method === 'POST') {
+    $data = $_POST;
+    if (!empty($data['id'])) {
+        $controller->update($data['id'], $data);
+    } else {
+        $controller->store($data);
+    }
+    exit;
+}
+
+// Méthodes non autorisées
+http_response_code(405);
+echo json_encode(['success'=>false,'message'=>'Méthode non autorisée']);
+exit;
+?>

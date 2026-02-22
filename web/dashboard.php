@@ -1,3 +1,12 @@
+<?php
+require_once './../api-commande/models/Etablissement.php';
+$etablissementModel = new Etablissement();
+$etablissements = $etablissementModel->getAllEtablissements();
+
+require_once './../api-commande/models/Utilisateur.php';
+$utilisateurModel = new utilisateur();
+$utilisateurs = $utilisateurModel->getAllUsers();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -96,8 +105,6 @@
           <!-- Topbar -->
           <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
         
-            <div class="notification alert alert-info" style="display: none;"></div>
-
             <div id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
               <i class="fa fa-bars"></i>
             </div>
@@ -110,11 +117,6 @@
               </li>
             </ul>
           </nav>
-          <div class="d-flex justify-content-center">
-              <a href="./controller/qrcode.php" class="qrcode-btn btn btn-success">
-                  Générer le QR code
-              </a>
-          </div>
 
             <!-- End of Topbar -->
 
@@ -141,9 +143,6 @@
                       </thead>
                       <tbody>      
                           <?php
-                            require_once './../api-commande/models/Etablissement.php';
-                            $etablissementModel = new Etablissement();
-                            $etablissements = $etablissementModel->getAllEtablissements();
                             foreach ($etablissements as $e) {
                               $logos = json_decode($e['logo'], true);
                               $logoHTML = '';
@@ -205,10 +204,7 @@
                       </thead>
                       <tbody>
                         <?php
-                            require_once './../api-commande/models/Utilisateur.php';
-                            $utilisateurModel = new utilisateur();
-                            $utilisateur = $utilisateurModel->getAllUsers();
-                            foreach ($utilisateur as $e) {
+                            foreach ($utilisateurs as $e) {
                               if ($e['statu'] === 'Activer') {
                                   $statutHTML = "<span class='statu-actif'>Activer</span>";
                                   $btnStatut  = "<button class='btn btn-sm btn-danger change-user' data-id='{$e['id_utilisateur']}'>Bloquer</button>";
@@ -391,10 +387,7 @@
                   <select name="id_etablissement" class="etablissement bg-white w-100 h-100">
                     <option value="" disabled selected>Choisir l'etablissement</option>
                     <?php
-                      require_once './../api-commande/models/Etablissement.php';
-                      $etablissementModel = new Etablissement();
-                      $etablissement = $etablissementModel->getAllEtablissements();
-                      foreach ($etablissement as $e) {
+                      foreach ($etablissements as $e) {
                         echo '<option value="'.$e['id_etablissement'].'">'.$e['nom'].'</option>';
                       }
                     ?> 

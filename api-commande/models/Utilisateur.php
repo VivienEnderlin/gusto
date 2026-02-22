@@ -7,6 +7,19 @@ class Utilisateur extends BaseModel {
        LECTURE
     ======================= */
 
+    function generateRestaurantCode(string $name, int $randomLength = 8): string
+    {
+        // Nettoyer le nom
+        $prefix = strtoupper(preg_replace('/[^A-Z0-9]/i', '', $name));
+        $prefix = substr($prefix, 0, 10);
+
+        // Partie aléatoire sécurisée
+        $random = strtoupper(bin2hex(random_bytes(ceil($randomLength / 2))));
+        $random = substr($random, 0, $randomLength);
+
+        return $prefix . '-' . $random;
+    }
+
     public function getAllUsers() {
         $stmt = $this->getAll("utilisateur");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -27,11 +40,16 @@ class Utilisateur extends BaseModel {
     ======================= */
 
     public function create($data) {
-        return $this->insert(
+
+        $data['statu'] = $data['statu'] ?? 'Activer';
+
+        // Génération automatique du mot de passe
+        $data['password'] = $data['password'] ?? $this->generateRestaurantCode($data['nom']);
+
+        $this->insert(
             "utilisateur",
             [
                 "nom",
-                "prenom",
                 "adresse",
                 "email",
                 "telephone",
@@ -39,11 +57,11 @@ class Utilisateur extends BaseModel {
                 "password",
                 "id_etablissement",
                 "role",
-                "date_enreg"
+                "date_enreg",
+                "statu"
             ],
             [
                 $data['nom'],
-                $data['prenom'],
                 $data['adresse'],
                 $data['email'],
                 $data['telephone'],
@@ -51,9 +69,12 @@ class Utilisateur extends BaseModel {
                 password_hash($data['password'], PASSWORD_DEFAULT),
                 $data['id_etablissement'],
                 $data['role'],
-                date('Y-m-d')
+                date('Y-m-d'),
+                $data['statu']
             ]
         );
+
+        return $this->pdo->lastInsertId();
     }
 
     public function update($id, $data) {
@@ -61,7 +82,6 @@ class Utilisateur extends BaseModel {
             "utilisateur",
             [
                 "nom",
-                "prenom",
                 "adresse",
                 "email",
                 "telephone",
@@ -71,7 +91,6 @@ class Utilisateur extends BaseModel {
             ],
             [
                 $data['nom'],
-                $data['prenom'],
                 $data['adresse'],
                 $data['email'],
                 $data['telephone'],
@@ -84,9 +103,18 @@ class Utilisateur extends BaseModel {
         );
     }
 
-    public function delete($id) {
-        return $this->personalDelete(
+    //change statut
+
+    public function toggleStatut($id) {
+        $e = $this->getById($id);
+        if (!$e) return false;
+
+        $newStatu = ($e['statu'] === 'Activer') ? 'Bloquer' : 'Activer';
+
+        return $this->set(
             "utilisateur",
+            ["statu"],
+            [$newStatu],
             "WHERE id_utilisateur = ?",
             [$id]
         );

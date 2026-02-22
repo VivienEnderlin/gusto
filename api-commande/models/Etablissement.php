@@ -65,15 +65,6 @@ class Etablissement extends BaseModel {
         );
     }
 
-    // Supprimer un établissement
-    public function delete($id) {
-        return $this->personalDelete(
-            "etablissement",
-            "WHERE id_etablissement = ?",
-            [$id]
-        );
-    }
-
     // Changer le statut
     public function toggleStatut($id) {
         $e = $this->getById($id);
