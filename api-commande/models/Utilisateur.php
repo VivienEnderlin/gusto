@@ -91,35 +91,33 @@ class Utilisateur extends BaseModel {
 
         $id = $this->pdo->lastInsertId();
 
-        // 🔔 Envoi du mail uniquement si rôle = 1 (Gérant)
-        if ((int)$data['role'] === 1) {
-            try {
-                $mail = new PHPMailer(true);
-                $mail->isSMTP();
-                $mail->Host       = 'smtp.gmail.com';   // à adapter
-                $mail->SMTPAuth   = true;
-                $mail->Username   = 'djiomounandavivienenderlin@gmail.com'; // à adapter
-                $mail->Password   = 'vvzm ioaa gckv vcze ';       // à adapter
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port       = 587;
 
-                $mail->setFrom('djiomounandavivienenderlin@gmail.com', 'Gusto');
-                $mail->addAddress($data['email'], $data['nom']);
+        try {
+            $mail = new PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com';   // à adapter
+            $mail->SMTPAuth   = true;
+            $mail->Username   = 'djiomounandavivienenderlin@gmail.com'; // à adapter
+            $mail->Password   = 'vvzm ioaa gckv vcze ';       // à adapter
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
 
-                $mail->isHTML(true);
-                $mail->Subject = 'Information de connexion au compte Gérant';
-                $mail->Body    = "
-                    <h3>Bonjour {$data['nom']},</h3>
-                    <p>Votre compte Gérant a été créé avec succès.</p>
-                    <p><strong>Login :</strong> {$data['login']}<br>
-                       <strong>Mot de passe :</strong> {$password}</p>
-                    <p>Merci de vous connecter et de changer votre mot de passe dès la première connexion.</p>
-                ";
+            $mail->setFrom('djiomounandavivienenderlin@gmail.com', 'Gusto');
+            $mail->addAddress($data['email'], $data['nom']);
 
-                $mail->send();
-            } catch (Exception $e) {
-                error_log("Erreur envoi mail à {$data['email']} : " . $mail->ErrorInfo);
-            }
+            $mail->isHTML(true);
+            $mail->Subject = 'Information de connexion au compte Gérant';
+            $mail->Body    = "
+                <h3>Bonjour {$data['nom']},</h3>
+                <p>Votre compte a été créé avec succès.</p>
+                <p><strong>Login :</strong> {$data['login']}<br>
+                   <strong>Mot de passe :</strong> {$password}</p>
+                <p>Vous pouvez modifier votre mot de passe à tout moment</p>
+            ";
+
+            $mail->send();
+        } catch (Exception $e) {
+            error_log("Erreur envoi mail à {$data['email']} : " . $mail->ErrorInfo);
         }
 
         return $id;

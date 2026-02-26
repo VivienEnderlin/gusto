@@ -6,6 +6,10 @@ $etablissements = $etablissementModel->getAllEtablissements();
 require_once './../api-commande/models/Utilisateur.php';
 $utilisateurModel = new utilisateur();
 $utilisateurs = $utilisateurModel->getAllUsers();
+
+require_once './../api-commande/models/Appareil.php';
+$appareilModel = new appareil();
+$appareils = $appareilModel->getAllAppareils();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -78,7 +82,7 @@ $utilisateurs = $utilisateurModel->getAllUsers();
 
                 <li class="nav-item link_page">
                     <a class="nav-link" href="#" data-target="licence">
-                        <span>Gestion des licences</span>
+                        <span>Gestion des contrats</span>
                     </a>
                 </li>
 
@@ -224,7 +228,7 @@ $utilisateurs = $utilisateurModel->getAllUsers();
                                       <td>{$roles[$e['role']]}</td>
                                       <td>{$e['date_enreg']}</td>
                                       <td>$statutHTML</td>
-                                      <td width=150>
+                                      <td width=100>
                                           <button class='btn btn-sm btn-primary edit-user' data-id='{$e['id_utilisateur']}'>Modifier</button>
                                           $btnStatut
                                       </td>
@@ -252,15 +256,30 @@ $utilisateurs = $utilisateurModel->getAllUsers();
                     <table class="table table-bordered dataTable info-app" width="100%" cellspacing="0">
                         <thead class="text-light">
                           <tr>
+                            <th>Marque</th>
                             <th>Model</th>
                             <th>N° serie</th>
-                            <th>Système</th>
-                            <th>Etablissement</th>
+                            <th>Système</th>              
                             <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                        
+                          <?php
+                            foreach ($appareils as $e) {
+                              echo "
+                                  <tr>
+                                      <td>{$e['marque']}</td>
+                                      <td>{$e['model']}</td>
+                                      <td>{$e['numero_serie']}</td>
+                                      <td>{$e['systeme_exploitation']}</td>
+                                      <td>
+                                          <button class='btn btn-sm btn-primary edit-app' data-id='{$e['id_appareil']}'>Modifier</button>
+                                          <button class='btn btn-sm btn-danger drop-app' data-id='{$e['id_appareil']}'>Supprimer</button>
+                                      </td>
+                                  </tr>
+                              ";
+                            }
+                          ?> 
                         </tbody>
                       </table>
                   </div>
@@ -270,18 +289,17 @@ $utilisateurs = $utilisateurModel->getAllUsers();
           </div>
 
           <div class="container-fluid content" id="licence">
-            <button class="btn-licence mb-4">Ajouter une licence</button>
+            <button class="btn-licence mb-4">Ajouter un contrat</button>
             <div class="row"> 
               <div class="card shadow mb-4 col-lg-12">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">LISTE DES LICENCES</h6>
+                    <h6 class="m-0 font-weight-bold">LISTE DES CONTRATS</h6>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
                     <table class="table table-bordered dataTable info-licence" width="100%" cellspacing="0">
                       <thead class="text-light">
                         <tr>
-                          <th>Model</th>
                           <th>Etablissement</th>
                           <th>Code licence</th>
                           <th>Date de validité</th>
@@ -350,27 +368,27 @@ $utilisateurs = $utilisateurModel->getAllUsers();
               </center>
               <div class="row">
                 <div class="col-lg-6">
-                  <input type="text" name="nom" class="form-control nom" placeholder="Nom de l'etablissement" required>
+                  <input type="text" name="nom" class="form-control" placeholder="Nom de l'etablissement" required>
                 </div>
                 <div class="col-lg-6">
-                  <input type="text" name="type" class="form-control type" placeholder="Type d'etablissement" required>
+                  <input type="text" name="type" class="form-control" placeholder="Type d'etablissement" required>
                 </div>
                 <div class="col-lg-12">
-                  <input type="text" name="adresse" class="form-control adresse" placeholder="Adresse de l'etablissement" required>
+                  <input type="text" name="adresse" class="form-control" placeholder="Adresse de l'etablissement" required>
                 </div>
                 <div class="col-lg-6">
-                  <input type="email" name="email" class="form-control email" placeholder="Email de l'établissement">
+                  <input type="email" name="email" class="form-control" placeholder="Email de l'établissement">
                 </div>
                 <div class="col-lg-6">
-                  <input type="tel" name="telephone" class="form-control telephone" placeholder="Téléphone de l'établissement">
+                  <input type="tel" name="telephone" class="form-control" placeholder="Téléphone de l'établissement">
                 </div>
                 <div class="col-lg-12">
-                  <input type="url" name="site_web" class="form-control site_web" placeholder="Site web de l'établissement">
+                  <input type="url" name="site_web" class="form-control" placeholder="Site web de l'établissement">
                 </div>
                 <div class="col-lg-12">
-                  <textarea name="description" class="form-control description" rows="4" placeholder="Ecrivez quelques choses"></textarea>
+                  <textarea name="description" class="form-control" rows="4" placeholder="Ecrivez quelques choses"></textarea>
                 </div>
-                <input type="hidden" name="id" class="ets-id">
+                <input type="hidden" name="id">
                 <div class="col-md-12 text-center">
                   <button class="loading" type="submit"></button>
                 </div>
@@ -394,30 +412,30 @@ $utilisateurs = $utilisateurModel->getAllUsers();
             <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>" method="post" role="form" id='user' class="php-form">
               <div class="row">
                 <div class="col-lg-12">
-                  <input type="text" name="nom" class="form-control nom" placeholder="Nom de l'utilisateur" required>
+                  <input type="text" name="nom" class="form-control" placeholder="Nom de l'utilisateur" required>
                 </div>
                 <div class="col-lg-6">
-                  <input type="text" name="adresse" class="form-control adresse" placeholder="Adresse de l'utilisateur" required>
+                  <input type="text" name="adresse" class="form-control" placeholder="Adresse de l'utilisateur" required>
                 </div>
                 <div class="col-lg-6">
-                  <input type="email" name="email" class="form-control email" placeholder="Email de l'utilisateur">
+                  <input type="email" name="email" class="form-control" placeholder="Email de l'utilisateur" required>
                 </div>
                 <div class="col-lg-6">
-                  <input type="tel" name="telephone" class="form-control telephone" placeholder="Téléphone de l'établissement">
+                  <input type="tel" name="telephone" class="form-control" placeholder="Téléphone de l'utilisateur" required>
                 </div>
                 <div class="col-lg-6">
-                  <input type="text" name="login" class="form-control login" placeholder="Entrez le login de l'utilisateur">
+                  <input type="text" name="login" class="form-control" placeholder="Entrez le login de l'utilisateur" required>
                 </div>
                 <div class="col-lg-6 mb-4">
-                  <select name="role" class="role bg-white w-100 h-100">
+                  <select name="role" class="bg-white w-100 h-100" required>
                     <option value="" disabled selected>Choisir le rôle</option>
                     <option value="0">Admin</option>
                     <option value="1">Gérant</option>
                   </select>
                 </div>
                 <div class="col-lg-6 mb-4">
-                  <select name="id_etablissement" class="etablissement bg-white w-100 h-100">
-                    <option value="" disabled selected>Choisir l'etablissement</option>
+                  <select name="id_etablissement" class="bg-white w-100 h-100" required>
+                    <option value="" disabled selected>Choisir l'etablissement géré</option>
                     <?php
                       foreach ($etablissements as $e) {
                         echo '<option value="'.$e['id_etablissement'].'">'.$e['nom'].'</option>';
@@ -425,7 +443,7 @@ $utilisateurs = $utilisateurModel->getAllUsers();
                     ?> 
                   </select>
                 </div>
-                <input type="hidden" name="id" class="user-id">
+                <input type="hidden" name="id">
                 <div class="col-md-12 text-center">
                   <button class="loading" type="submit"></button>
                 </div>
@@ -435,6 +453,60 @@ $utilisateurs = $utilisateurModel->getAllUsers();
         </div>
       </div>
     </div>
+
+    <div class="modal fade modal-app" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title m-0 font-weight-bold" id="modalLabel"></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">×</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>" method="post" role="form" id='dispositif' class="php-form">
+              <div class="row">
+                <div class="col-lg-6">
+                  <input type="text" name="marque" class="form-control" placeholder="Marque de l'appareil" required>
+                </div>
+                <div class="col-lg-6">
+                  <input type="text" name="model" class="form-control" placeholder="Model de l'appareil" required>
+                </div>
+                <div class="col-lg-12">
+                  <input type="text" name="numero_serie" class="form-control" placeholder="Numero de serie de l'appareil">
+                </div>
+                <div class="col-lg-6">
+                  <input type="text" name="systeme_exploitation" class="form-control" placeholder="Système de l'appareil">
+                </div>
+                <div class="col-lg-6">
+                  <input type="text" name="annee_fabrication" class="form-control" placeholder="Année de fabrication">
+                </div>
+                <div class="col-lg-12">
+                  <small class="ml-3">Date de fin de support</small>
+                  <input type="date" class="form-control" name="date_fin_support">
+               </div>
+                <div class="col-lg-12 mb-4">
+                  <select name="id_etablissement" class="bg-white w-100 h-100">
+                    <option value="" disabled selected>Choisir l'etablissement destinataire</option>
+                    <?php
+                      foreach ($etablissements as $e) {
+                        echo '<option value="'.$e['id_etablissement'].'">'.$e['nom'].'</option>';
+                      }
+                    ?> 
+                  </select>
+                </div>
+                <textarea name="description" class="form-control" rows="4" placeholder="Ecrivez quelques choses"></textarea>
+                <input type="hidden" name="id">
+                <div class="col-md-12 text-center">
+                  <button class="loading" type="submit"></button>
+                </div>
+              </div>
+            </form>  
+          </div>
+        </div>
+      </div>
+    </div>
+
 
    
     <script src="./assets/vendor/jquery/jquery.min.js"></script>

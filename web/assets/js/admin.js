@@ -84,6 +84,14 @@ $('.btn-user').on('click', function() {
     $('.modal-user').modal({backdrop: 'static', keyboard: false});
 });
 
+$('.btn-app').on('click', function() {
+    $('#dispositif')[0].reset();
+    $('#dispositif input[name="id"]').val('');
+    $('.modal-app .modal-title').text("Ajouter un appareil");
+    $('.modal-app button[type=submit]').text("Ajouter");
+    $('.modal-app').modal({backdrop: 'static', keyboard: false});
+});
+
 $('.userLogin').on('click', function() {
     $('.modal-login .modal-title').text("Modifier mes informations");
     $('.modal-login button[type=submit]').text("Modifier");
@@ -108,7 +116,6 @@ $('#userLoginForm').on('submit', function(e){
         success: function(res){
             submitBtn.removeClass('show-loader').prop('disabled', false);
             if(res.success){
-                alert(res.message);
                 localStorage.setItem('token', res.token);
                 document.getElementById('userLogin').textContent = parseJwt(res.token).data.login;
 
@@ -130,8 +137,10 @@ $('#userLoginForm').on('submit', function(e){
 let editingRow;
 let ets = $('.info-ets').DataTable();
 let user = $('.info-user').DataTable();
+let app = $('.info-app').DataTable();
 
 // Submit 
+
 $('#ets').on('submit', async function(e) {
     e.preventDefault();
     const form = this;
@@ -171,6 +180,7 @@ $('#ets').on('submit', async function(e) {
 });
 
 // Bouton Edit
+
 $(document).on('click', '.edit-ets', async function() {
     const etabId = $(this).data('id');
     editingRow = ets.row($(this).closest('tr'));
@@ -275,17 +285,18 @@ $('#user').on('submit', async function(e) {
 });
 
 // Bouton Edit
+
 $(document).on('click', '.edit-user', async function() {
-    const etabId = $(this).data('id');
+    const userId = $(this).data('id');
     editingRow = user.row($(this).closest('tr'));
     try {
-        const response = await fetch(`http://gusto/api-commande/routes/utilisateur.php?id=${etabId}`, {
+        const response = await fetch(`http://gusto/api-commande/routes/utilisateur.php?id=${userId}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await response.json();
         if(result.success) {
             const e = result.data;
-            $('#user input[name="id"]').val(etabId);
+            $('#user input[name="id"]').val(userId);
             $('#user input[name="nom"]').val(e.nom);
             $('#user input[name="adresse"]').val(e.adresse);
             $('#user input[name="email"]').val(e.email);
@@ -331,6 +342,112 @@ $(document).on('click', '.change-user', async function () {
             });
         } else {
             alert(result.message || "Impossible de mettre à jour la ligne");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Erreur serveur : " + err.message);
+    }
+});
+
+/*-------------APPAREIL------------------------*/
+
+$('#dispositif').on('submit', async function(e) {
+    e.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
+    const isEdit = formData.get('id') ? true : false;
+    const submitBtn = $(form).find('button[type="submit"]');
+    submitBtn.addClass('show-loader').prop('disabled', true);
+    try {
+        const response = await fetch('http://gusto/api-commande/routes/appareil.php', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+        });
+        const result = await response.json();
+        submitBtn.prop('disabled', false).text(isEdit ? "Modifier" : "Ajouter");
+        if(result.success) {
+            submitBtn.removeClass('show-loader').prop('disabled', false);
+            $('.modal-app').modal('hide');
+            form.reset();
+            if(isEdit && editingRow) {
+                // ⚡ Mettre à jour uniquement la ligne modifiée
+                editingRow.data(result.data).draw(false);
+                editingRow = null; // reset la référence
+            } else {
+                app.row.add(result.data).draw(false);
+            }
+        } else {
+            alert(result.message || "Erreur lors de l'enregistrement");
+        }
+    } catch(err) {
+        console.error(err);
+        submitBtn.prop('disabled', false).text(isEdit ? "Modifier" : "Ajouter");
+        alert("Erreur serveur : " + err.message);
+    }
+});
+
+// Bouton Edit
+
+$(document).on('click', '.edit-app', async function() {
+    const appId = $(this).data('id');
+    editingRow = app.row($(this).closest('tr'));
+    try {
+        const response = await fetch(`http://gusto/api-commande/routes/appareil.php?id=${appId}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await response.json();
+        if(result.success) {
+            const e = result.data;
+            $('#dispositif input[name="id"]').val(appId);
+            $('#dispositif input[name="marque"]').val(e.marque);
+            $('#dispositif input[name="model"]').val(e.model);
+            $('#dispositif input[name="numero_serie"]').val(e.numero_serie);
+            $('#dispositif input[name="systeme_exploitation"]').val(e.systeme_exploitation);
+            $('#dispositif input[name="annee_fabrication"]').val(e.annee_fabrication);
+            $('#dispositif input[name="date_fin_support"]').val(e.date_fin_support);
+            $('#dispositif select[name="id_etablissement"]').val(e.id_etablissement);
+            $('#dispositif textarea[name="description"]').val(e.description);
+            
+            $('.modal-app .modal-title').text("Modifier l'appareil");
+            $('.modal-app button[type=submit]').text("Modifier");
+            $('.modal-app').modal({backdrop:'static', keyboard:false});
+        } else {
+            alert(result.message);
+        }
+    } catch(err) {
+        console.error(err);
+        alert("Erreur serveur : " + err.message);
+    }
+});
+
+//supprimer
+
+$(document).on('click', '.drop-app', async function () {
+    const id = $(this).data('id');
+    if (!confirm("Voulez-vous vraiment supprimer cet appareil ?")) return;
+
+    try {
+        const response = await fetch(
+            `http://gusto/api-commande/routes/appareil.php?id=${id}`,
+            {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            }
+        );
+        const result = await response.json();
+        if (result.success) {
+            // Supprime uniquement la ligne concernée dans le DataTable
+            app.rows().every(function () {
+                const row = this.node();
+                if ($(row).find('.drop-app').data('id') == id) {
+                    this.remove().draw(false);
+                }
+            });
+        } else {
+            alert(result.message || "Impossible de supprimer l'appareil");
         }
     } catch (err) {
         console.error(err);

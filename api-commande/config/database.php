@@ -57,16 +57,13 @@ class Database {
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
 
-                "licence" => "
-                    CREATE TABLE IF NOT EXISTS licence (
-                        id_licence INT AUTO_INCREMENT PRIMARY KEY,
-                        id_appareil INT,
+                "contrat" => "
+                    CREATE TABLE IF NOT EXISTS contrat (
+                        id_contrat INT AUTO_INCREMENT PRIMARY KEY,
                         id_etablissement INT,
                         code VARCHAR(50) NOT NULL,
                         date_validite DATE,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
-                        ON DELETE CASCADE ON UPDATE CASCADE,
-                        FOREIGN KEY (id_appareil) REFERENCES appareil(id_appareil)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
 
@@ -76,7 +73,7 @@ class Database {
                         nom VARCHAR(50) NOT NULL,
                         adresse VARCHAR(50) NOT NULL,
                         email VARCHAR(50) NOT NULL,
-                        telephone VARCHAR(20) NOT NULL,
+                        telephone VARCHAR(50) NOT NULL,
                         login VARCHAR(50) NOT NULL,
                         password TEXT,
                         id_etablissement INT,

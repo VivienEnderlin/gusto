@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . '/../controllers/UtilisateurController.php';
+require_once __DIR__ . '/../controllers/AppareilController.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$controller = new UtilisateurController();
+$controller = new AppareilController();
 $method = $_SERVER['REQUEST_METHOD'];
 $headers = getallheaders();
 
@@ -14,18 +14,13 @@ if (!isset($headers['Authorization'])) {
     exit;
 }
 
-// GET : lister ou récupérer un utilisateur
+// GET : lister ou récupérer un appareil
 if ($method === 'GET') {
     if (isset($_GET['id'])) {
-        $controller->show($_GET['id']); //S’il y a un ID → afficher un utilisateur
+        $controller->show($_GET['id']); //S’il y a un ID → afficher un appareil
     } else {
-        $controller->index(); //Sinon → afficher tous les utilisateurs
+        $controller->index(); //Sinon → afficher tous les appareils
     }
-    exit;
-}
-
-if ($method === 'PATCH' && isset($_GET['id'])) {
-    $controller->changeStatus($_GET['id']);
     exit;
 }
 
@@ -37,6 +32,20 @@ if ($method === 'POST') {
     } else {
         $controller->store($data);
     }
+    exit;
+}
+
+// DELETE : supprimer un appareil
+if ($method === 'DELETE') {
+    if (!isset($_GET['id'])) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'ID requis'
+        ]);
+        exit;
+    }
+
+    $controller->delete($_GET['id']);
     exit;
 }
 
