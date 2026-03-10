@@ -91,16 +91,13 @@ class Database {
                         id_table INT AUTO_INCREMENT PRIMARY KEY,
                         Nom VARCHAR(10) NOT NULL,
                         id_etablissement INT,
-                        id_utilisateur INT,
-                        FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur)
-                        ON DELETE CASCADE ON UPDATE CASCADE,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
 
                 "categorie" => "
                     CREATE TABLE IF NOT EXISTS categorie (
-                        idcategorie INT AUTO_INCREMENT PRIMARY KEY,
+                        id_categorie INT AUTO_INCREMENT PRIMARY KEY,
                         id_etablissement INT,
                         libelle VARCHAR(50) NOT NULL,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
@@ -113,14 +110,14 @@ class Database {
                         id_etablissement INT,
                         nom VARCHAR(50) NOT NULL,
                         image TEXT,
-                        idcategorie INT,
+                        id_categorie INT,
                         prix INT,
                         description TEXT,
-                        statu VARCHAR(50),
+                        statu VARCHAR(50) NOT NULL,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE,
-                        FOREIGN KEY (idcategorie) REFERENCES categorie(idcategorie)
-                        ON DELETE SET NULL
+                        FOREIGN KEY (id_categorie) REFERENCES categorie(id_categorie)
+                        ON DELETE CASCADE ON UPDATE CASCADE
                     )",
 
                     //lorsque le serveur installe le client il ouvre le service sur la table toutes les commandes s'enregistrent dans l'objet service sauf date de fermeture. lui meme apres que le service soit fini il ferme le service et la date de fermeture marque la fin d'un servce. lorsque le client commande ca verifie le dernier id  de la table service si ca corresond avec l'id de sa table si il ya pas la date de fermeture il peu comande si y'en a ca bloque ou ca met une erreurdisant que que la table est en cours s'utilisation
@@ -132,7 +129,10 @@ class Database {
                         id_etablissement INT,
                         date_heure_ouverture DATETIME,
                         date_heure_fermeture DATETIME,
+                        staut VARCHAR(50) NOT NULL,
                         FOREIGN KEY (id_table) REFERENCES tables_restaurant(id_table)
+                        ON DELETE CASCADE ON UPDATE CASCADE,
+                        FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
 
@@ -158,6 +158,9 @@ class Database {
                         id_etablissement INT,
                         id_table INT,
                         commande TEXT,
+                        montant_total  VARCHAR(20) NOT NULL,
+                        date_heure  DATETIME,
+                        statu  VARCHAR(20),
                         FOREIGN KEY (id_table) REFERENCES tables_restaurant(id_table)
                         ON DELETE CASCADE ON UPDATE CASCADE,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
