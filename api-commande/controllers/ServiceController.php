@@ -71,6 +71,7 @@ class ServiceController {
         header('Content-Type: application/json; charset=utf-8');
 
         $data['id_etablissement'] = $this->user->id_etablissement;
+        $data['id_utilisateur']   = $this->user->id_utilisateur;
         $id = $this->service->create($data);
         $e = $this->service->getById($id);
 
@@ -86,6 +87,7 @@ class ServiceController {
 
         $row = [
             $e['id_table'],
+            $e['id_utilisateur'],
             $e['date_heure_ouverture'],
             $e['date_heure_fermeture'],
             $statutHTML,
@@ -115,6 +117,7 @@ class ServiceController {
 
         $row = [
             $e['id_table'],
+            $e['id_utilisateur'],
             $e['date_heure_ouverture'],
             $e['date_heure_fermeture'],
             $statutHTML,

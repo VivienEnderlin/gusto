@@ -51,6 +51,7 @@ class Service extends BaseModel {
             [
                 "id_table",
                 "id_etablissement",
+                "id_utilisateur",
                 "date_heure_ouverture",
                 "date_heure_fermeture",
                 "statu"
@@ -58,6 +59,7 @@ class Service extends BaseModel {
             [
                 $data['id_table'],
                 $data['id_etablissement'],
+                $data['id_utilisateur'],
                 $data['date_heure_ouverture'],
                 $data['date_heure_fermeture'],
                 $data["statu"]

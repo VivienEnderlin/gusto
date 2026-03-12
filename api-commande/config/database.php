@@ -126,11 +126,14 @@ class Database {
                     CREATE TABLE IF NOT EXISTS service (
                         id_service INT AUTO_INCREMENT PRIMARY KEY,
                         id_table INT,
+                        id_utilisateur INT,
                         id_etablissement INT,
                         date_heure_ouverture DATETIME,
                         date_heure_fermeture DATETIME,
                         staut VARCHAR(50) NOT NULL,
                         FOREIGN KEY (id_table) REFERENCES tables_restaurant(id_table)
+                        ON DELETE CASCADE ON UPDATE CASCADE,
+                        FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur)
                         ON DELETE CASCADE ON UPDATE CASCADE,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
@@ -160,7 +163,7 @@ class Database {
                         commande TEXT,
                         montant_total  VARCHAR(20) NOT NULL,
                         date_heure  DATETIME,
-                        statu  VARCHAR(20),
+                        statu  VARCHAR(20) NOT NULL,
                         FOREIGN KEY (id_table) REFERENCES tables_restaurant(id_table)
                         ON DELETE CASCADE ON UPDATE CASCADE,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
