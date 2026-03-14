@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gusto Galaxy - Découvrez nos décelis</title>
+    <title>Gusto</title>
      <link href="./web/assets/img/gusto.ico" class="logo icon" rel="icon">
 
     <link rel="stylesheet" href="./web/assets/css/style.css" />

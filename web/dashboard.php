@@ -25,7 +25,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Gusto Galaxy - Découvrez nos décelis</title>
+    <title>Gusto</title>
     <link href="./assets/img/gusto.ico" class="logo icon" rel="icon">
 
     <!-- Custom fonts for this template-->

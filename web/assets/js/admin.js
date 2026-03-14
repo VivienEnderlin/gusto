@@ -502,5 +502,3 @@ $(document).on('click', '.change-contrat', async function () {
     }
 });
 
-
-
