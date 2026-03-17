@@ -66,11 +66,13 @@ class TableController {
 
         $row = [
             $e['nom'],
-            "<button class='btn btn-sm btn-primary edit-table' data-id='{$e['id_table']}'>Modifier</button>
+            "<a href='http://gusto/api-commande/routes/qrcode.php?etablissement=".$e['id_etablissement']."&table=".$e['nom']."' class='btn btn-sm btn-success'>Générer le QR Code</a>
+            <button class='btn btn-sm btn-primary edit-table' data-id='{$e['id_table']}'>Modifier</button>
             <button class='btn btn-sm btn-danger drop-table' data-id='{$e['id_table']}'>Supprimer</button>"
         ];
 
         echo json_encode(['success'=>true,'data'=>$row]);
+
         exit;
     }
 

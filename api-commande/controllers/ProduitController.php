@@ -40,7 +40,6 @@ class ProduitController {
                 $e['id_categorie'],
                 $e['prix'],
                 $e['description'],
-                $e['statu'],
                 "<button class='btn btn-sm btn-primary edit-produit' data-id='{$e['id_produit']}'>Modifier</button>
                  <button class='btn btn-sm btn-danger drop-produit' data-id='{$e['id_produit']}'>Supprimer</button>"
             ];
@@ -90,7 +89,6 @@ class ProduitController {
             $e['id_categorie'],
             $e['prix'],
             $e['description'],
-            $e['statu'],
             "<button class='btn btn-sm btn-primary edit-produit' data-id='{$e['id_produit']}'>Modifier</button>
              <button class='btn btn-sm btn-danger drop-produit' data-id='{$e['id_produit']}'>Supprimer</button>"
         ];
@@ -131,7 +129,6 @@ class ProduitController {
             $e['id_categorie'],
             $e['prix'],
             $e['description'],
-            $e['statu'],
             "<button class='btn btn-sm btn-primary edit-produit' data-id='{$e['id_produit']}'>Modifier</button>
              <button class='btn btn-sm btn-danger drop-produit' data-id='{$e['id_produit']}'>Supprimer</button>"
         ];

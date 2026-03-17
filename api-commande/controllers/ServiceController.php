@@ -36,6 +36,7 @@ class ServiceController {
 
             $rows[] = [
                 $e['id_table'],
+                $e['id_utilisateur'],
                 $e['date_heure_ouverture'],
                 $e['date_heure_fermeture'],
                 $statutHTML,

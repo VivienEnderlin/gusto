@@ -1,15 +1,40 @@
-
 <?php
-  require_once './../api-commande/models/Categorie.php';
-  $categorieModel = new Categorie();
-  $id_etablissement = 18;
-  $categories = $categorieModel->getCategoriesByEtablissement($id_etablissement);
+  $code = $_GET['code'] ?? null;
+  $secret = "CLE_SECRETE_GUSTO";
 
-  require_once './../api-commande/models/Produit.php';
-  $produitModel = new Produit();
-  $id_etablissement = 18;
-  $produits = $produitModel->getProduitsByEtablissement($id_etablissement);
+    if(!$code){
+        exit("Lien invalide");
+    }
 
+    $decoded = base64_decode($code);
+    list($id_etablissement, $table) = explode(":", $decoded);
+    $check = hash_hmac('sha256', $id_etablissement.":".$table, $secret);
+
+    if(!ctype_digit($id_etablissement) || !ctype_digit($table)){
+        exit("QR code modifié ou invalide");
+    }
+
+   require_once './../api-commande/models/Table.php';
+    $tableModel = new Table();
+    $exists = $tableModel->getTablesByEtablissement($id_etablissement);
+
+    if(!$exists){
+        exit("QR code modifié ou invalide");
+    }
+
+echo "Etablissement: $id_etablissement, Table: $table";
+
+    require_once './../api-commande/models/Etablissement.php';
+    $etablissementModel = new Etablissement();
+    $etablissements = $etablissementModel->getById($id_etablissement);
+
+    require_once './../api-commande/models/Categorie.php';
+    $categorieModel = new Categorie();
+    $categories = $categorieModel->getCategoriesByEtablissement($id_etablissement);
+
+    require_once './../api-commande/models/Produit.php';
+    $produitModel = new Produit();
+    $produits = $produitModel->getProduitsByEtablissement($id_etablissement);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -17,17 +42,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Restaurant</title>
+    <title><?=htmlspecialchars($etablissements['nom'])?></title>
+    <?php
+        $logos = json_decode($etablissements['logo'], true);
+        $logo = $logos[0] ?? '';
+    ?>
+    <link href="<?= htmlspecialchars($logo) ?>" rel="icon">
 
-    <link href="./../assets/vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <link href="./../assets/vendor/icofont/icofont.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./../assets/css/style.css" />
+    <link href="./assets/vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="./assets/vendor/icofont/icofont.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 
 <body class="body">
 
 <header class="head">
-    <h1>Menu</h1>
+    <h1><?=htmlspecialchars($etablissements['nom'])?></h1>
 </header>
 
 <!-- CATEGORIES -->
@@ -56,7 +86,8 @@
 <?php
 foreach ($produits as $e) {
 
-    $imgSrc = !empty($e['image']) ? trim($e['image'], '[]') : '';
+    $images = json_decode($e['image'], true);
+    $imgSrc = $images[0] ?? '';
                              
     // Classe de catégorie
     $catClass = 'filter-' . $e['id_categorie'];
@@ -115,7 +146,7 @@ foreach ($produits as $e) {
                     <tr>
                         <th>Commande</th>
                         <th>Qte</th>
-                        <th>Total</th>
+                        <th>Montant</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -124,11 +155,12 @@ foreach ($produits as $e) {
             <hr>
 
             <div class="d-flex justify-content-between">
-                <h5>Total général :</h5>
+                <h5>Montant total :</h5>
                 <h5 id="montantFinal">0 FCFA</h5>
             </div>
 
             <div>
+                <input type="text" class="mt-3" id="numeroTable" style="width: 80px" placeholder="N° table" value="<?= htmlspecialchars($table); ?>" disabled>
                 <button class="btn btn-warning float-right mt-3" id="btn-valider" style="display:none;">Commander maintenant</button>
             </div>
             
@@ -137,9 +169,9 @@ foreach ($produits as $e) {
       </div>
     </div>
 
-    <script src="./../assets/vendor/jquery/jquery.min.js"></script>
-    <script src="./../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="./../assets/js/feather.min.js"></script>
+    <script src="./assets/vendor/jquery/jquery.min.js"></script>
+    <script src="./assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="./assets/js/feather.min.js"></script>
 
 <script>
 

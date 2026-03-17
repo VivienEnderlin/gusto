@@ -113,7 +113,6 @@ class Database {
                         id_categorie INT,
                         prix INT,
                         description TEXT,
-                        statu VARCHAR(50) NOT NULL,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE,
                         FOREIGN KEY (id_categorie) REFERENCES categorie(id_categorie)
@@ -130,7 +129,7 @@ class Database {
                         id_etablissement INT,
                         date_heure_ouverture DATETIME,
                         date_heure_fermeture DATETIME,
-                        staut VARCHAR(50) NOT NULL,
+                        statu VARCHAR(10) NOT NULL,
                         FOREIGN KEY (id_table) REFERENCES tables_restaurant(id_table)
                         ON DELETE CASCADE ON UPDATE CASCADE,
                         FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur)
@@ -163,7 +162,7 @@ class Database {
                         commande TEXT,
                         montant_total  VARCHAR(20) NOT NULL,
                         date_heure  DATETIME,
-                        statu  VARCHAR(20) NOT NULL,
+                        etat  VARCHAR(20) NOT NULL,
                         FOREIGN KEY (id_table) REFERENCES tables_restaurant(id_table)
                         ON DELETE CASCADE ON UPDATE CASCADE,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
