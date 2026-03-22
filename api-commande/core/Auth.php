@@ -13,7 +13,8 @@ class Auth {
             "exp" => time() + $config['JWT_EXPIRE'],
             "data" => [
                 "id"    => $user['id_utilisateur'],
-                "login" => $user['login']
+                "login" => $user['login'],
+                "id_etablissement" => $user['id_etablissement']
             ]
         ];
 

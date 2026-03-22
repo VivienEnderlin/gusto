@@ -23,8 +23,8 @@ const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 8080, host: '0.0.0.0' });
 
 // Stockage des clients par restaurant
-// { idunique: Set<WebSocket> }
-const restaurants = {};
+// { id_etablissement: Set<WebSocket> }
+const etablissement = {};
 
 wss.on('connection', ws => {
     console.log('✅ Client connecté');
@@ -39,21 +39,21 @@ wss.on('connection', ws => {
         }
 
         // 🏷️ Enregistrement du client pour un restaurant
-        if (data.type === 'register' && data.idunique) {
-            ws.idunique = data.idunique;
+        if (data.type === 'register' && data.id_etablissement) {
+            ws.id_etablissement = data.id_etablissement;
 
-            if (!restaurants[data.idunique]) {
-                restaurants[data.idunique] = new Set();
+            if (!etablissement[data.id_etablissement]) {
+                etablissement[data.id_etablissement] = new Set();
             }
 
-            restaurants[data.idunique].add(ws);
-            console.log(`🏷️ Client enregistré pour restaurant ${data.idunique}`);
+            etablissement[data.id_etablissement].add(ws);
+            console.log(`🏷️ Client enregistré pour restaurant ${data.id_etablissement}`);
             return;
         }
 
         // 📦 Nouvelle commande
-        if (data.type === 'nouvelle_commande' && data.idunique) {
-            const clientsRestaurant = restaurants[data.idunique];
+        if (data.type === 'nouvelle_commande' && data.id_etablissement) {
+            const clientsRestaurant = etablissement[data.id_etablissement];
             if (!clientsRestaurant) return;
 
             clientsRestaurant.forEach(client => {
@@ -62,13 +62,13 @@ wss.on('connection', ws => {
                 }
             });
 
-            console.log(`📤 Commande envoyée au restaurant ${data.idunique}`);
+            console.log(`📤 Commande envoyée au restaurant ${data.id_etablissement}`);
             return;
         }
 
         // ✅ 🧾 TABLE TERMINÉE (AJOUT)
-        if (data.type === 'table_terminee' && data.idunique) {
-            const clientsRestaurant = restaurants[data.idunique];
+        if (data.type === 'table_terminee' && data.id_etablissement) {
+            const clientsRestaurant = etablissement[data.id_etablissement];
             if (!clientsRestaurant) return;
 
             clientsRestaurant.forEach(client => {
@@ -77,16 +77,16 @@ wss.on('connection', ws => {
                 }
             });
 
-            console.log(`📤 Table ${data.table} terminée envoyée au restaurant ${data.idunique}`);
+            console.log(`📤 Table ${data.table} terminée envoyée au restaurant ${data.id_etablissement}`);
             return;
         }
     });
 
     ws.on('close', () => {
-        if (ws.idunique && restaurants[ws.idunique]) {
-            restaurants[ws.idunique].delete(ws);
-            if (restaurants[ws.idunique].size === 0) {
-                delete restaurants[ws.idunique];
+        if (ws.id_etablissement && etablissement[ws.id_etablissement]) {
+            etablissement[ws.id_etablissement].delete(ws);
+            if (etablissement[ws.id_etablissement].size === 0) {
+                delete etablissement[ws.id_etablissement];
             }
         }
         console.log('⚠️ Client déconnecté');

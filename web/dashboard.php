@@ -57,7 +57,7 @@
 
                <li class="nav-item link_page">
                     <a class="nav-link" href="#" data-target="utilisateur">
-                        <span>Gestion des utilisateurs</span>
+                        <span>Gestion des clients</span>
                     </a>
                 </li>
 
@@ -140,11 +140,11 @@
           </div>
 
           <div class="container-fluid content" id="utilisateur">
-            <button class="btn-user mb-4">Ajouter un utilisateur</button>
+            <button class="btn-user mb-4">Ajouter un client</button>
             <div class="row"> 
               <div class="card shadow mb-4 col-lg-12">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">LISTE DES UTILISATEURS</h6>
+                    <h6 class="m-0 font-weight-bold">LISTE DES CLIENTS</h6>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
@@ -387,11 +387,6 @@
                 <div class="col-lg-12 mb-4">
                   <select name="id_etablissement" class="bg-white w-100 h-100 selectEtablissement" required>
                     <option value="" disabled selected>Choisir l'etablissement destinataire</option>
-                    <?php
-                      foreach ($etablissements as $e) {
-                        echo '<option value="'.$e['id_etablissement'].'">'.$e['nom'].'</option>';
-                      }
-                    ?> 
                   </select>
                 </div>
                 <textarea name="description" class="form-control" rows="4" placeholder="Ecrivez quelques choses"></textarea>
@@ -421,11 +416,6 @@
                 <div class="col-lg-12 mb-4">
                   <select name="id_etablissement" class="bg-white w-100 h-100 selectEtablissement" required>
                     <option value="" disabled selected>Choisir l'etablissement destinataire</option>
-                    <?php
-                      foreach ($etablissements as $e) {
-                        echo '<option value="'.$e['id_etablissement'].'">'.$e['nom'].'</option>';
-                      }
-                    ?> 
                   </select>
                 </div>
                 <div class="col-lg-12">

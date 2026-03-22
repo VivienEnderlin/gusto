@@ -79,7 +79,7 @@ $('.btn-ets').on('click', function() {
 $('.btn-user').on('click', function() {
     $('#user')[0].reset();
     $('#user input[name="id"]').val('');
-    $('.modal-user .modal-title').text("Ajouter un utilisateur");
+    $('.modal-user .modal-title').text("Ajouter un client");
     $('.modal-user button[type=submit]').text("Ajouter");
     $('.modal-user').modal({backdrop: 'static', keyboard: false});
 });
@@ -284,7 +284,7 @@ $(document).on('click', '.edit-user', async function() {
             $('#user select[name="role"]').val(e.role);
             $('#user select[name="id_etablissement"]').val(e.id_etablissement);
             
-            $('.modal-user .modal-title').text("Modifier l'utilisateur");
+            $('.modal-user .modal-title').text("Modifier le client");
             $('.modal-user button[type=submit]').text("Modifier");
             $('.modal-user').modal({backdrop:'static', keyboard:false});
         } else {

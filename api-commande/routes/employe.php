@@ -1,11 +1,10 @@
 <?php
-require_once __DIR__ . '/../controllers/CategorieController.php';
+require_once __DIR__ . '/../controllers/EmployeController.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$controller = new CategorieController();
+$controller = new EmployeController();
 $method = $_SERVER['REQUEST_METHOD'];
-
 $headers = getallheaders();
 
 // Vérification du token
@@ -15,21 +14,18 @@ if (!isset($headers['Authorization'])) {
     exit;
 }
 
-// ========================
-// GET : lister ou récupérer une catégorie
-// ========================
+// GET : lister ou récupérer un employé
 if ($method === 'GET') {
     if (isset($_GET['id'])) {
-        $controller->show($_GET['id']);
+        $controller->show($_GET['id']); //S’il y a un ID → afficher un employé
     } else {
-        $controller->index();
+        $controller->index(); //Sinon → afficher tous les employés
     }
     exit;
 }
 
-// ========================
+
 // POST : ajouter ou modifier
-// ========================
 if ($method === 'POST') {
     $data = $_POST;
     if (!empty($data['id'])) {
@@ -56,9 +52,8 @@ if ($method === 'DELETE') {
     exit;
 }
 
-// ========================
+
 // Méthodes non autorisées
-// ========================
 http_response_code(405);
 echo json_encode(['success'=>false,'message'=>'Méthode non autorisée']);
 exit;

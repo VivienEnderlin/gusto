@@ -6,6 +6,15 @@ header('Content-Type: application/json; charset=utf-8');
 $controller = new ServiceController();
 $method = $_SERVER['REQUEST_METHOD'];
 
+$headers = getallheaders();
+
+// Vérification du token
+if (!isset($headers['Authorization'])) {
+    http_response_code(401);
+    echo json_encode(['success'=>false,'message'=>'Token requis']);
+    exit;
+}
+
 // ========================
 // GET
 // ========================

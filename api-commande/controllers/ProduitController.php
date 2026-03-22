@@ -37,6 +37,7 @@ class ProduitController {
         }
 
         echo json_encode(['success'=>true, 'data'=>$rows]);
+        
         exit;
     }
 

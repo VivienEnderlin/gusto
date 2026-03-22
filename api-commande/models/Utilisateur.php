@@ -48,6 +48,29 @@ class Utilisateur extends BaseModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getEmployeByEtablissement($id_etablissement) {
+        $stmt = $this->personnalSelect(
+            "utilisateur",
+            "*",
+            "WHERE id_etablissement = ?",
+            [$id_etablissement]
+        );
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // =========================
+    // Récupérer par ID et établissement (sécurisé)
+    // =========================
+    public function getByIdAndEtablissement($id, $id_etablissement) {
+        $stmt = $this->personnalSelect(
+            "utilisateur",
+            "*",
+            "WHERE id_categorie = ? AND id_etablissement = ?",
+            [$id, $id_etablissement]
+        );
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     /* =======================
        CRUD
     ======================= */
@@ -143,6 +166,17 @@ class Utilisateur extends BaseModel {
             ],
             "WHERE id_utilisateur = ?",
             [$id]
+        );
+    }
+
+    // =========================
+    // Supprimer une catégorie (sécurisé par établissement)
+    // =========================
+    public function delete($id, $id_etablissement){
+        return $this->personalDelete(
+            "utilisateur",
+            "WHERE id_utilisateur = ? AND id_etablissement = ?",
+            [$id, $id_etablissement]
         );
     }
     

@@ -30,7 +30,7 @@ class Middleware {
 
         try {
             $decoded = JWT::decode($token, new Key($secret, $algo));
-            return $decoded; // contient id_etablissement, email, etc.
+            return $decoded->data; // contient id_etablissement, email, etc.
         } catch (Exception $e) {
             Response::error("Token invalide: " . $e->getMessage(), 401);
             exit;

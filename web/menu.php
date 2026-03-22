@@ -174,8 +174,8 @@ foreach ($produits as $e) {
     <script src="./assets/js/feather.min.js"></script>
 
 <script>
-
-var panier = [];
+    const id_etablissement = "<?= htmlspecialchars($id_etablissement) ?>"
+    var panier = [];
 
 /* CALCUL TOTAL */
 
@@ -294,7 +294,84 @@ $(document).on('click','.commander',function(){
     $('.modal-c').modal({ backdrop:'static', keyboard:false }); 
 });
 
-//socket
+//Socket
+
+let socket = new WebSocket("ws://192.168.100.238:8080");
+
+    socket.onopen = function () {
+        console.log("✅ WebSocket connecté (client)");
+        socket.send(JSON.stringify({
+            type: "register",
+            id_etablissement: id_etablissement
+        }));
+    };
+
+    // Gestion des erreurs et fermeture
+    socket.onerror = function (err) {
+        console.error("❌ Erreur WebSocket", err);
+    };
+
+    socket.onclose = function () {
+        console.warn("⚠️ WebSocket déconnecté");
+    };
+
+    $(document).on('click', '#btn-valider', function () {
+
+        let numeroTable = $("#numeroTable").val().trim();
+        let totalGeneral = panier.reduce((sum, item) => sum + item.total, 0);
+
+        // 1️⃣ ENREGISTREMENT EN BASE (comme avant)
+        $.post("http://gusto/api-commande/routes/updateLogin.php", {
+            idtable: numeroTable,
+            id_etablissement: id_etablissement,
+            commande: JSON.stringify(panier),
+            montant_a_payer: totalGeneral
+        })
+        .done(function(response){
+
+            const res = JSON.parse(response);
+            const id_commande = res.id_commande; 
+
+            // 2️⃣ ENVOI INSTANTANÉ VIA WEBSOCKET
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: "nouvelle_commande",
+                    id_etablissement: id_etablissement,
+                    table: numeroTable,
+                    commande: panier,
+                    montant: totalGeneral,
+                    date: new Date().toLocaleString(),
+                    statut: "En attente",
+                    id_commande: id_commande
+                }));
+            }
+            
+            panier = [];
+            mettreAJourModal();
+            $('.modal-c').modal('hide');
+            alert(`Le serveur ${numeroTable} s'occupe de votre commande`);
+        });
+    });
+
+    // 🔴 FIN DE COMMANDE (bouton "terminer")
+    $(document).on('click', '.terminer', function () {
+
+        let numeroTable = "<?= htmlspecialchars($table) ?>";
+
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+                type: "table_terminee",
+                id_etablissement: id_etablissement,
+                table: numeroTable,
+                date: new Date().toLocaleString()
+            }));
+            alert('votre demande à été prise en compte')
+
+            console.log("📤 Table terminée envoyée :", numeroTable);
+        } else {
+            console.warn("⚠️ WebSocket non connecté");
+        }
+    });
 
 </script>
 
