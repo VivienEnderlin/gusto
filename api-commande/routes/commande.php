@@ -1,31 +1,40 @@
 <?php
-require_once __DIR__ . '/../controllers/Commande_ClientController.php';
+require_once __DIR__ . '/../controllers/CommandeController.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$controller = new Commande_ClientController();
+$controller = new CommandeController();
 $method = $_SERVER['REQUEST_METHOD'];
 
 // ========================
-// Lire le body JSON (POST)
+// Vérification du token
+// ========================
+$headers = function_exists('getallheaders') ? getallheaders() : [];
+$token = $headers['Authorization'] ?? null;
+
+// ========================
+// Lire le body JSON
 // ========================
 $inputData = [];
 if (in_array($method, ['POST', 'PATCH'])) {
     $raw = file_get_contents('php://input');
     $decoded = json_decode($raw, true);
+
     if ($raw && !$decoded) {
         http_response_code(400);
         echo json_encode(['success'=>false,'message'=>'JSON invalide']);
         exit;
     }
+
     $inputData = $decoded ?? $_POST;
 }
 
 // ========================
-// GET : liste ou détail
+// GET : libre (sans token)
 // ========================
 if ($method === 'GET') {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+
     if ($id) {
         $controller->show($id);
     } else {
@@ -35,28 +44,33 @@ if ($method === 'GET') {
 }
 
 // ========================
-// POST : ajouter ou modifier
+// POST : créer OU modifier
 // ========================
 if ($method === 'POST') {
     $id = !empty($inputData['id']) ? (int)$inputData['id'] : null;
 
-    if ($id) {
-        // UPDATE → token obligatoire
-        if (!$token) {
-            http_response_code(401);
-            echo json_encode(['success'=>false,'message'=>'Token requis pour modifier']);
-            exit;
-        }
-        $controller->update($id, $inputData);
-    } else {
-        // STORE → client autorisé
+    // 👉 CAS 1 : CRÉATION (SANS TOKEN)
+    if (!$id) {
         $controller->store($inputData);
+        exit;
     }
+
+    // 👉 CAS 2 : UPDATE (TOKEN OBLIGATOIRE)
+    if (!$token) {
+        http_response_code(401);
+        echo json_encode([
+            'success'=>false,
+            'message'=>'Token requis pour modifier'
+        ]);
+        exit;
+    }
+
+    $controller->update($id, $inputData);
     exit;
 }
 
 // ========================
-// DELETE : supprimer
+// DELETE : token obligatoire
 // ========================
 if ($method === 'DELETE') {
     if (!$token) {
@@ -66,6 +80,7 @@ if ($method === 'DELETE') {
     }
 
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+
     if (!$id) {
         http_response_code(400);
         echo json_encode(['success'=>false,'message'=>'ID requis']);
@@ -77,7 +92,7 @@ if ($method === 'DELETE') {
 }
 
 // ========================
-// PATCH : changer statut
+// PATCH : changer statut (token obligatoire)
 // ========================
 if ($method === 'PATCH') {
     if (!$token) {
@@ -87,6 +102,7 @@ if ($method === 'PATCH') {
     }
 
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+
     if (!$id) {
         http_response_code(400);
         echo json_encode(['success'=>false,'message'=>'ID requis']);
@@ -97,8 +113,6 @@ if ($method === 'PATCH') {
     exit;
 }
 
-// ========================
-// Méthodes non autorisées
 // ========================
 http_response_code(405);
 echo json_encode(['success'=>false,'message'=>'Méthode non autorisée']);

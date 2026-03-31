@@ -230,6 +230,7 @@ foreach ($produits as $e) {
                         <th>Commande</th>
                         <th>Qte</th>
                         <th>Montant</th>
+                        <th>Etat</th>
                     </tr>
                 </thead>
                 <tbody id="tableFacture"></tbody>
@@ -238,7 +239,7 @@ foreach ($produits as $e) {
 
             <div class="d-flex justify-content-between">
                 <h5>Montant total :</h5>
-                <h5 id="montantFinal">0 FCFA</h5>
+                <h5 id="montantTotal">0 FCFA</h5>
             </div>
 
             <div>
@@ -383,27 +384,64 @@ $(document).on('click','.commander',function(){
     $('.modal-c').modal({ backdrop:'static', keyboard:false }); 
 });
 
-// $(document).on('click','.facture',function(){ 
-//     $.ajax({
-//         url: "http://gusto/api-commande/routes/commande.php",
-//         method: "GET",
+
+$(document).on('click', '.facture', function() { 
+    $.ajax({
+        url: "http://gusto/api-commande/routes/commande.php?id_etablissement=" + id_etablissement,
+        method: "GET",
+        dataType: "json"
+    })
+    .done(function(res) {
+        if (!res.success) {
+            alert("Erreur: " + res.message);
+            return;
+        }
+
+        // Vider le tableau avant de remplir
+        $('#tableFacture').empty();
+
+        let totalGeneral = 0;
+
+        res.data.forEach(function(item) {
+            // Parse la chaîne JSON de la commande
+            let commandes;
+            try {
+                commandes = JSON.parse(item.commande);
+            } catch (e) {
+                console.error("Erreur JSON.parse:", e);
+                return;
+            }
+
+            commandes.forEach(function(prod) {
+                const nomProduit = prod.libelle;
+                const quantite = parseInt(prod.quantite);
+                const montantLigne = parseFloat(prod.total);
+                const etat = item.etat;
+
+                let row = `<tr>
+                    <td>${nomProduit}</td>
+                    <td>${quantite}</td>
+                    <td>${montantLigne.toLocaleString()} FCFA</td>
+                    <td>${etat}</td>
+                </tr>`;
+
+                $('#tableFacture').append(row);
+                totalGeneral += montantLigne;
+            });
+        });
+
+        // Mettre à jour le montant total
        
-//     })
-//     .done(function(response){
+        $('#montantTotal').text(totalGeneral.toLocaleString() + " FCFA");
+       
 
-//         const res = response;
-
-//         // ✅ Vérifier succès
-//         if (!res.success) {
-//             alert("Erreur: " + res.message);
-//             return;
-//         }
-
-//         $('.modal-f').modal({ backdrop:'static', keyboard:false }); 
-//     })
-
-    
-// });
+        // Afficher la modal (Bootstrap 5)
+         $('.modal-f').modal({ backdrop:'static', keyboard:false });
+    })
+    .fail(function(xhr, status, error) {
+        alert("Une erreur est survenue: " + error);
+    });
+});
 
 //Socket
 
@@ -439,7 +477,7 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
         };
 
         $.ajax({
-            url: "http://gusto/api-commande/routes/commande_client.php?id_etablissement=" + id_etablissement,
+            url: "http://gusto/api-commande/routes/commande.php?id_etablissement=" + id_etablissement,
             method: "POST",
             contentType: "application/json", // <- important !
             data: JSON.stringify(payload)     // <- tout l'objet en JSON
