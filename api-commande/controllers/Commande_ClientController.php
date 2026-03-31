@@ -2,13 +2,11 @@
 require_once __DIR__ . '/../models/Commande.php';
 require_once __DIR__ . '/../core/Middleware.php';
 
-class CommandeController {
+class Commande_ClientController {
 
     private $commande;
-    private $user; // infos JWT
 
     public function __construct() {
-        $this->user = Middleware::checkAuth(false); // false = ne pas forcer l'auth
         $this->commande = new Commande();
         error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
     }
@@ -16,23 +14,12 @@ class CommandeController {
     // =========================
     // Déterminer l'id_etablissement
     // =========================
-    private function getEtablissementId($requireAuth = false) {
-        // 1️⃣ Si utilisateur connecté
-        if (!empty($this->user) && isset($this->user->id_etablissement)) {
-            return $this->user->id_etablissement;
-        }
-
+    private function getEtablissementId() {
         // 2️⃣ Client non connecté → récupérer depuis URL
         if (isset($_GET['id_etablissement'])) {
             return $_GET['id_etablissement'];
         }
-
-        // Si token requis et absent
-        if ($requireAuth) {
-            echo json_encode(['success'=>false,'message'=>'Token requis']);
-        } else {
-            echo json_encode(['success'=>false,'message'=>'ID établissement requis']);
-        }
+         echo json_encode(['success'=>false,'message'=>'ID établissement requis']);
         exit;
     }
 
@@ -42,7 +29,7 @@ class CommandeController {
     public function index() {
         header('Content-Type: application/json; charset=utf-8');
 
-        $id_etablissement = $this->getEtablissementId(false);
+        $id_etablissement = $this->getEtablissementId();
         $data = $this->commande->getCommandesByEtablissement($id_etablissement);
 
         echo json_encode(['success'=>true, 'data'=>$data]);
@@ -55,7 +42,7 @@ class CommandeController {
     public function show($id) {
         header('Content-Type: application/json; charset=utf-8');
 
-        $id_etablissement = $this->getEtablissementId(false);
+        $id_etablissement = $this->getEtablissementId();
         $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
 
         if ($e) {
@@ -71,7 +58,7 @@ class CommandeController {
     // =========================
     public function store($data) {
         header('Content-Type: application/json; charset=utf-8');
-        $id_etablissement = $this->getEtablissementId(false);
+        $id_etablissement = $this->getEtablissementId();
         // 🔥 Vérifier si la table a un service actif
         $service = $this->commande->isTableActive(
             $data['id_table'],
@@ -101,7 +88,7 @@ class CommandeController {
     // =========================
     public function update($id, $data) {
         header('Content-Type: application/json; charset=utf-8');
-        $id_etablissement = $this->getEtablissementId(true); // token requis
+        $id_etablissement = $this->getEtablissementId(); // token requis
         $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
 
         if (!$e) {
@@ -120,7 +107,7 @@ class CommandeController {
     public function delete($id) {
         header('Content-Type: application/json; charset=utf-8');
 
-        $id_etablissement = $this->getEtablissementId(true); // token requis
+        $id_etablissement = $this->getEtablissementId();
         $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
 
         if (!$e) {
@@ -139,7 +126,7 @@ class CommandeController {
     public function changeStatus($id) {
         header('Content-Type: application/json; charset=utf-8');
 
-        $id_etablissement = $this->getEtablissementId(true); // token requis
+        $id_etablissement = $this->getEtablissementId(); // token requis
         $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
 
         if (!$e) {

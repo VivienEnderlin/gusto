@@ -1064,4 +1064,23 @@ button.loading.show-loader::after {
 }
 
 
+.commander {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 1px 6px;
+    text-align: center;
+}
+
+
+
 

@@ -1,16 +1,10 @@
 <?php
-require_once __DIR__ . '/../controllers/CommandeController.php';
+require_once __DIR__ . '/../controllers/Commande_ClientController.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$controller = new CommandeController();
+$controller = new Commande_ClientController();
 $method = $_SERVER['REQUEST_METHOD'];
-
-// ========================
-// Vérification du token
-// ========================
-$headers = function_exists('getallheaders') ? getallheaders() : [];
-$token = $headers['Authorization'] ?? null;
 
 // ========================
 // Lire le body JSON (POST)

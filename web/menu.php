@@ -1,43 +1,67 @@
 <?php
+$code = $_GET['code'] ?? null;
+  $secret = "CLE_SECRETE_GUSTO";
 
-    $code = $_GET['code'] ?? null;
-    $secret = "CLE_SECRETE_GUSTO";
-
-    if (!$code) {
+    if(!$code){
         exit("Lien invalide");
     }
 
-    // Décodage sécurisé
-    $decoded = base64_decode($code, true);
-    if (!$decoded) exit("QR code invalide");
+    $decoded = base64_decode($code);
+    list($id_etablissement, $table) = explode(":", $decoded);
+    $check = hash_hmac('sha256', $id_etablissement.":".$table, $secret);
 
-    // Extraire id, table et signature
-    $parts = explode(":", $decoded);
-    if (count($parts) !== 3) exit("QR code invalide");
-
-    list($id_etablissement, $table, $signature) = $parts;
-
-    // Vérifier format id/table
-    if (!ctype_digit($id_etablissement) || !preg_match('/^[\w\s-]+$/u', $table)) {
+    if(!ctype_digit($id_etablissement) || !ctype_digit($table)){
         exit("QR code modifié ou invalide");
     }
 
-    // Vérifier la signature
-    $expected = hash_hmac('sha256', $id_etablissement . ":" . $table, $secret);
-    if (!hash_equals($expected, $signature)) {
-        exit("QR code modifié ou invalide");
-    }
-
-    // Vérifier que la table existe réellement
-    require_once './../api-commande/models/Table.php';
+   require_once './../api-commande/models/Table.php';
     $tableModel = new Table();
-    $exists = $tableModel->getTable($id_etablissement, $table); // méthode à créer pour vérifier table précise
-    if (!$exists) {
+    $exists = $tableModel->getTablesByEtablissement($id_etablissement);
+
+    if(!$exists){
         exit("QR code modifié ou invalide");
     }
 
-    // ✅ Tout est OK, tu peux continuer
-    echo "Etablissement: $id_etablissement, Table: $table";
+echo "Etablissement: $id_etablissement, Table: $table";
+
+    // $code = $_GET['code'] ?? null;
+    // $secret = "CLE_SECRETE_GUSTO";
+
+    // if (!$code) {
+    //     exit("Lien invalide");
+    // }
+
+    // // Décodage sécurisé
+    // $decoded = base64_decode($code, true);
+    // if (!$decoded) exit("QR code invalide");
+
+    // // Extraire id, table et signature
+    // $parts = explode(":", $decoded);
+    // if (count($parts) !== 3) exit("QR code invalide");
+
+    // list($id_etablissement, $table, $signature) = $parts;
+
+    // // Vérifier format id/table
+    // if (!ctype_digit($id_etablissement) || !preg_match('/^[\w\s-]+$/u', $table)) {
+    //     exit("QR code modifié ou invalide");
+    // }
+
+    // // Vérifier la signature
+    // $expected = hash_hmac('sha256', $id_etablissement . ":" . $table, $secret);
+    // if (!hash_equals($expected, $signature)) {
+    //     exit("QR code modifié ou invalide");
+    // }
+
+    // // Vérifier que la table existe réellement
+    // require_once './../api-commande/models/Table.php';
+    // $tableModel = new Table();
+    // $exists = $tableModel->getTable($id_etablissement, $table); // méthode à créer pour vérifier table précise
+    // if (!$exists) {
+    //     exit("QR code modifié ou invalide");
+    // }
+
+    // // ✅ Tout est OK, tu peux continuer
+    // echo "Etablissement: $id_etablissement, Table: $table";
 
     require_once './../api-commande/models/Etablissement.php';
     $etablissementModel = new Etablissement();
@@ -135,6 +159,12 @@ foreach ($produits as $e) {
     <div class="commander">
         <span>🛒</span>
         Mon panier
+        <span class="cart-count" style="display:none;">0</span>
+    </div>
+
+    <div class="facture">
+        <span>🧾</span>
+        Voir mes commandes
     </div>
 
     <div class="terminer">
@@ -162,7 +192,7 @@ foreach ($produits as $e) {
                         <th>Commande</th>
                         <th>Qte</th>
                         <th>Montant</th>
-                        <th class="action">Action</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="tablePanier"></tbody>
@@ -177,6 +207,42 @@ foreach ($produits as $e) {
             <div>
                 <input type="text" class="mt-3" id="numeroTable" style="width: 80px" placeholder="N° table" value="<?= htmlspecialchars($table); ?>" disabled>
                 <button class="btn btn-warning float-right mt-3" id="btn-valider" style="display:none;">Commander maintenant</button>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade modal-f" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title m-0 font-weight-bold" style="font-size: 17px;" id="modalLabel">Mes commandes</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">×</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Commande</th>
+                        <th>Qte</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody id="tableFacture"></tbody>
+            </table>
+            <hr>
+
+            <div class="d-flex justify-content-between">
+                <h5>Montant total :</h5>
+                <h5 id="montantFinal">0 FCFA</h5>
+            </div>
+
+            <div>
+                <input type="text" class="mt-3" id="numeroTable" style="width: 80px" placeholder="N° table" value="<?= htmlspecialchars($table); ?>" disabled>
             </div>
             
           </div>
@@ -289,6 +355,8 @@ $(document).on('click','.ajouter',function(e){
     }
 
     mettreAJourModal();
+    let nbElementsDistincts = panier.length;
+    $('.commander .cart-count').show().text(nbElementsDistincts);
 
 });
 
@@ -303,11 +371,39 @@ $(document).on('click', '.supprimer-item', function() {
     container.find('.check-panier').remove();   // enlever le check
 
     mettreAJourModal();
+    let nbElementsDistincts = panier.length;
+    if(nbElementsDistincts === 0){
+        $('.commander .cart-count').hide();   // cacher si vide
+    } else {
+        $('.commander .cart-count').show().text(nbElementsDistincts);
+    }
 });
 
 $(document).on('click','.commander',function(){ 
     $('.modal-c').modal({ backdrop:'static', keyboard:false }); 
 });
+
+// $(document).on('click','.facture',function(){ 
+//     $.ajax({
+//         url: "http://gusto/api-commande/routes/commande.php",
+//         method: "GET",
+       
+//     })
+//     .done(function(response){
+
+//         const res = response;
+
+//         // ✅ Vérifier succès
+//         if (!res.success) {
+//             alert("Erreur: " + res.message);
+//             return;
+//         }
+
+//         $('.modal-f').modal({ backdrop:'static', keyboard:false }); 
+//     })
+
+    
+// });
 
 //Socket
 
@@ -335,15 +431,19 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
         let numeroTable = $("#numeroTable").val().trim();
         let totalGeneral = panier.reduce((sum, item) => sum + item.total, 0);
 
+        let payload = {
+            id_table: numeroTable,
+            id_etablissement: id_etablissement,
+            commande: panier,
+            montant_total: totalGeneral
+        };
+
         $.ajax({
-            url: "http://gusto/api-commande/routes/commande.php",
+            url: "http://gusto/api-commande/routes/commande_client.php?id_etablissement=" + id_etablissement,
             method: "POST",
-            data: {
-                id_table: numeroTable,
-                id_etablissement: id_etablissement,
-                commande: JSON.stringify(panier),
-                montant_total: totalGeneral
-            }
+            contentType: "application/json", // <- important !
+            data: JSON.stringify(payload)     // <- tout l'objet en JSON
+            
         })
         .done(function(response){
 
@@ -372,6 +472,8 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
 
             // RESET
             panier = [];
+            $('.commander .cart-count').hide(); 
+            $('.check-panier').remove(); 
             mettreAJourModal();
             $('.modal-c').modal('hide');
 

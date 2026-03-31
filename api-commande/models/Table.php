@@ -25,6 +25,18 @@ class Table extends BaseModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getTable($id_etablissement, $table) {
+
+        $stmt = $this->personnalSelect(
+            "tables_restaurant",
+            "*",
+            "WHERE id_etablissement = ? AND nom = ?",
+            [$id_etablissement, $table]
+        );
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // Récupérer par ID et restaurant (sécurisé)
     public function getByIdAndEtablissement($id, $id_etablissement) {
         $stmt = $this->personnalSelect(

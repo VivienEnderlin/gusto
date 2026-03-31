@@ -40,7 +40,7 @@ class Commande extends BaseModel {
         $stmt = $this->personnalSelect(
             "service",
             "*",
-            "WHERE id_table = ? AND id_etablissement = ? AND date_fermeture IS NULL",
+            "WHERE id_table = ? AND id_etablissement = ? AND date_heure_fermeture IS NULL",
             [$id_table, $id_etablissement]
         );
 
@@ -54,8 +54,8 @@ class Commande extends BaseModel {
             ['id_table','id_etablissement','commande','montant_total','etat'],
             [
                 $data['id_table'],
-                $data['id_etablissement'],
-                $data['commande'],
+                $id_etablissement,
+                json_encode($data['commande']),
                 $data['montant_total'],
                 "En attente"
             ]
@@ -71,7 +71,7 @@ class Commande extends BaseModel {
             ['id_table','commande','montant_total','etat'],
             [
                 $data['id_table'],
-                $data['commande'],
+                json_encode($data['commande']),
                 $data['montant_total'],
                 $data['etat'],
             ],
