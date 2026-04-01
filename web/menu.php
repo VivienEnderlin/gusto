@@ -385,6 +385,8 @@ $(document).on('click','.commander',function(){
 });
 
 
+const table = "<?= htmlspecialchars($table) ?>"; 
+
 $(document).on('click', '.facture', function() { 
     $.ajax({
         url: "http://gusto/api-commande/routes/commande.php?id_etablissement=" + id_etablissement,
@@ -403,6 +405,7 @@ $(document).on('click', '.facture', function() {
         let totalGeneral = 0;
 
         res.data.forEach(function(item) {
+            if (item.etat=="Payé" || item.id_table != table) return
             // Parse la chaîne JSON de la commande
             let commandes;
             try {
