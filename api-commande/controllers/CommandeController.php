@@ -5,7 +5,6 @@ require_once __DIR__ . '/../core/Middleware.php';
 class CommandeController {
 
     private $commande;
-    
 
     public function __construct() {
         $this->commande = new Commande();
@@ -13,26 +12,27 @@ class CommandeController {
     }
 
     // =========================
-    // Déterminer l'id_etablissement selon token ou URL
+    // Déterminer l'id_etablissement
     // =========================
     private function getEtablissementId() {
-        // 1️⃣ Vérifier si un token est présent
+
+        // 🔐 Si token → utiliser JWT
         $headers = getallheaders();
+
         if (isset($headers['Authorization'])) {
-            $token = str_replace('Bearer ', '', $headers['Authorization']);
-            $user = Middleware::verifyToken($token);
-            if ($user) {
-                // Token valide → récupérer l'id_etablissement depuis le token
-                return $user['id_etablissement'];
-            }
+            $user = Middleware::checkAuth();
+            return $user->id_etablissement; // ✅ CORRECTION
         }
 
-        // 2️⃣ Sinon, client non authentifié → récupérer depuis URL
+        // 🌍 Sinon → client
         if (isset($_GET['id_etablissement'])) {
             return $_GET['id_etablissement'];
         }
 
-        echo json_encode(['success' => false, 'message' => 'ID établissement requis']);
+        echo json_encode([
+            'success' => false,
+            'message' => 'ID établissement requis'
+        ]);
         exit;
     }
 
@@ -45,7 +45,10 @@ class CommandeController {
         $id_etablissement = $this->getEtablissementId();
         $data = $this->commande->getCommandesByEtablissement($id_etablissement);
 
-        echo json_encode(['success' => true, 'data' => $data]);
+        echo json_encode([
+            'success' => true,
+            'data' => $data
+        ]);
         exit;
     }
 
@@ -67,15 +70,15 @@ class CommandeController {
     }
 
     // =========================
-    // AJOUTER UNE COMMANDE (Client ou employé)
+    // AJOUTER UNE COMMANDE
     // =========================
     public function store($data) {
         header('Content-Type: application/json; charset=utf-8');
 
         $id_etablissement = $this->getEtablissementId();
 
-        // Vérifier si la table a un service actif
         $service = $this->commande->isTableActive($data['id_table'], $id_etablissement);
+
         if (!$service) {
             echo json_encode([
                 'success' => false,
@@ -84,7 +87,6 @@ class CommandeController {
             exit;
         }
 
-        // Créer la commande
         $id = $this->commande->create($data, $id_etablissement);
         $e  = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
 
@@ -97,95 +99,93 @@ class CommandeController {
     }
 
     // =========================
-    // MODIFIER UNE COMMANDE (Seulement employé connecté)
+    // MODIFIER UNE COMMANDE
     // =========================
     public function update($id, $data) {
         header('Content-Type: application/json; charset=utf-8');
 
-        // Obligatoire : token valide pour modifier
-        $headers = getallheaders();
-        if (!isset($headers['Authorization'])) {
-            echo json_encode(['success' => false, 'message' => 'Token requis']);
-            exit;
-        }
-        $token = str_replace('Bearer ', '', $headers['Authorization']);
-        $user = Middleware::verifyToken($token);
-        if (!$user) {
-            echo json_encode(['success' => false, 'message' => 'Token invalide']);
-            exit;
-        }
+        // 🔐 Auth obligatoire
+        $user = Middleware::checkAuth();
+        $id_etablissement = $user->id_etablissement; // ✅ CORRECTION
 
-        $id_etablissement = $user['id_etablissement'];
         $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
+
         if (!$e) {
-            echo json_encode(['success' => false, 'message' => 'Commande introuvable']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Commande introuvable'
+            ]);
             exit;
         }
 
         $this->commande->update($id, $id_etablissement, $data);
+
         $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
-        echo json_encode(['success' => true, 'data' => $e]);
+
+        echo json_encode([
+            'success' => true,
+            'data' => $e
+        ]);
         exit;
     }
 
     // =========================
-    // SUPPRIMER UNE COMMANDE (Seulement employé connecté)
+    // SUPPRIMER UNE COMMANDE
     // =========================
     public function delete($id) {
         header('Content-Type: application/json; charset=utf-8');
 
-        $headers = getallheaders();
-        if (!isset($headers['Authorization'])) {
-            echo json_encode(['success' => false, 'message' => 'Token requis']);
-            exit;
-        }
-        $token = str_replace('Bearer ', '', $headers['Authorization']);
-        $user = Middleware::verifyToken($token);
-        if (!$user) {
-            echo json_encode(['success' => false, 'message' => 'Token invalide']);
-            exit;
-        }
+        // 🔐 Auth obligatoire
+        $user = Middleware::checkAuth();
+        $id_etablissement = $user->id_etablissement;
 
-        $id_etablissement = $user['id_etablissement'];
         $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
+
         if (!$e) {
-            echo json_encode(['success' => false, 'message' => 'Commande introuvable']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Commande introuvable'
+            ]);
             exit;
         }
 
         $this->commande->delete($id, $id_etablissement);
-        echo json_encode(['success' => true, 'message' => 'Commande supprimée']);
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Commande supprimée'
+        ]);
         exit;
     }
 
     // =========================
-    // CHANGER STATUT (Seulement employé connecté)
+    // CHANGER STATUT
     // =========================
     public function changeStatus($id) {
         header('Content-Type: application/json; charset=utf-8');
 
-        $headers = getallheaders();
-        if (!isset($headers['Authorization'])) {
-            echo json_encode(['success' => false, 'message' => 'Token requis']);
-            exit;
-        }
-        $token = str_replace('Bearer ', '', $headers['Authorization']);
-        $user = Middleware::verifyToken($token);
-        if (!$user) {
-            echo json_encode(['success' => false, 'message' => 'Token invalide']);
-            exit;
-        }
+        // 🔐 Auth obligatoire
+        $user = Middleware::checkAuth();
+        $id_etablissement = $user->id_etablissement;
 
-        $id_etablissement = $user['id_etablissement'];
         $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
+
         if (!$e) {
-            echo json_encode(['success' => false, 'message' => 'Commande introuvable']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Commande introuvable'
+            ]);
             exit;
         }
 
         $this->commande->toggleStatut($id, $id_etablissement);
+
         $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
-        echo json_encode(['success' => true, 'data' => $e]);
+
+        echo json_encode([
+            'success' => true,
+            'data' => $e
+        ]);
         exit;
     }
 }

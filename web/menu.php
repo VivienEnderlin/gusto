@@ -257,6 +257,7 @@ foreach ($produits as $e) {
 
 <script>
     const id_etablissement = "<?= htmlspecialchars($id_etablissement) ?>"
+    const table = "<?= htmlspecialchars($table) ?>"; 
     var panier = [];
 
 /* CALCUL TOTAL */
@@ -384,8 +385,6 @@ $(document).on('click','.commander',function(){
     $('.modal-c').modal({ backdrop:'static', keyboard:false }); 
 });
 
-
-const table = "<?= htmlspecialchars($table) ?>"; 
 
 $(document).on('click', '.facture', function() { 
     $.ajax({
@@ -515,6 +514,7 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
             panier = [];
             $('.commander .cart-count').hide(); 
             $('.check-panier').remove(); 
+            $('.valeurquantite').val(1); 
             mettreAJourModal();
             $('.modal-c').modal('hide');
 

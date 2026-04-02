@@ -1,4 +1,3 @@
-```php
 <?php
 require_once __DIR__ . '/../models/QrCode.php';
 require_once __DIR__ . '/../core/Middleware.php';
