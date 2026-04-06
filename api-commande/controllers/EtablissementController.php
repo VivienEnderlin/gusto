@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/Etablissement.php';
 require_once __DIR__ . '/../core/Middleware.php';
-require_once __DIR__ . '/../core/upload.php';
+require_once __DIR__ . '/../config/upload.php';
 
 class EtablissementController {
 

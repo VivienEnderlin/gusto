@@ -1,31 +1,65 @@
 <?php
 class Database {
+    private static $servers = [
+        [
+            'host' => 'localhost',
+            'dbname' => 'etablissement',
+            'user' => 'root',
+            'password' => ''
+        ],
+        // [
+        //     'host' => '192.168.1.11',
+        //     'dbname' => 'etablissement',
+        //     'user' => 'root',
+        //     'password' => ''
+        // ]
+    ];
 
-    private static $host = 'localhost';
-    private static $name = 'etablissement';
-    private static $user = 'root';
-    private static $password = '';
     protected $pdo = null;
+    private $initialized = false; // flag pour éviter réinitialisation
 
     public function __construct() {
         $this->connect();
     }
 
     public function connect() {
+        foreach (self::$servers as $srv) {
+            try {
+                $this->pdo = new PDO(
+                    "mysql:host={$srv['host']};dbname={$srv['dbname']};charset=utf8mb4",
+                    $srv['user'],
+                    $srv['password'],
+                    [PDO::ATTR_PERSISTENT => true]
+                );
+                $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                error_log("Connecté à la DB sur {$srv['host']}");
+                break;
+            } catch (PDOException $e) {
+                error_log("Impossible de se connecter à {$srv['host']}: " . $e->getMessage());
+            }
+        }
+
+        if (!$this->pdo) {
+            die("Tous les serveurs de base de données sont indisponibles !");
+        }
+
+        // ✅ Initialisation uniquement si pas déjà fait
+        $lockFile = __DIR__ . '/db_initialized.lock';
+        if (!$this->initialized && !file_exists($lockFile)) {
+            $this->initDatabase();
+            file_put_contents($lockFile, date('c')); // créer le lock
+            $this->initialized = true;
+        }
+
+        return $this->pdo;
+    }
+
+    private function initDatabase() {
         try {
-            $this->pdo = new PDO(
-                'mysql:host=' . self::$host . ';charset=utf8',
-                self::$user,
-                self::$password,
-                [PDO::ATTR_PERSISTENT => true]
-            );
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->pdo->exec("CREATE DATABASE IF NOT EXISTS etablissement CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            $this->pdo->exec("USE etablissement");
 
-            // Créer la base si nécessaire
-            $this->pdo->exec("CREATE DATABASE IF NOT EXISTS `" . self::$name . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-            $this->pdo->exec("USE `" . self::$name . "`");
-
-            // Tables
+            // → Tables ici (copier ton tableau $tables actuel)
             $tables = [
                 "etablissement" => "
                     CREATE TABLE IF NOT EXISTS etablissement (
@@ -33,6 +67,8 @@ class Database {
                         logo TEXT NOT NULL,
                         nom VARCHAR(50) NOT NULL,
                         type VARCHAR(50) NOT NULL,
+                        pays VARCHAR(50) NOT NULL,
+                        ville VARCHAR(50) NOT NULL,
                         adresse VARCHAR(50) NOT NULL,
                         email VARCHAR(50) NOT NULL,
                         telephone VARCHAR(50) NOT NULL,
@@ -40,7 +76,6 @@ class Database {
                         description TEXT NOT NULL,
                         date_enreg DATE
                     )",
-
                 "appareil" => "
                     CREATE TABLE IF NOT EXISTS appareil (
                         id_appareil INT AUTO_INCREMENT PRIMARY KEY,
@@ -55,7 +90,6 @@ class Database {
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
-
                 "contrat" => "
                     CREATE TABLE IF NOT EXISTS contrat (
                         id_contrat INT AUTO_INCREMENT PRIMARY KEY,
@@ -67,7 +101,6 @@ class Database {
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
-
                 "utilisateur" => "
                     CREATE TABLE IF NOT EXISTS utilisateur (
                         id_utilisateur INT AUTO_INCREMENT PRIMARY KEY,
@@ -83,9 +116,6 @@ class Database {
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
-                    
-                //admin
-
                 "tables_restaurant" => "
                     CREATE TABLE IF NOT EXISTS tables_restaurant (
                         id_table INT AUTO_INCREMENT PRIMARY KEY,
@@ -95,7 +125,6 @@ class Database {
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
-
                 "categorie" => "
                     CREATE TABLE IF NOT EXISTS categorie (
                         id_categorie INT AUTO_INCREMENT PRIMARY KEY,
@@ -104,7 +133,6 @@ class Database {
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
-
                 "produit" => "
                     CREATE TABLE IF NOT EXISTS produit (
                         id_produit INT AUTO_INCREMENT PRIMARY KEY,
@@ -112,16 +140,13 @@ class Database {
                         nom VARCHAR(50) NOT NULL,
                         image TEXT,
                         id_categorie INT,
-                        prix INT,
+                        prix VARCHAR(11) NOT NULL,
                         description TEXT,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE,
                         FOREIGN KEY (id_categorie) REFERENCES categorie(id_categorie)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
-
-                    //lorsque le serveur installe le client il ouvre le service sur la table toutes les commandes s'enregistrent dans l'objet service sauf date de fermeture. lui meme apres que le service soit fini il ferme le service et la date de fermeture marque la fin d'un servce. lorsque le client commande ca verifie le dernier id  de la table service si ca corresond avec l'id de sa table si il ya pas la date de fermeture il peu comande si y'en a ca bloque ou ca met une erreurdisant que que la table est en cours s'utilisation
-
                 "service" => "
                     CREATE TABLE IF NOT EXISTS service (
                         id_service INT AUTO_INCREMENT PRIMARY KEY,
@@ -137,7 +162,6 @@ class Database {
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
-                    
                 "commande" => "
                     CREATE TABLE IF NOT EXISTS commande (
                         id_commande INT AUTO_INCREMENT PRIMARY KEY,
@@ -157,7 +181,7 @@ class Database {
                 $this->pdo->exec($sql);
             }
 
-            // Créer utilisateur admin si absent
+            // Création de l'admin si aucun utilisateur
             $stmt = $this->pdo->query("SELECT COUNT(*) FROM utilisateur");
             if ($stmt->fetchColumn() == 0) {
                 $stmt = $this->pdo->prepare("
@@ -165,7 +189,6 @@ class Database {
                     (nom, adresse, email, telephone, login, password, id_etablissement, role, date_enreg) 
                     VALUES (:nom, :adresse, :email, :telephone, :login, :password, :id_etablissement, :role, :date_enreg)
                 ");
-
                 $stmt->execute([
                     ':nom' => 'Djiomou Vivien',
                     ':adresse' => 'Yaoundé-Cameroun',
@@ -180,10 +203,8 @@ class Database {
             }
 
         } catch (PDOException $e) {
-            die('Erreur PDO : '.$e->getMessage());
+            die("Erreur initialisation DB : " . $e->getMessage());
         }
-
-        return $this->pdo;
     }
 
     public function disconnect() {

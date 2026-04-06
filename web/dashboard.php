@@ -16,6 +16,8 @@
     <link href="./assets/vendor/admin-2/sb-admin-2.min.css" rel="stylesheet">
     <link href="./assets/vendor/icofont/icofont.min.css" rel="stylesheet">
     <link href="./assets/vendor/dataTables/datatables.bootstrap4.min.css" rel="stylesheet">
+    <link href="./assets/vendor/virtual-select/virtual-select.min.css" rel="stylesheet">
+    <link href="./assets/vendor/build/intlTelInput.css" rel="stylesheet">
     <link href="./assets/css/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
   </head>
@@ -277,14 +279,28 @@
                 <div class="col-lg-6">
                   <input type="text" name="type" class="form-control" placeholder="Type d'etablissement" required>
                 </div>
-                <div class="col-lg-12">
+                <div class="col-lg-6">
+                  <input type="text" name="pays" class="form-control" placeholder="pays" required>
+                </div>
+                <div class="col-lg-6 mb-4">
+                  <select name="devise" class="bg-white w-100 h-100"  required>
+                    <option value="" disabled selected>Choisir la monnaie</option>
+                    <option value="FCFA">FCFA</option>
+                    <option value="€">€</option>
+                    <option value="$">$</option>
+                  </select>
+                </div>
+                <div class="col-lg-6">
+                  <input type="text" name="ville" class="form-control" placeholder="ville" required>
+                </div>
+                <div class="col-lg-6">
                   <input type="text" name="adresse" class="form-control" placeholder="Adresse de l'etablissement" required>
                 </div>
                 <div class="col-lg-6">
                   <input type="email" name="email" class="form-control" placeholder="Email de l'établissement">
                 </div>
-                <div class="col-lg-6">
-                  <input type="tel" name="telephone" class="form-control" placeholder="Téléphone de l'établissement">
+                <div class="col-lg-6" style="margin-top: 10px;">
+                  <input type="tel" name="telephone" id="phone" class="form-control" value="+237 " placeholder="Téléphone de l'établissement">
                 </div>
                 <div class="col-lg-12">
                   <input type="url" name="site_web" class="form-control" placeholder="Site web de l'établissement">
@@ -338,7 +354,7 @@
                   </select>
                 </div>
                 <div class="col-lg-6 mb-4">
-                  <select name="id_etablissement" class="bg-white w-100 h-100 selectEtablissement" required>
+                  <select name="id_etablissement" class="bg-white  w-100 h-100 selectEtablissement" required>
                     <option value="" disabled selected>Choisir l'etablissement géré</option>
                   </select>
                 </div>
@@ -385,7 +401,7 @@
                   <input type="date" class="form-control" name="date_fin_support">
                </div>
                 <div class="col-lg-12 mb-4">
-                  <select name="id_etablissement" class="bg-white w-100 h-100 selectEtablissement" required>
+                  <select name="id_etablissement" class="bg-white  w-100 h-100 selectEtablissement" required>
                     <option value="" disabled selected>Choisir l'etablissement destinataire</option>
                   </select>
                 </div>
@@ -414,7 +430,7 @@
             <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>" method="post" role="form" id='contrat' class="php-form">
               <div class="row">
                 <div class="col-lg-12 mb-4">
-                  <select name="id_etablissement" class="bg-white w-100 h-100 selectEtablissement" required>
+                  <select name="id_etablissement" class="bg-white  w-100 h-100 selectEtablissement" required>
                     <option value="" disabled selected>Choisir l'etablissement destinataire</option>
                   </select>
                 </div>
@@ -442,6 +458,7 @@
     <script src="./assets/vendor/datatables/dataTables.bootstrap4.min.js"></script>
     <script src="./assets/vendor/datatables/datatables-demo.js"></script>
     <script src="./assets/vendor/custom-file-input/custom-file-input.js"></script>
+    <script src="./assets/vendor/build/intlTelInput.js"></script>
 
     <script>
     // Fonction pour décoder un JWT côté client
@@ -600,6 +617,11 @@
         logo.src = URL.createObjectURL(file)
       }
     }
+
+    var input = document.querySelector("#phone");
+    window.intlTelInput(input, {
+      utilsScript: "./assets/vendor/build/utils.js",
+    });
   </script>
 
   <script src="./assets/js/admin.js"></script>

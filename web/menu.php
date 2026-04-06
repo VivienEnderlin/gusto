@@ -74,6 +74,8 @@ echo "Etablissement: $id_etablissement, Table: $table";
     require_once './../api-commande/models/Produit.php';
     $produitModel = new Produit();
     $produits = $produitModel->getProduitsByEtablissement($id_etablissement);
+
+    $devise = $etablissements["devise"];
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -115,7 +117,6 @@ echo "Etablissement: $id_etablissement, Table: $table";
         ?>
     </div>
 
-   
 
 </div>
 
@@ -139,7 +140,7 @@ foreach ($produits as $e) {
         <div class="content">
             <div class="flex-between">
                 <h3>' . htmlspecialchars($e['nom']) . '</h3>
-                <span class="price">' . htmlspecialchars($e['prix']) . ' Fcfa</span>
+                <span class="price">' . htmlspecialchars($e['prix']) . ' ' . htmlspecialchars($devise) . '</span>
             </div>
             <p>' . htmlspecialchars($e['description']) . '</p>
             <input type="number" class="valeurquantite" value="1" min="1" style="width: 80px; float:right; margin-bottom: 20px;">
@@ -158,18 +159,18 @@ foreach ($produits as $e) {
 
     <div class="commander">
         <span>🛒</span>
-        Mon panier
+        My basket
         <span class="cart-count" style="display:none;">0</span>
     </div>
 
     <div class="facture">
         <span>🧾</span>
-        Voir mes commandes
+        My commands
     </div>
 
     <div class="terminer">
         <span>🛎️</span>
-        reclamer ma facture
+        ask my bill
     </div>
 
 </nav>
@@ -180,7 +181,7 @@ foreach ($produits as $e) {
       <div class="modal-dialog modal-md" role="document">
         <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title m-0 font-weight-bold" style="font-size: 17px;" id="modalLabel">Mon panier</h5>
+              <h5 class="modal-title m-0 font-weight-bold" style="font-size: 17px;" id="modalLabel">My basket</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">×</span>
               </button>
@@ -189,9 +190,9 @@ foreach ($produits as $e) {
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Commande</th>
+                        <th>Command</th>
                         <th>Qte</th>
-                        <th>Montant</th>
+                        <th>Amount</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -200,13 +201,13 @@ foreach ($produits as $e) {
             <hr>
 
             <div class="d-flex justify-content-between">
-                <h5>Montant total :</h5>
-                <h5 id="montantFinal">0 FCFA</h5>
+                <h5>Total amount :</h5>
+                <h5 id="montantFinal">0 <?= htmlspecialchars($devise) ?></h5>
             </div>
 
             <div>
                 <input type="text" class="mt-3" id="numeroTable" style="width: 80px" placeholder="N° table" value="<?= htmlspecialchars($table); ?>" disabled>
-                <button class="btn btn-warning float-right mt-3" id="btn-valider" style="display:none;">Commander maintenant</button>
+                <button class="btn btn-warning float-right mt-3" id="btn-valider" style="display:none;">Command now</button>
             </div>
             
           </div>
@@ -218,7 +219,7 @@ foreach ($produits as $e) {
       <div class="modal-dialog modal-md" role="document">
         <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title m-0 font-weight-bold" style="font-size: 17px;" id="modalLabel">Mes commandes</h5>
+              <h5 class="modal-title m-0 font-weight-bold" style="font-size: 17px;" id="modalLabel">My commands</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">×</span>
               </button>
@@ -227,10 +228,10 @@ foreach ($produits as $e) {
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Commande</th>
+                        <th>Command</th>
                         <th>Qte</th>
-                        <th>Montant</th>
-                        <th>Etat</th>
+                        <th>Amount</th>
+                        <th>Statu</th>
                     </tr>
                 </thead>
                 <tbody id="tableFacture"></tbody>
@@ -238,8 +239,8 @@ foreach ($produits as $e) {
             <hr>
 
             <div class="d-flex justify-content-between">
-                <h5>Montant total :</h5>
-                <h5 id="montantTotal">0 FCFA</h5>
+                <h5>Total amount :</h5>
+                <h5 id="montantTotal">0 <?= htmlspecialchars($devise) ?></h5>
             </div>
 
             <div>
@@ -258,6 +259,7 @@ foreach ($produits as $e) {
 <script>
     const id_etablissement = "<?= htmlspecialchars($id_etablissement) ?>"
     const table = "<?= htmlspecialchars($table) ?>"; 
+    const devise = "<?= htmlspecialchars($etablissements["devise"]) ?>";
     var panier = [];
 
 /* CALCUL TOTAL */
@@ -267,10 +269,10 @@ function calculerMontantFinal() {
     let total = 0;
 
     panier.forEach(item => {
-        total += parseInt(item.total);
+        total += item.total;
     });
-
-    $("#montantFinal").text(total + " FCFA");
+    parseFloat(total.toFixed(2));
+    $("#montantFinal").text(total.toFixed(2) + " " + devise);
 }
 
 /* UPDATE MODAL */
@@ -285,7 +287,7 @@ function mettreAJourModal() {
         <tr>
             <td>${item.libelle}</td>
             <td>${item.quantite}</td>
-            <td>${item.total} FCFA</td>
+            <td>${item.total.toFixed(2)} ${devise}</td>
             <td>
                 <button class="btn btn-danger btn-sm supprimer-item"
                         data-index="${index}"
@@ -321,13 +323,9 @@ $(document).on('click','.ajouter',function(e){
 
     var nom = container.find("h3").text();
 
-    var prix = parseInt(
-        container.find(".price").text().replace(" Fcfa","")
-    );
+    var prix = container.find(".price").text().replace(" " + devise,"");
 
-    var quantite = parseInt(
-        container.find('.valeurquantite').val()
-    );
+    var quantite = container.find('.valeurquantite').val();
 
     var total = prix * quantite;
 
@@ -394,7 +392,7 @@ $(document).on('click', '.facture', function() {
     })
     .done(function(res) {
         if (!res.success) {
-            alert("Erreur: " + res.message);
+            alert("Error: " + res.message);
             return;
         }
 
@@ -416,14 +414,14 @@ $(document).on('click', '.facture', function() {
 
             commandes.forEach(function(prod) {
                 const nomProduit = prod.libelle;
-                const quantite = parseInt(prod.quantite);
-                const montantLigne = parseFloat(prod.total);
+                const quantite = prod.quantite;
+                const montantLigne = prod.total;
                 const etat = item.etat;
 
                 let row = `<tr>
                     <td>${nomProduit}</td>
                     <td>${quantite}</td>
-                    <td>${montantLigne.toLocaleString()} FCFA</td>
+                    <td>${montantLigne.toFixed(2)} ${devise}</td>
                     <td>${etat}</td>
                 </tr>`;
 
@@ -433,15 +431,14 @@ $(document).on('click', '.facture', function() {
         });
 
         // Mettre à jour le montant total
-       
-        $('#montantTotal').text(totalGeneral.toLocaleString() + " FCFA");
+       $('#montantTotal').text(totalGeneral.toFixed(2) + " " + devise);
        
 
         // Afficher la modal (Bootstrap 5)
          $('.modal-f').modal({ backdrop:'static', keyboard:false });
     })
     .fail(function(xhr, status, error) {
-        alert("Une erreur est survenue: " + error);
+        alert("An error has occurred: " + error);
     });
 });
 
@@ -459,11 +456,11 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
 
     // Gestion des erreurs et fermeture
     socket.onerror = function (err) {
-        console.error("❌ Erreur WebSocket", err);
+        console.error("❌ Error WebSocket", err);
     };
 
     socket.onclose = function () {
-        console.warn("⚠️ WebSocket déconnecté");
+        console.warn("⚠️ WebSocket diconnected");
     };
 
     $(document).on('click', '#btn-valider', function () {
@@ -491,7 +488,7 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
 
             // ✅ Vérifier succès
             if (!res.success) {
-                alert("Erreur: " + res.message);
+                alert("Error: " + res.message);
                 return;
             }
 
@@ -500,7 +497,7 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
             // ✅ WebSocket
             if (socket.readyState === WebSocket.OPEN) {
                 socket.send(JSON.stringify({
-                    type: "nouvelle_commande",
+                    type: "new_command",
                     id_etablissement: id_etablissement,
                     table: numeroTable,
                     commande: panier,
@@ -518,10 +515,10 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
             mettreAJourModal();
             $('.modal-c').modal('hide');
 
-            alert("Commande envoyée veillez patienter quelques s'il vous plaît");
+            alert("Command sent please wait a moment");
         })
         .fail(function(){
-            alert("Erreur serveur ❌");
+            alert("Server error ❌");
         });
 
     });
@@ -534,15 +531,15 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
 
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({
-                type: "table_terminee",
+                type: "table_completed",
                 id_etablissement: id_etablissement,
                 table: numeroTable
             }));
-            alert('votre demande à été prise en compte')
+            alert('Your command has been processed')
 
-            console.log("📤 Table terminée envoyée :", numeroTable);
+            console.log("📤 Table completed sent :", numeroTable);
         } else {
-            console.warn("⚠️ WebSocket non connecté");
+            console.warn("⚠️ WebSocket no connected");
         }
     });
 

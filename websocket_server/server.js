@@ -7,14 +7,14 @@ const wss = new WebSocket.Server({ port: 8080, host: '0.0.0.0' });
 const etablissement = {};
 
 wss.on('connection', ws => {
-    console.log('✅ Client connecté');
+    console.log('✅ Client connected');
 
     ws.on('message', message => {
         let data;
         try {
             data = JSON.parse(message.toString());
         } catch (e) {
-            console.log('❌ Message invalide');
+            console.log('❌  Invalid message');
             return;
         }
 
@@ -27,12 +27,12 @@ wss.on('connection', ws => {
             }
 
             etablissement[data.id_etablissement].add(ws);
-            console.log(`🏷️ Client enregistré pour restaurant ${data.id_etablissement}`);
+            console.log(`🏷️ Client register for restaurant ${data.id_etablissement}`);
             return;
         }
 
         // 📦 Nouvelle commande
-        if (data.type === 'nouvelle_commande' && data.id_etablissement) {
+        if (data.type === 'new_command' && data.id_etablissement) {
             const clientsRestaurant = etablissement[data.id_etablissement];
             if (!clientsRestaurant) return;
 
@@ -42,12 +42,12 @@ wss.on('connection', ws => {
                 }
             });
 
-            console.log(`📤 Commande envoyée au restaurant ${data.id_etablissement}`);
+            console.log(`📤 Command sent to restaurant ${data.id_etablissement}`);
             return;
         }
 
         // ✅ 🧾 TABLE TERMINÉE (AJOUT)
-        if (data.type === 'table_terminee' && data.id_etablissement) {
+        if (data.type === 'table_completed' && data.id_etablissement) {
             const clientsRestaurant = etablissement[data.id_etablissement];
             if (!clientsRestaurant) return;
 
@@ -57,7 +57,7 @@ wss.on('connection', ws => {
                 }
             });
 
-            console.log(`📤 Table ${data.table} terminée envoyée au restaurant ${data.id_etablissement}`);
+            console.log(`📤 Table ${data.table} completed sent to restaurant ${data.id_etablissement}`);
             return;
         }
     });
@@ -69,9 +69,9 @@ wss.on('connection', ws => {
                 delete etablissement[ws.id_etablissement];
             }
         }
-        console.log('⚠️ Client déconnecté');
+        console.log('⚠️ Client diconnected');
     });
 });
 
-console.log('🚀 WebSocket serveur démarré sur ws://0.0.0.0:8080');
+console.log('🚀 WebSocket server started sur ws://0.0.0.0:8080');
 

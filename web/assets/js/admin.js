@@ -207,6 +207,9 @@ $(document).on('click', '.edit-ets', async function() {
             $('#logo').attr('src', logos[0] || '');
             $('#ets input[name="nom"]').val(e.nom);
             $('#ets input[name="type"]').val(e.type);
+            $('#ets input[name="pays"]').val(e.pays);
+            $('#ets select[name="devise"]').val(e.devise);
+            $('#ets input[name="ville"]').val(e.ville);
             $('#ets input[name="adresse"]').val(e.adresse);
             $('#ets input[name="email"]').val(e.email);
             $('#ets input[name="telephone"]').val(e.telephone);
@@ -468,37 +471,4 @@ $(document).on('click', '.edit-contrat', async function() {
         alert("Erreur serveur : " + err.message);
     }
 });
-
-
-//change
-
-// $(document).on('click', '.change-contrat', async function () {
-//     const id = $(this).data('id');
-//     try {
-//         const response = await fetch(
-//             `http://gusto/api-commande/routes/contrat.php?id=${id}`,
-//             {
-//                 method: 'PATCH',
-//                 headers: {
-//                     'Authorization': 'Bearer ' + token
-//                 }
-//             }
-//         );
-//         const result = await response.json();
-//         if (result.success && result.data) {
-//             // Met à jour UNIQUEMENT la ligne concernée
-//             licence.rows().every(function () {
-//                 const row = this.node();
-//                 if ($(row).find('.change-contrat').data('id') == id) {
-//                     this.data(result.data).draw(false);
-//                 }
-//             });
-//         } else {
-//             alert(result.message || "Impossible de mettre à jour la ligne");
-//         }
-//     } catch (err) {
-//         console.error(err);
-//         alert("Erreur serveur : " + err.message);
-//     }
-// });
-
+   

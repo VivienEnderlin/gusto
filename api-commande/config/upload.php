@@ -1,50 +1,62 @@
 <?php
 
-function uploadfile($typeFileAllowed, $link) {
+function uploadfile(array $typeFileAllowed, string $link) {
 
     $back = [];
-    foreach ($_FILES as $key => $value) {
 
-        if (empty($_FILES[$key])) {
-            die(json_encode(array(0 => false, 'resp' => 'Aucun fichier disponible ...')));
+    if (empty($_FILES)) {
+        return [];
+    }
+
+    // 🌐 URL publique
+    $baseUrl = "http://localhost/gusto/api-commande/uploads/etablissements/";
+
+    foreach ($_FILES as $value) {
+
+        if (!is_array($value['name'])) {
+            $value['name'] = [$value['name']];
+            $value['tmp_name'] = [$value['tmp_name']];
         }
 
-        if (!is_array($value["name"])) {
-            $value["name"][] = $value["name"];
-            $value["tmp_name"][] = $value["tmp_name"];
-        }
+        foreach ($value['name'] as $key => $filename) {
 
-        foreach ($value["name"] as $key1 => $value1) {
+            if (!$filename) continue;
 
-            $uploadfile = $value["tmp_name"][$key1];
-
-            $structure = $link;
-            $extension = strtolower(pathinfo($value["name"][$key1], PATHINFO_EXTENSION));
+            $tmpFile = $value['tmp_name'][$key];
+            $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
             if (!in_array($extension, $typeFileAllowed)) {
-                die(json_encode(array(0 => false, 'resp' => 'Seuls les fichiers de type .png, .jpg, .jpeg, .gif, .ico sont autorisés')));
+                exit(json_encode([
+                    "success" => false,
+                    "message" => "Type de fichier non autorisé"
+                ]));
             }
 
-            // 🆕 Nettoyer le nom de fichier (remplacer espaces par underscores)
-            $originalName = pathinfo($value["name"][$key1], PATHINFO_FILENAME);
-            $cleanName = preg_replace('/\s+/', '_', $originalName); // remplace les espaces par des _
-            $cleanName = preg_replace('/[^a-zA-Z0-9_\-]/', '', $cleanName); // optionnel : enlever caractères spéciaux
-            $fileName = $cleanName . '.' . $extension;
+            // 🔐 Hash unique du fichier
+            $hash = sha1_file($tmpFile);
+            $newName = $hash . '.' . $extension;
 
-            if (!is_dir($structure)) {
-                if (!mkdir($structure, 0777, true)) {
-                    die(json_encode(array(0 => false, 'resp' => 'Erreur lors de la creation du dossier')));
+            // 📁 Créer dossier si besoin
+            if (!is_dir($link)) {
+                mkdir($link, 0777, true);
+            }
+
+            $serverPath = $link . $newName;
+
+            // ⚠️ Si le fichier existe déjà → on ne ré-uploade pas
+            if (!file_exists($serverPath)) {
+                if (!move_uploaded_file($tmpFile, $serverPath)) {
+                    exit(json_encode([
+                        "success" => false,
+                        "message" => "Erreur upload fichier"
+                    ]));
                 }
             }
 
-            $back[$key1] = $structure . $fileName;
-
-            if (!move_uploaded_file($uploadfile, $back[$key1])) {
-                die(json_encode(array(0 => false, 'resp' => 'Une erreur est servenue lors de l`upload du ficher')));
-            }
+            // 🔥 URL publique
+            $back[] = $baseUrl . $newName;
         }
     }
 
     return $back;
 }
-?>
