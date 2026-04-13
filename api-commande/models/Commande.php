@@ -51,12 +51,13 @@ class Commande extends BaseModel {
     public function create($data, $id_etablissement) {
         $this->insert(
             "commande",
-            ['id_table','id_etablissement','commande','montant_total','etat'],
+            ['id_table','id_etablissement','commande','montant_total','date_enreg','etat'],
             [
                 $data['id_table'],
                 $id_etablissement,
                 json_encode($data['commande']),
                 $data['montant_total'],
+                date("Y-m-d H:i:s", time() + 3600),
                 "En attente"
             ]
         );
@@ -87,6 +88,16 @@ class Commande extends BaseModel {
             "WHERE id_commande = ? AND id_etablissement = ?",
             [$id, $id_etablissement]
         );
+    }
+
+    public function getByServiceRange($id_etablissement, $debut, $fin){
+        return $this->personnalSelect(
+            "commande",
+            "*",
+            "WHERE id_etablissement = ?
+             AND date_enreg BETWEEN ? AND ?",
+            [$id_etablissement, $debut, $fin]
+        )->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function toggleStatut($id, $id_etablissement) {

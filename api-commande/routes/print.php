@@ -15,7 +15,7 @@ if (!isset($headers['Authorization'])) {
     http_response_code(401);
     echo json_encode([
         'success' => false,
-        'message' => 'Token requis'
+        'message' => 'Token required'
     ]);
     exit;
 }
@@ -32,17 +32,17 @@ if ($method === 'POST') {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'message' => 'JSON invalide'
+            'message' => 'Invalid JSON'
         ]);
         exit;
     }
 
     // Vérification des champs
-    if (!isset($data['id_table'], $data['commande'], $data['montantFinal'])) {
+    if (!isset($data['id_table'], $data['commande'], $data['montant_total'], $data['devise'])) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'message' => 'Données manquantes'
+            'message' => 'Missing datas'
         ]);
         exit;
     }
@@ -51,7 +51,8 @@ if ($method === 'POST') {
     $controller->imprimerFacture(
         (int) $data['id_table'],
         $data['commande'],
-        $data['montantFinal']
+        $data['montant_total'],
+        $data['devise']
     );
 
     exit;
@@ -63,6 +64,6 @@ if ($method === 'POST') {
 http_response_code(405);
 echo json_encode([
     'success' => false,
-    'message' => 'Méthode non autorisée'
+    'message' => 'Unauthorised method'
 ]);
 exit;

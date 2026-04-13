@@ -1,67 +1,57 @@
 <?php
-$code = $_GET['code'] ?? null;
-  $secret = "CLE_SECRETE_GUSTO";
 
-    if(!$code){
+    $code = $_GET['code'] ?? null;
+    $secret = "CLE_SECRETE_GUSTO"; // ✅ AJOUT OBLIGATOIRE
+
+    if (!$code) {
         exit("Lien invalide");
     }
 
-    $decoded = base64_decode($code);
-    list($id_etablissement, $table) = explode(":", $decoded);
-    $check = hash_hmac('sha256', $id_etablissement.":".$table, $secret);
+    // remettre base64 standard
+    $code = strtr($code, '-_', '+/');
 
-    if(!ctype_digit($id_etablissement) || !ctype_digit($table)){
+    // remettre padding '='
+    $pad = strlen($code) % 4;
+    if ($pad) {
+        $code .= str_repeat('=', 4 - $pad);
+    }
+
+    $decoded = base64_decode($code, true);
+
+    if (!$decoded) exit("QR code invalide");
+
+    // Extraire id, table et signature
+    $parts = explode(":", $decoded);
+    if (count($parts) !== 3) exit("QR code invalide");
+
+    list($id_etablissement, $id_table, $signature) = $parts;
+
+    // Vérifier format id/table
+    if (!ctype_digit($id_etablissement) || !ctype_digit($id_table)) {
         exit("QR code modifié ou invalide");
     }
 
-   require_once './../api-commande/models/Table.php';
+    // Vérifier la signature
+    $expected = hash_hmac('sha256', $id_etablissement . ":" . $id_table, $secret);
+    // var_dump($signature); 
+    // var_dump($expected);
+
+    if (!hash_equals($expected, $signature)) {
+        exit("QR code modifié ou invalide");
+    }
+
+    // Vérifier que la table existe réellement
+    require_once './../api-commande/models/Table.php';
     $tableModel = new Table();
-    $exists = $tableModel->getTablesByEtablissement($id_etablissement);
-
-    if(!$exists){
-        exit("QR code modifié ou invalide");
+    $tableData = $tableModel->getTable($id_etablissement, $id_table); // méthode à créer pour vérifier table précise
+    if (!$tableData) {
+        exit("Table invalide");
     }
 
-echo "Etablissement: $id_etablissement, Table: $table";
+    $nom_table = $tableData['nom'];
 
-    // $code = $_GET['code'] ?? null;
-    // $secret = "CLE_SECRETE_GUSTO";
-
-    // if (!$code) {
-    //     exit("Lien invalide");
-    // }
-
-    // // Décodage sécurisé
-    // $decoded = base64_decode($code, true);
-    // if (!$decoded) exit("QR code invalide");
-
-    // // Extraire id, table et signature
-    // $parts = explode(":", $decoded);
-    // if (count($parts) !== 3) exit("QR code invalide");
-
-    // list($id_etablissement, $table, $signature) = $parts;
-
-    // // Vérifier format id/table
-    // if (!ctype_digit($id_etablissement) || !preg_match('/^[\w\s-]+$/u', $table)) {
-    //     exit("QR code modifié ou invalide");
-    // }
-
-    // // Vérifier la signature
-    // $expected = hash_hmac('sha256', $id_etablissement . ":" . $table, $secret);
-    // if (!hash_equals($expected, $signature)) {
-    //     exit("QR code modifié ou invalide");
-    // }
-
-    // // Vérifier que la table existe réellement
-    // require_once './../api-commande/models/Table.php';
-    // $tableModel = new Table();
-    // $exists = $tableModel->getTable($id_etablissement, $table); // méthode à créer pour vérifier table précise
-    // if (!$exists) {
-    //     exit("QR code modifié ou invalide");
-    // }
-
-    // // ✅ Tout est OK, tu peux continuer
-    // echo "Etablissement: $id_etablissement, Table: $table";
+    // ✅ Tout est OK, tu peux continuer
+    echo "Etablissement: $id_etablissement, Table: $nom_table";
 
     require_once './../api-commande/models/Etablissement.php';
     $etablissementModel = new Etablissement();
@@ -206,7 +196,7 @@ foreach ($produits as $e) {
             </div>
 
             <div>
-                <input type="text" class="mt-3" id="numeroTable" style="width: 80px" placeholder="N° table" value="<?= htmlspecialchars($table); ?>" disabled>
+                <input type="text" class="mt-3" id="numeroTable" style="width: 80px" placeholder="N° table" value="<?= htmlspecialchars($nom_table); ?>" disabled>
                 <button class="btn btn-warning float-right mt-3" id="btn-valider" style="display:none;">Command now</button>
             </div>
             
@@ -244,7 +234,8 @@ foreach ($produits as $e) {
             </div>
 
             <div>
-                <input type="text" class="mt-3" id="numeroTable" style="width: 80px" placeholder="N° table" value="<?= htmlspecialchars($table); ?>" disabled>
+                <input type="text" class="mt-3" id="numeroTable" style="width: 80px" placeholder="N° table" value="<?= htmlspecialchars($nom_table); ?>" disabled>
+                <input type="hidden" id="id_table" value="<?= htmlspecialchars($id_table); ?>">
             </div>
             
           </div>
@@ -258,7 +249,7 @@ foreach ($produits as $e) {
 
 <script>
     const id_etablissement = "<?= htmlspecialchars($id_etablissement) ?>"
-    const table = "<?= htmlspecialchars($table) ?>"; 
+    const id_table = "<?= htmlspecialchars($id_table) ?>"; 
     const devise = "<?= htmlspecialchars($etablissements["devise"]) ?>";
     var panier = [];
 
@@ -402,7 +393,7 @@ $(document).on('click', '.facture', function() {
         let totalGeneral = 0;
 
         res.data.forEach(function(item) {
-            if (item.etat=="Payé" || item.id_table != table) return
+            if (item.etat=="Payé" || item.id_table != id_table) return
             // Parse la chaîne JSON de la commande
             let commandes;
             try {
@@ -465,11 +456,11 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
 
     $(document).on('click', '#btn-valider', function () {
 
-        let numeroTable = $("#numeroTable").val().trim();
+        let idTable = $("#id_table").val();
         let totalGeneral = panier.reduce((sum, item) => sum + item.total, 0);
 
         let payload = {
-            id_table: numeroTable,
+            id_table: idTable,
             id_etablissement: id_etablissement,
             commande: panier,
             montant_total: totalGeneral
@@ -499,9 +490,10 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
                 socket.send(JSON.stringify({
                     type: "new_command",
                     id_etablissement: id_etablissement,
-                    table: numeroTable,
+                    table: idTable,
                     commande: panier,
                     montant: totalGeneral,
+                    date: new Date().toLocaleString(),
                     etat: "En attente",
                     id_commande: id_Commande
                 }));
@@ -527,13 +519,14 @@ let socket = new WebSocket("ws://192.168.100.238:8080");
     // 🔴 FIN DE COMMANDE (bouton "terminer")
     $(document).on('click', '.terminer', function () {
 
-        let numeroTable = "<?= htmlspecialchars($table) ?>";
+        let numeroTable = $("#id_table").val();
 
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({
                 type: "table_completed",
                 id_etablissement: id_etablissement,
-                table: numeroTable
+                table: numeroTable,
+                date: new Date().toLocaleString()
             }));
             alert('Your command has been processed')
 

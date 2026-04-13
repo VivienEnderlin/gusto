@@ -5,16 +5,13 @@ class QrCode extends BaseModel {
 
     private $secret = "CLE_SECRETE_GUSTO";
 
-    public function generateQrUrl($id_etablissement, $table)
+    public function generateQrUrl($id_etablissement, $id_table)
     {
-        // Créer la signature HMAC
-        $signature = hash_hmac('sha256', "$id_etablissement:$table", $this->secret);
+        $signature = hash_hmac('sha256', $id_etablissement . ":" . $id_table, $this->secret);
 
-        // Concaténer id, table et signature
-        $data = "$id_etablissement:$table:$signature";
+        $data = $id_etablissement . ":" . $id_table . ":" . $signature;
 
-        // Encoder en base64
-        $code = base64_encode($data);
+        $code = rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 
         return "http://gusto/web/menu.php?code=" . $code;
     }

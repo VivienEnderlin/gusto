@@ -31,7 +31,7 @@ class CommandeController {
 
         echo json_encode([
             'success' => false,
-            'message' => 'ID établissement requis'
+            'message' => 'Establishment ID required'
         ]);
         exit;
     }
@@ -64,7 +64,7 @@ class CommandeController {
         if ($e) {
             echo json_encode(['success' => true, 'data' => $e]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Commande introuvable']);
+            echo json_encode(['success' => false, 'message' => 'Command not found']);
         }
         exit;
     }
@@ -82,7 +82,7 @@ class CommandeController {
         if (!$service) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Service de la table indisponible'
+                'message' => 'Table service is unavailable'
             ]);
             exit;
         }
@@ -113,7 +113,7 @@ class CommandeController {
         if (!$e) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Commande introuvable'
+                'message' => 'Command not found'
             ]);
             exit;
         }
@@ -144,7 +144,7 @@ class CommandeController {
         if (!$e) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Commande introuvable'
+                'message' => 'Command not found'
             ]);
             exit;
         }
@@ -153,7 +153,23 @@ class CommandeController {
 
         echo json_encode([
             'success' => true,
-            'message' => 'Commande supprimée'
+            'message' => 'Order cancelled'
+        ]);
+        exit;
+    }
+
+
+    public function getByServiceRange($debut, $fin) {
+
+        header('Content-Type: application/json; charset=utf-8');
+
+        $id_etablissement = $this->getEtablissementId();
+
+        $data = $this->commande->getByServiceRange($id_etablissement, $debut, $fin);
+
+        echo json_encode([
+            'success' => true,
+            'data' => $data
         ]);
         exit;
     }
@@ -173,7 +189,7 @@ class CommandeController {
         if (!$e) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Commande introuvable'
+                'message' => 'Command not found'
             ]);
             exit;
         }

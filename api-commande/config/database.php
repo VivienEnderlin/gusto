@@ -119,7 +119,7 @@ class Database {
                 "tables_restaurant" => "
                     CREATE TABLE IF NOT EXISTS tables_restaurant (
                         id_table INT AUTO_INCREMENT PRIMARY KEY,
-                        Nom VARCHAR(10) NOT NULL,
+                        Nom VARCHAR(20) NOT NULL,
                         id_etablissement INT,
                         statu VARCHAR(10) NOT NULL,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
@@ -170,6 +170,7 @@ class Database {
                         commande TEXT,
                         montant_total  VARCHAR(20) NOT NULL,
                         etat  VARCHAR(20) NOT NULL,
+                        date_enreg  DATETIME,
                         FOREIGN KEY (id_table) REFERENCES tables_restaurant(id_table)
                         ON DELETE CASCADE ON UPDATE CASCADE,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)

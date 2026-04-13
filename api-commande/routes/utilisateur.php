@@ -15,7 +15,7 @@ if (!isset($headers['Authorization'])) {
     http_response_code(401);
     echo json_encode([
         'success' => false,
-        'message' => 'Token requis'
+        'message' => 'Token required'
     ]);
     exit;
 }
@@ -34,7 +34,7 @@ if ($method === 'POST') {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'message' => 'JSON invalide'
+            'message' => 'Invalid JSON'
         ]);
         exit;
     }
@@ -80,7 +80,7 @@ if ($method === 'POST') {
 http_response_code(405);
 echo json_encode([
     'success' => false,
-    'message' => 'Méthode non autorisée'
+    'message' => 'Unauthorised method'
 ]);
 exit;
 ?>

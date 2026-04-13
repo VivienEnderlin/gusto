@@ -74,27 +74,27 @@
 
         <section id="presentation" class="menu-section">
             <h2>Présentation du système</h2>
-            <span>Gusto est une plateforme digitale conçue pour simplifier la gestion des commandes dans un etablissement (restaurant,bar, snack...). Grâce à ce systeme bien definit, la gestion devient fluide, securisé et intelligente, tout en permettant une prise de décision rapide grâce à des informations claires et accessibles en temps réel.</span>.
+            <span>Gusto est une plateforme digitale conçue pour simplifier la gestion des commandes dans un etablissement (restaurant, snack...). Grâce à ce systeme bien definit, la gestion devient fluide, securisé et intelligente, tout en permettant une prise de décision rapide grâce à des informations claires et accessibles en temps réel.</span>.
             <h2>Fonctionnalités principales</h2>
-            <h3>Le client</h3>
+            <h3>Le client disposant d'un smartphone</h3>
             <ul>
-              <li>Accède au menu digitale en scannant le Qrcode de la table avec son téléphone</li><br>
-              <li>Commande à distance depuis son téléphone</li><br>
-              <li>signale pour reclamer sa facture depuis son téléphone</li>   
+              <li>Accèder au menu digitale en scannant le Qrcode de la table</li><br>
+              <li>Commander à distance</li><br>
+              <li>signaler pour reclamer sa facture</li>   
             </ul>
-            <h3>Le serveur</h3>
+            <h3>Le serveur disposant d'une tablette</h3>
             <ul>
-              <li>Ouvre et ferme le service d'une table à l'aide d'une tablette apres avoir installer le client</li><br>
-                <li>Selectionne le menu pour le client qui n'a pas de téléphone</li><br>
-                <li>Visualise l'historique commandes</li>
+              <li>Ouvre et ferme le service d'une table</li><br>
+              <li>Selectionne le menu pour le client qui n'a pas de téléphone</li><br>
+              <li>Visualise l'historique commandes</li><br>
+              <li>Interagir avec le système pour informer du statu de la commande</li>
             </ul>  
-            <h3>Le Gerant</h3>
+            <h3>Le Gérant disposant d'un ordinateur</h3>
             <ul>
-              <li>Gestion des tables, produits etc</li><br>
+              <li>Gestion des tables, produits, employé etc...</li><br>
               <li>Visiualise l'historique des commandes</li><br>
-              <li>Contrôle globale des trafics en temps réel (Statu des commandes en attente, servie, payer etc...)</li><br>
+              <li>Contrôle globale des trafics en temps réel</li><br>
               <li>Imprime les factures</li><br>
-              <li>Ouvre et ferme le service d'une table</li>
             </ul>
         </section>
 

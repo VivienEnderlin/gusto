@@ -46,7 +46,7 @@ class ContratController {
         if ($e) {
             echo json_encode(['success'=>true, 'data'=>$e]);
         } else {
-            echo json_encode(['success'=>false, 'message'=>'Contrat introuvable']);
+            echo json_encode(['success'=>false, 'message'=>'Contract not found']);
         }
         exit;
     }
@@ -87,7 +87,7 @@ class ContratController {
         // Récupération de l'existant
         $e = $this->contrat->getById($id);
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Contrat introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Contract not found']);
             exit;
         }
 

@@ -15,7 +15,7 @@ if (!isset($headers['Authorization'])) {
     http_response_code(401);
     echo json_encode([
         'success' => false,
-        'message' => 'Token requis'
+        'message' => 'Token required'
     ]);
     exit;
 }
@@ -34,7 +34,7 @@ if (in_array($method, ['POST', 'PATCH', 'DELETE'])) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'message' => 'JSON invalide'
+            'message' => 'Invalid JSON'
         ]);
         exit;
     }
@@ -82,7 +82,7 @@ if ($method === 'DELETE') {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'message' => 'ID requis'
+            'message' => 'ID required'
         ]);
         exit;
     }
@@ -102,7 +102,7 @@ if ($method === 'PATCH') {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'message' => 'ID requis pour changer le statut'
+            'message' => 'ID required'
         ]);
         exit;
     }
@@ -117,7 +117,7 @@ if ($method === 'PATCH') {
 http_response_code(405);
 echo json_encode([
     'success' => false,
-    'message' => 'Méthode non autorisée'
+    'message' => 'Unauthorised method'
 ]);
 exit;
 ?>

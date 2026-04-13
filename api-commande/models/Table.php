@@ -25,13 +25,13 @@ class Table extends BaseModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getTable($id_etablissement, $table) {
+    public function getTable($id_etablissement, $id_table) {
 
         $stmt = $this->personnalSelect(
             "tables_restaurant",
             "*",
-            "WHERE id_etablissement = ? AND nom = ?",
-            [$id_etablissement, $table]
+            "WHERE id_etablissement = ? AND id_table = ?",
+            [$id_etablissement, $id_table]
         );
 
         return $stmt->fetch(PDO::FETCH_ASSOC);

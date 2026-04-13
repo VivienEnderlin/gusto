@@ -45,7 +45,7 @@ class EmployeController {
         if ($user) {
             echo json_encode(['success'=>true, 'data'=>$user]);
         } else {
-            echo json_encode(['success'=>false, 'message'=>'Employé introuvable']);
+            echo json_encode(['success'=>false, 'message'=>'Employee not found']);
         }
         exit;
     }
@@ -74,7 +74,7 @@ class EmployeController {
         $id_etablissement = $this->user->id_etablissement;
         $e = $this->model->getByIdAndEtablissement($id, $id_etablissement);
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Employé introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Employee not found']);
             exit;
         }
         $this->model->update($id, $id_etablissement, $data);
@@ -94,13 +94,13 @@ class EmployeController {
         $e = $this->model->getByIdAndEtablissement($id, $id_etablissement);
 
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Employé introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Employee not found']);
             exit;
         }
 
         $this->model->delete($id, $id_etablissement);
 
-        echo json_encode(['success'=>true,'message'=>'Employé supprimé']);
+        echo json_encode(['success'=>true,'message'=>'Employee deleted']);
         exit;
     }
 

@@ -44,7 +44,7 @@ class AppareilController {
         if ($e) {
             echo json_encode(['success'=>true, 'data'=>$e]);
         } else {
-            echo json_encode(['success'=>false, 'message'=>'Etablissement introuvable']);
+            echo json_encode(['success'=>false, 'message'=>'Establishment not found']);
         }
         exit;
     }
@@ -82,7 +82,7 @@ class AppareilController {
         // Récupération de l'existant
         $e = $this->appareil->getById($id);
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Appareil introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Device not found']);
             exit;
         }
 
@@ -117,7 +117,7 @@ class AppareilController {
         if (!$e) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Appareil introuvable'
+                'message' => 'Device not found'
             ]);
             exit;
         }
@@ -127,7 +127,7 @@ class AppareilController {
 
         echo json_encode([
             'success' => true,
-            'message' => 'Appareil supprimé'
+            'message' => 'Device removed'
         ]);
         exit;
     }

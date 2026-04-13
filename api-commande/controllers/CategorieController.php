@@ -38,7 +38,7 @@ class CategorieController {
         if ($e) {
             echo json_encode(['success'=>true,'data'=>$e]);
         } else {
-            echo json_encode(['success'=>false,'message'=>'Categorie introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Category not found']);
         }
         exit;
     }
@@ -67,7 +67,7 @@ class CategorieController {
         $e = $this->categorie->getByIdAndEtablissement($id, $id_etablissement);
 
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Categorie introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Category not found']);
             exit;
         }
 
@@ -89,13 +89,13 @@ class CategorieController {
         $e = $this->categorie->getByIdAndEtablissement($id, $id_etablissement);
 
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Categorie introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Category not found']);
             exit;
         }
 
         $this->categorie->delete($id, $id_etablissement);
 
-        echo json_encode(['success'=>true,'message'=>'Categorie supprimée']);
+        echo json_encode(['success'=>true,'message'=>'Category deleted']);
         exit;
     }
 }

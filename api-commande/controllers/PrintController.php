@@ -6,7 +6,7 @@ use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 
 class PrintController {
 
-    public function imprimerFacture($id_Table, $commande, $montantFinal) {
+    public function imprimerFacture($id_Table, $commande, $montant_total, $devise) {
 
         try {
             $connector = new WindowsPrintConnector("POS-80"); // Nom imprimante
@@ -31,7 +31,7 @@ class PrintController {
                     "%-16s %2dx %6s\n",
                     substr($item['libelle'], 0, 16),
                     $item['quantite'],
-                    $item['total'] . "F"
+                    $item['total'] . " " . $devise
                 ));
             }
 
@@ -39,11 +39,11 @@ class PrintController {
             $printer->text("--------------------------------\n");
             $printer->setJustification(Printer::JUSTIFY_RIGHT);
             $printer->setEmphasis(true);
-            $printer->text("TOTAL : " . $montantFinal . " FCFA\n\n");
+            $printer->text("TOTAL : " . $montant_total . " " . $devise . "\n\n");
 
             // ===== FIN =====
             $printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->text("Merci pour votre visite\n\n");
+            $printer->text("Thank you for visiting\n\n");
 
             $printer->cut();
             $printer->close();

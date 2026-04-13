@@ -105,18 +105,18 @@ class Utilisateur extends BaseModel {
             $mail->addAddress($data['email'], $data['nom']);
 
             $mail->isHTML(true);
-            $mail->Subject = 'Information de connexion au compte Gérant';
+            $mail->Subject = 'Login details for the waiter account';
             $mail->Body    = "
                 <h3>Bonjour {$data['nom']},</h3>
                 <p>Votre compte a été créé avec succès.</p>
                 <p><strong>Login :</strong> {$data['login']}<br>
-                   <strong>Mot de passe :</strong> {$password}</p>
-                <p>Vous pouvez modifier votre mot de passe à tout moment</p>
+                   <strong>Password :</strong> {$password}</p>
+                <p>You can change your password at any time</p>
             ";
 
             $mail->send();
         } catch (Exception $e) {
-            error_log("Erreur envoi mail à {$data['email']} : " . $mail->ErrorInfo);
+            error_log("Error sending email to {$data['email']} : " . $mail->ErrorInfo);
         }
 
         return $id;

@@ -15,7 +15,7 @@ if (!$login || !$password) {
         'success' => false,
         'html' => '<div class="alert alert-block alert-danger">
                     <i class="icofont-close" style="margin-right: 10px; font-weight: bold;"></i>
-                    Champ manquant
+                    Missing field
                    </div>'
     ]);
     exit;

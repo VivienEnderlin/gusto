@@ -16,13 +16,13 @@ class Middleware {
         // Récupérer le header Authorization
         $headers = apache_request_headers();
         if (!isset($headers['Authorization'])) {
-            Response::error("Token requis", 401);
+            Response::error("Token required", 401);
             exit;
         }
 
         $authHeader = $headers['Authorization'];
         if (!preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-            Response::error("Format du token invalide", 401);
+            Response::error("Invalid token format", 401);
             exit;
         }
 
@@ -32,7 +32,7 @@ class Middleware {
             $decoded = JWT::decode($token, new Key($secret, $algo));
             return $decoded->data; // contient id_etablissement, email, etc.
         } catch (Exception $e) {
-            Response::error("Token invalide: " . $e->getMessage(), 401);
+            Response::error("Invalid token: " . $e->getMessage(), 401);
             exit;
         }
     }

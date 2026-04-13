@@ -22,7 +22,7 @@ if (in_array($method, ['POST', 'PATCH'])) {
 
     if ($raw && !$decoded) {
         http_response_code(400);
-        echo json_encode(['success'=>false,'message'=>'JSON invalide']);
+        echo json_encode(['success'=>false,'message'=>'Invalid JSON']);
         exit;
     }
 
@@ -34,12 +34,11 @@ if (in_array($method, ['POST', 'PATCH'])) {
 // ========================
 if ($method === 'GET') {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
-
     if ($id) {
         $controller->show($id);
-    } else {
-        $controller->index();
+        exit;
     }
+    $controller->index();
     exit;
 }
 
@@ -49,18 +48,28 @@ if ($method === 'GET') {
 if ($method === 'POST') {
     $id = !empty($inputData['id']) ? (int)$inputData['id'] : null;
 
-    // 👉 CAS 1 : CRÉATION (SANS TOKEN)
+    // 🔥 CAS 1 : FILTRE AUTOMATIQUE (année → aujourd’hui)
+    if (!empty($inputData['debut']) && !empty($inputData['fin'])) {
+
+        $debut = $inputData['debut'];
+        $fin   = $inputData['fin'];
+
+        $controller->getByServiceRange($debut, $fin);
+        exit;
+    }
+
+    // 👉 CAS 2 : CRÉATION
     if (!$id) {
         $controller->store($inputData);
         exit;
     }
 
-    // 👉 CAS 2 : UPDATE (TOKEN OBLIGATOIRE)
+    // 👉 CAS 3 : UPDATE
     if (!$token) {
         http_response_code(401);
         echo json_encode([
             'success'=>false,
-            'message'=>'Token requis pour modifier'
+            'message'=>'Token required'
         ]);
         exit;
     }
@@ -75,7 +84,7 @@ if ($method === 'POST') {
 if ($method === 'DELETE') {
     if (!$token) {
         http_response_code(401);
-        echo json_encode(['success'=>false,'message'=>'Token requis']);
+        echo json_encode(['success'=>false,'message'=>'Token required']);
         exit;
     }
 
@@ -83,7 +92,7 @@ if ($method === 'DELETE') {
 
     if (!$id) {
         http_response_code(400);
-        echo json_encode(['success'=>false,'message'=>'ID requis']);
+        echo json_encode(['success'=>false,'message'=>'ID required']);
         exit;
     }
 
@@ -97,7 +106,7 @@ if ($method === 'DELETE') {
 if ($method === 'PATCH') {
     if (!$token) {
         http_response_code(401);
-        echo json_encode(['success'=>false,'message'=>'Token requis']);
+        echo json_encode(['success'=>false,'message'=>'Token required']);
         exit;
     }
 
@@ -105,7 +114,7 @@ if ($method === 'PATCH') {
 
     if (!$id) {
         http_response_code(400);
-        echo json_encode(['success'=>false,'message'=>'ID requis']);
+        echo json_encode(['success'=>false,'message'=>'ID required']);
         exit;
     }
 
@@ -115,6 +124,6 @@ if ($method === 'PATCH') {
 
 // ========================
 http_response_code(405);
-echo json_encode(['success'=>false,'message'=>'Méthode non autorisée']);
+echo json_encode(['success'=>false,'message'=>'Unauthorised method']);
 exit;
 ?>

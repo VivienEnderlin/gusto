@@ -28,7 +28,7 @@ function uploadfile(array $typeFileAllowed, string $link) {
             if (!in_array($extension, $typeFileAllowed)) {
                 exit(json_encode([
                     "success" => false,
-                    "message" => "Type de fichier non autorisé"
+                    "message" => "Unsupported file type"
                 ]));
             }
 
@@ -48,7 +48,7 @@ function uploadfile(array $typeFileAllowed, string $link) {
                 if (!move_uploaded_file($tmpFile, $serverPath)) {
                     exit(json_encode([
                         "success" => false,
-                        "message" => "Erreur upload fichier"
+                        "message" => "File upload error"
                     ]));
                 }
             }

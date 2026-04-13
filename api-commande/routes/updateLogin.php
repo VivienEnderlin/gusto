@@ -9,7 +9,7 @@ $user = Middleware::checkAuth();
 
 if (!$user) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Non autorisé']);
+    echo json_encode(['success' => false, 'message' => 'Not permitted']);
     exit;
 }
 
@@ -17,7 +17,7 @@ $login    = $_POST['login'] ?? null;
 $password = $_POST['password'] ?? null;
 
 if (!$login) {
-    echo json_encode(['success' => false, 'message' => 'Login requis']);
+    echo json_encode(['success' => false, 'message' => 'Login required']);
     exit;
 }
 
@@ -37,7 +37,7 @@ $newToken = Auth::generateToken([
 
 echo json_encode([
     'success' => true,
-    'message' => 'Informations mises à jour',
+    'message' => 'Updated information',
     'token'   => $newToken
 ]);
 exit;

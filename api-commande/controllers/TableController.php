@@ -38,7 +38,7 @@ class TableController {
             // Renvoie toutes les données brutes
             echo json_encode(['success'=>true, 'data'=>$e]);
         } else {
-            echo json_encode(['success'=>false,'message'=>'Table introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Table not found']);
         }
         exit;
     }
@@ -67,7 +67,7 @@ class TableController {
         $id_etablissement = $this->user->id_etablissement;
         $e = $this->table->getByIdAndEtablissement($id, $id_etablissement);
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Table introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Table not found']);
             exit;
         }
 
@@ -88,13 +88,13 @@ class TableController {
         $id_etablissement = $this->user->id_etablissement;
         $e = $this->table->getByIdAndEtablissement($id, $id_etablissement);
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Table introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Table not found']);
             exit;
         }
 
         $this->table->delete($id, $id_etablissement);
 
-        echo json_encode(['success'=>true,'message'=>'Table supprimée']);
+        echo json_encode(['success'=>true,'message'=>'Table deleted']);
         exit;
     }
 
@@ -109,7 +109,7 @@ class TableController {
 
         $e = $this->table->getByIdAndEtablissement($id, $id_etablissement);
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Table introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Table not found']);
             exit;
         }
 

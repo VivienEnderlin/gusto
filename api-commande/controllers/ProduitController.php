@@ -54,7 +54,7 @@ class ProduitController {
             $e['image'] = json_decode($e['image'], true); // tableau d'images
             echo json_encode(['success'=>true, 'data'=>$e]);
         } else {
-            echo json_encode(['success'=>false, 'message'=>'Produit introuvable']);
+            echo json_encode(['success'=>false, 'message'=>'Product not found']);
         }
         exit;
     }
@@ -89,7 +89,7 @@ class ProduitController {
         $id_etablissement = $this->user->id_etablissement;
         $e = $this->produit->getByIdAndEtablissement($id, $id_etablissement);
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Produit introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Product not found']);
             exit;
         }
 
@@ -118,7 +118,7 @@ class ProduitController {
         $id_etablissement = $this->user->id_etablissement;
         $e = $this->produit->getByIdAndEtablissement($id, $id_etablissement);
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Produit introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Product not found']);
             exit;
         }
 
@@ -134,7 +134,7 @@ class ProduitController {
         // Supprimer dans la base
         $this->produit->delete($id, $id_etablissement);
 
-        echo json_encode(['success'=>true,'message'=>'Produit supprimé']);
+        echo json_encode(['success'=>true,'message'=>'Product removed']);
         exit;
     }
 

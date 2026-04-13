@@ -53,7 +53,7 @@ class UtilisateurController {
         if ($user) {
             echo json_encode(['success'=>true, 'data'=>$user]);
         } else {
-            echo json_encode(['success'=>false, 'message'=>'Utilisateur introuvable']);
+            echo json_encode(['success'=>false, 'message'=>'User not found']);
         }
         exit;
     }
@@ -85,7 +85,7 @@ class UtilisateurController {
         header('Content-Type: application/json; charset=utf-8');
         $e = $this->model->getById($id);
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Utilisateur introuvable']);
+            echo json_encode(['success'=>false,'message'=>'User not found']);
             exit;
         }
         // Mise à jour

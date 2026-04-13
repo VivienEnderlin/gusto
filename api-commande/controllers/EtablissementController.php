@@ -54,7 +54,7 @@ class EtablissementController {
         if ($e) {
             echo json_encode(['success'=>true, 'data'=>$e]);
         } else {
-            echo json_encode(['success'=>false, 'message'=>'Etablissement introuvable']);
+            echo json_encode(['success'=>false, 'message'=>'Establishment not found']);
         }
         exit;
     }
@@ -96,7 +96,7 @@ class EtablissementController {
         // Récupération de l'existant
         $e = $this->etablissement->getById($id);
         if (!$e) {
-            echo json_encode(['success'=>false,'message'=>'Etablissement introuvable']);
+            echo json_encode(['success'=>false,'message'=>'Establishment not found']);
             exit;
         }
 

@@ -20,76 +20,57 @@ class QrCodeController {
         error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
     }
 
-    public function generate() {
-
-        header('Content-Type: application/json; charset=utf-8');
+    public function generate($id) {
 
         // =========================
-        // Récupération des paramètres
+        // Récupération user
         // =========================
-        $id_etablissement = $_GET['id_etablissement'] ?? null;
-        $table = $_GET['table'] ?? null;
+        $id_etablissement = $this->user->id_etablissement;
 
-        // =========================
-        // Validation des données
-        // =========================
-        if (!$id_etablissement || !$table) {
+        if (!$id || !ctype_digit((string)$id)) {
             http_response_code(400);
             echo json_encode([
                 "success" => false,
-                "message" => "Paramètres manquants"
-            ]);
-            return;
-        }
-
-        // ID établissement doit être numérique
-        if (!ctype_digit($id_etablissement)) {
-            http_response_code(400);
-            echo json_encode([
-                "success" => false,
-                "message" => "ID établissement invalide"
-            ]);
-            return;
-        }
-
-        // Nom table sécurisé (lettres, chiffres, espace, - _)
-        if (!preg_match('/^[\w\s-]+$/u', $table)) {
-            http_response_code(400);
-            echo json_encode([
-                "success" => false,
-                "message" => "Nom de table invalide"
+                "message" => "Invalid table ID"
             ]);
             return;
         }
 
         // =========================
-        // Sécurité : vérifier appartenance
+        // Récupération en base
         // =========================
-        if (!isset($this->user->id_etablissement) || $this->user->id_etablissement != $id_etablissement) {
-            http_response_code(403);
+        $tableData = $this->model->getByIdAndEtablissement($id, $id_etablissement);
+
+        if (!$tableData) {
+            http_response_code(404);
             echo json_encode([
                 "success" => false,
-                "message" => "Accès interdit"
+                "message" => "Table not found"
             ]);
             return;
         }
+
+        // =========================
+        // Données fiables
+        // =========================
+        $id_table = $tableData['id_table'];
+        $nom_table = $tableData['nom'];
 
         // =========================
         // Génération URL sécurisée
         // =========================
-        $url = $this->model->generateQrUrl($id_etablissement, $table);
+        $url = $this->model->generateQrUrl($id_etablissement, $id_table);
 
         // =========================
-        // Génération du QR code
+        // Génération QR
         // =========================
-        $filename = "qrcode_table_" . preg_replace('/[^a-zA-Z0-9_-]/', '_', $table) . ".png";
+        $filename = "qrcode_table_" . preg_replace('/[^a-zA-Z0-9_-]/', '_', $nom_table) . ".png";
 
         header('Content-Type: image/png');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Cache-Control: no-store, no-cache, must-revalidate');
         header('Pragma: no-cache');
 
-        // Génération image QR
         QRcode::png($url, null, QR_ECLEVEL_H, 8);
 
         exit;
