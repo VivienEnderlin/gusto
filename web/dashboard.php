@@ -284,10 +284,10 @@
                 </div>
                 <div class="col-lg-6 mb-4">
                   <select name="devise" class="bg-white w-100 h-100"  required>
-                    <option value="" disabled selected>Choisir la monnaie</option>
-                    <option value="FCFA">FCFA</option>
-                    <option value="€">€</option>
-                    <option value="$">$</option>
+                    <option value="" disabled selected>&nbsp;&nbsp;&nbsp;Choisir la monnaie</option>
+                    <option value="FCFA">&nbsp;&nbsp;&nbsp;FCFA</option>
+                    <option value="€">&nbsp;&nbsp;&nbsp;€</option>
+                    <option value="$">&nbsp;&nbsp;&nbsp;$</option>
                   </select>
                 </div>
                 <div class="col-lg-6">
@@ -301,6 +301,7 @@
                 </div>
                 <div class="col-lg-6" style="margin-top: 10px;">
                   <input type="tel" name="telephone" id="phone" class="form-control" value="+237 " placeholder="Téléphone de l'établissement">
+                  <input type="hidden" name="country" id="country">
                 </div>
                 <div class="col-lg-12">
                   <input type="url" name="site_web" class="form-control" placeholder="Site web de l'établissement">
@@ -348,14 +349,14 @@
                 </div>
                 <div class="col-lg-6 mb-4">
                   <select name="role" class="bg-white w-100 h-100"  required>
-                    <option value="" disabled selected>Choisir le rôle</option>
-                    <option value="0">Admin</option>
-                    <option value="1">Gérant</option>
+                    <option value="" disabled selected>&nbsp;&nbsp;&nbsp;Choisir le rôle</option>
+                    <option value="0">&nbsp;&nbsp;&nbsp;Admin</option>
+                    <option value="1">&nbsp;&nbsp;&nbsp;Gérant</option>
                   </select>
                 </div>
                 <div class="col-lg-6 mb-4">
                   <select name="id_etablissement" class="bg-white  w-100 h-100 selectEtablissement" required>
-                    <option value="" disabled selected>Choisir l'etablissement géré</option>
+                    <option value="" disabled selected>&nbsp;&nbsp;&nbsp;Choisir l'etablissement géré</option>
                   </select>
                 </div>
                 <input type="hidden" name="id">
@@ -402,7 +403,7 @@
                </div>
                 <div class="col-lg-12 mb-4">
                   <select name="id_etablissement" class="bg-white  w-100 h-100 selectEtablissement" required>
-                    <option value="" disabled selected>Choisir l'etablissement destinataire</option>
+                    <option value="" disabled selected>&nbsp;&nbsp;&nbsp;Choisir l'etablissement destinataire</option>
                   </select>
                 </div>
                 <textarea name="description" class="form-control" rows="4" placeholder="Ecrivez quelques choses"></textarea>
@@ -431,7 +432,7 @@
               <div class="row">
                 <div class="col-lg-12 mb-4">
                   <select name="id_etablissement" class="bg-white  w-100 h-100 selectEtablissement" required>
-                    <option value="" disabled selected>Choisir l'etablissement destinataire</option>
+                    <option value="" disabled selected>&nbsp;&nbsp;&nbsp;Choisir l'etablissement destinataire</option>
                   </select>
                 </div>
                 <div class="col-lg-12">
@@ -531,7 +532,7 @@
             selectEts.forEach(select => {
                 const option = document.createElement('option');
                 option.value = row[5]; // id_etablissement
-                option.textContent = row[1]; // nom
+                option.textContent = "\u00A0\u00A0\u00A0" + row[1]; // nom
                 select.appendChild(option);
             });
             ets.row.add([
@@ -619,7 +620,7 @@
     }
 
     var input = document.querySelector("#phone");
-    window.intlTelInput(input, {
+    const iti =window.intlTelInput(input, {
       utilsScript: "./assets/vendor/build/utils.js",
     });
   </script>

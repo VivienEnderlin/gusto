@@ -73,7 +73,7 @@ class ProduitController {
 
         $id_etablissement = $this->user->id_etablissement;
         $id = $this->produit->create($data, $id_etablissement);
-        $e  = $this->table->getByIdAndEtablissement($id, $id_etablissement);
+        $e  = $this->produit->getByIdAndEtablissement($id, $id_etablissement);
         $e['image'] = json_decode($e['image'], true);
 
         echo json_encode(['success'=>true, 'data'=>$e]);
@@ -101,7 +101,7 @@ class ProduitController {
             $data['image'] = $e['image']; // garder l'ancien
         }
 
-        $this->table->update($id, $id_etablissement, $data);
+        $this->produit->update($id, $id_etablissement, $data);
         $e = $this->produit->getByIdAndEtablissement($id, $id_etablissement);
         $e['image'] = json_decode($e['image'], true);
 

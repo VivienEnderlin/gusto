@@ -9,7 +9,7 @@ function uploadfile(array $typeFileAllowed, string $link) {
     }
 
     // 🌐 URL publique
-    $baseUrl = "http://localhost/gusto/api-commande/uploads/etablissements/";
+    $baseUrl = "http://gusto/api-commande/uploads/images/";
 
     foreach ($_FILES as $value) {
 

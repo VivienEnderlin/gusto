@@ -25,7 +25,7 @@ class Etablissement extends BaseModel {
 
         $this->insert(
             "etablissement",
-            ["logo", "nom", "type", "pays", "devise", "ville", "adresse", "email", "telephone", "site_web", "description", "date_enreg"],
+            ["logo", "nom", "type", "pays", "devise", "ville", "adresse", "email", "telephone", "country", "site_web", "description", "date_enreg"],
             [
                 $data['logo'],
                 $data['nom'],
@@ -36,6 +36,7 @@ class Etablissement extends BaseModel {
                 $data['adresse'],
                 $data['email'],
                 $data['telephone'],
+                $data['country'],
                 $data['site_web'],
                 $data['description'],
                 date('Y-m-d'),
@@ -49,7 +50,7 @@ class Etablissement extends BaseModel {
     public function update($id, $data) {
         return $this->set(
             "etablissement",
-            ["logo", "nom", "type", "pays", "devise", "ville", "adresse", "email", "telephone", "site_web", "description"],
+            ["logo", "nom", "type", "pays", "devise", "ville", "adresse", "email", "telephone", "country", "site_web", "description"],
             [
                 $data['logo'],
                 $data['nom'],
@@ -60,6 +61,7 @@ class Etablissement extends BaseModel {
                 $data['adresse'],
                 $data['email'],
                 $data['telephone'],
+                $data['country'],
                 $data['site_web'],
                 $data['description']
             ],

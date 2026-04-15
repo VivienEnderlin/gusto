@@ -67,7 +67,7 @@ class EtablissementController {
         header('Content-Type: application/json; charset=utf-8');
 
         if (!empty($_FILES['logo'])) {
-            $upload = uploadfile(['png','jpg','jpeg','gif','ico'], __DIR__.'/../uploads/etablissements/');
+            $upload = uploadfile(['png','jpg','jpeg','gif','ico'], __DIR__.'/../uploads/images/');
             $data['logo'] = json_encode($upload);
         }
 
@@ -104,7 +104,7 @@ class EtablissementController {
         if (!empty($_FILES['logo']) && $_FILES['logo']['error'] !== 4) {
             $upload = uploadfile(
                 ['png','jpg','jpeg','gif','ico'],
-                __DIR__.'/../uploads/etablissements/'
+                __DIR__.'/../uploads/images/'
             );
             $data['logo'] = json_encode($upload);
         } else {

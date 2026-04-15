@@ -160,6 +160,11 @@ $('#ets').on('submit', async function(e) {
     const submitBtn = $(form).find('button[type="submit"]');
     submitBtn.addClass('show-loader').prop('disabled', true);
     try {
+        const number = iti.getNumber(); // +237...
+        const country = iti.getSelectedCountryData().iso2; // cm
+
+        formData.set('telephone', number);
+        formData.set('country', country);
         const response = await fetch('http://gusto/api-commande/routes/etablissement.php', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + token },
@@ -172,6 +177,8 @@ $('#ets').on('submit', async function(e) {
             $('.modal-ets').modal('hide');
             form.reset();
             $('#logo').attr('src','');
+
+             iti.setCountry("cm");
 
             if(isEdit && editingRow) {
                 // ⚡ Mettre à jour uniquement la ligne modifiée
@@ -212,7 +219,12 @@ $(document).on('click', '.edit-ets', async function() {
             $('#ets input[name="ville"]').val(e.ville);
             $('#ets input[name="adresse"]').val(e.adresse);
             $('#ets input[name="email"]').val(e.email);
-            $('#ets input[name="telephone"]').val(e.telephone);
+            $('#phone').val(e.telephone);
+            if (e.country) {
+                iti.setCountry(e.country); // 🇨🇲 drapeau
+            }
+
+            iti.setNumber(e.telephone); // numéro formaté
             $('#ets input[name="site_web"]').val(e.site_web);
             $('#ets textarea[name="description"]').val(e.description);
 

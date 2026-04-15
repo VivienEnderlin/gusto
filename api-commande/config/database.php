@@ -68,10 +68,12 @@ class Database {
                         nom VARCHAR(50) NOT NULL,
                         type VARCHAR(50) NOT NULL,
                         pays VARCHAR(50) NOT NULL,
+                        devise VARCHAR(20) NOT NULL,
                         ville VARCHAR(50) NOT NULL,
                         adresse VARCHAR(50) NOT NULL,
                         email VARCHAR(50) NOT NULL,
                         telephone VARCHAR(50) NOT NULL,
+                        country VARCHAR(10) NOT NULL,
                         site_web VARCHAR(50) NOT NULL,
                         description TEXT NOT NULL,
                         date_enreg DATE
