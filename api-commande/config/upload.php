@@ -9,7 +9,10 @@ function uploadfile(array $typeFileAllowed, string $link) {
     }
 
     // 🌐 URL publique
-    $baseUrl = "http://gusto/api-commande/uploads/images/";
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+    $host = $_SERVER['HTTP_HOST'];
+
+    $baseUrl = $protocol . $host . "/api-commande/uploads/images/";
 
     foreach ($_FILES as $value) {
 

@@ -523,7 +523,7 @@
 
       const selectEts = document.querySelectorAll('.selectEtablissement');
 
-      fetch('http://gusto/api-commande/routes/etablissement.php', { headers })
+      fetch('/api-commande/routes/etablissement.php', { headers })
       .then(res => res.json())
       .then(response => {
         if (response.success && Array.isArray(response.data)) {
@@ -551,7 +551,7 @@
       .catch(err => console.error(err));
 
       // Utilisateurs
-      fetch('http://gusto/api-commande/routes/utilisateur.php', { headers })
+      fetch('/api-commande/routes/utilisateur.php', { headers })
         .then(res => res.json())
         .then(response => {
           if (response.success && Array.isArray(response.data)) {
@@ -572,7 +572,7 @@
         .catch(err => console.error(err));
 
       // Appareils
-      fetch('http://gusto/api-commande/routes/appareil.php', { headers })
+      fetch('/api-commande/routes/appareil.php', { headers })
         .then(res => res.json())
         .then(response => {
           if (response.success && Array.isArray(response.data)) {
@@ -592,7 +592,7 @@
         .catch(err => console.error(err));
 
       // Contrats
-      fetch('http://gusto/api-commande/routes/contrat.php', { headers })
+      fetch('/api-commande/routes/contrat.php', { headers })
         .then(res => res.json())
         .then(response => {
           if (response.success && Array.isArray(response.data)) {

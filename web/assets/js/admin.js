@@ -117,7 +117,7 @@ $('#userLoginForm').on('submit', function(e){
     submitBtn.addClass('show-loader').prop('disabled', true);
 
     $.ajax({
-        url: 'http://gusto/api-commande/routes/updateLogin.php',
+        url: '/api-commande/routes/updateLogin.php',
         type: 'POST',
         headers: {
             'Authorization': 'Bearer ' + token // token actuel
@@ -165,7 +165,7 @@ $('#ets').on('submit', async function(e) {
 
         formData.set('telephone', number);
         formData.set('country', country);
-        const response = await fetch('http://gusto/api-commande/routes/etablissement.php', {
+        const response = await fetch('/api-commande/routes/etablissement.php', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + token },
             body: formData
@@ -203,7 +203,7 @@ $(document).on('click', '.edit-ets', async function() {
     const etabId = $(this).data('id');
     editingRow = ets.row($(this).closest('tr'));
     try {
-        const response = await fetch(`http://gusto/api-commande/routes/etablissement.php?id=${etabId}`, {
+        const response = await fetch(`/api-commande/routes/etablissement.php?id=${etabId}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await response.json();
@@ -250,7 +250,7 @@ $('#user').on('submit', async function(e) {
     const submitBtn = $(form).find('button[type="submit"]');
     submitBtn.addClass('show-loader').prop('disabled', true);
     try {
-        const response = await fetch('http://gusto/api-commande/routes/utilisateur.php', {
+        const response = await fetch('/api-commande/routes/utilisateur.php', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + token },
             body: formData
@@ -284,7 +284,7 @@ $(document).on('click', '.edit-user', async function() {
     const userId = $(this).data('id');
     editingRow = user.row($(this).closest('tr'));
     try {
-        const response = await fetch(`http://gusto/api-commande/routes/utilisateur.php?id=${userId}`, {
+        const response = await fetch(`/api-commande/routes/utilisateur.php?id=${userId}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await response.json();
@@ -321,7 +321,7 @@ $('#dispositif').on('submit', async function(e) {
     const submitBtn = $(form).find('button[type="submit"]');
     submitBtn.addClass('show-loader').prop('disabled', true);
     try {
-        const response = await fetch('http://gusto/api-commande/routes/appareil.php', {
+        const response = await fetch('/api-commande/routes/appareil.php', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + token },
             body: formData
@@ -355,7 +355,7 @@ $(document).on('click', '.edit-app', async function() {
     const appId = $(this).data('id');
     editingRow = app.row($(this).closest('tr'));
     try {
-        const response = await fetch(`http://gusto/api-commande/routes/appareil.php?id=${appId}`, {
+        const response = await fetch(`/api-commande/routes/appareil.php?id=${appId}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await response.json();
@@ -391,7 +391,7 @@ $(document).on('click', '.drop-app', async function () {
 
     try {
         const response = await fetch(
-            `http://gusto/api-commande/routes/appareil.php?id=${id}`,
+            `/api-commande/routes/appareil.php?id=${id}`,
             {
                 method: 'DELETE',
                 headers: {
@@ -427,7 +427,7 @@ $('#contrat').on('submit', async function(e) {
     const submitBtn = $(form).find('button[type="submit"]');
     submitBtn.addClass('show-loader').prop('disabled', true);
     try {
-        const response = await fetch('http://gusto/api-commande/routes/contrat.php', {
+        const response = await fetch('/api-commande/routes/contrat.php', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + token },
             body: formData
@@ -461,7 +461,7 @@ $(document).on('click', '.edit-contrat', async function() {
     const licenceId = $(this).data('id');
     editingRow = licence.row($(this).closest('tr'));
     try {
-        const response = await fetch(`http://gusto/api-commande/routes/contrat.php?id=${licenceId}`, {
+        const response = await fetch(`/api-commande/routes/contrat.php?id=${licenceId}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await response.json();

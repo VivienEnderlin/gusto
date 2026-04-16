@@ -65,7 +65,7 @@
 
     $.ajax({
         type: 'POST',
-        url: 'http://gusto/api-commande/routes/auth.php',
+        url: '/api-commande/routes/auth.php',
         data: JSON.stringify(postdata),
         contentType: "application/json",
         dataType: "json",
