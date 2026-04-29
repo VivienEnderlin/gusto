@@ -92,6 +92,9 @@ class Utilisateur extends BaseModel {
                 "login",
                 "password",
                 "id_etablissement",
+                "code",
+                "date_validite",
+                "statu",
                 "role",
                 "date_enreg",
             ],
@@ -103,6 +106,9 @@ class Utilisateur extends BaseModel {
                 $data['login'],
                 password_hash($password, PASSWORD_DEFAULT),
                 $data['id_etablissement'],
+                "En attente",
+                date('Y-m-d'),
+                "En attente",
                 $data['role'],
                 date('Y-m-d'),
             ]
@@ -159,6 +165,19 @@ class Utilisateur extends BaseModel {
         );
     }
 
+    public function checkAndExpireContrats() {
+
+        $today = date('Y-m-d');
+
+        return $this->set(
+            "utilisateur",
+            ["statu"],
+            ["Expiré"],
+            "WHERE date_validite < ? AND statu != ?",
+            [$today, "Expiré"]
+        );
+    }
+
     
     /* =======================
        AUTH
@@ -168,7 +187,7 @@ class Utilisateur extends BaseModel {
         $stmt = $this->personnalSelect(
             "utilisateur",
             "*",
-            "WHERE login = ?",
+            "WHERE BINARY login = ?",
             [$login]
         );
         return $stmt->fetch(PDO::FETCH_ASSOC);

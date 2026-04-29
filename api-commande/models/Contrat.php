@@ -24,65 +24,45 @@ class Contrat extends BaseModel {
         // 4️⃣ Retourner le code licence
         return "{$nomEtablissement}-{$dateCreation}-{$dateValidite}-{$random}";
     }
+    
     // Récupérer tous les établissements
     public function getAllContrats() {
-        $stmt = $this->getAll("contrat");
+        $stmt = $this->personnalSelect(
+            "utilisateur",
+            "*",
+            "WHERE role != ?",
+            [0]
+        );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Récupérer un établissement par ID
+    // Récupérer un utilsateur par ID
     public function getById($id) {
         $stmt = $this->personnalSelect(
-            "contrat",
+            "utilisateur",
             "*",
-            "WHERE id_contrat = ?",
+            "WHERE id_utilisateur = ?",
             [$id]
         );
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // Créer un nouvel établissement
-    public function create($data) {
-        // Définir le statut par défaut si absent
-        $data['statu'] = $data['statu'] ?? 'Valide';
-
-         $licence = $data['code'] ?? $this->generateLicenceCode($data['id_etablissement'], $data['date_validite']);
-
-        $this->insert(
-            "contrat",
-            ["id_etablissement", "code", "date_validite", "description", "statu"],
-            [
-                $data['id_etablissement'],
-                $licence,
-                $data['date_validite'],
-                $data['description'],
-                $data['statu']
-            ]
-        );
-
-        return $this->pdo->lastInsertId();
-    }
-
     // Mettre à jour un établissement
     public function update($id, $data) {
-        $existing = $this->getById($id);
 
-     $licence = $data['code'] ?? $this->generateLicenceCode($data['id_etablissement'], $data['date_validite']);
+        $licence = $data['code'] ?? $this->generateLicenceCode($data['id_etablissement'], $data['date_validite']);
 
         return $this->set(
-            "contrat",
-            ["id_etablissement", "code", "date_validite", "description", "statu"],
+            "utilisateur",
+            ["code", "date_validite", "statu"],
             [
-                $data['id_etablissement'],
                 $licence,
                 $data['date_validite'],
-                $data['description'],
-                $data['statu'] ?? $existing['statu']
+                "Valide"
             ],
-            "WHERE id_contrat = ?",
+            "WHERE id_utilisateur = ?",
             [$id]
         );
     }
-
 }
 ?>

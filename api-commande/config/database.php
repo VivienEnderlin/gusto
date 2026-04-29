@@ -92,17 +92,6 @@ class Database {
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE
                     )",
-                "contrat" => "
-                    CREATE TABLE IF NOT EXISTS contrat (
-                        id_contrat INT AUTO_INCREMENT PRIMARY KEY,
-                        id_etablissement INT,
-                        code VARCHAR(50) NOT NULL,
-                        date_validite DATE,
-                        description TEXT,
-                        statu VARCHAR(20) NOT NULL,
-                        FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
-                        ON DELETE CASCADE ON UPDATE CASCADE
-                    )",
                 "utilisateur" => "
                     CREATE TABLE IF NOT EXISTS utilisateur (
                         id_utilisateur INT AUTO_INCREMENT PRIMARY KEY,
@@ -113,6 +102,9 @@ class Database {
                         login VARCHAR(50) NOT NULL,
                         password TEXT,
                         id_etablissement INT,
+                        code VARCHAR(50) NOT NULL,
+                        date_validite DATE,
+                        statu VARCHAR(20) NOT NULL,
                         role INT,
                         date_enreg DATE,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
@@ -143,6 +135,7 @@ class Database {
                         image TEXT,
                         id_categorie INT,
                         prix VARCHAR(11) NOT NULL,
+                        devise VARCHAR(10) NOT NULL,
                         description TEXT,
                         FOREIGN KEY (id_etablissement) REFERENCES etablissement(id_etablissement)
                         ON DELETE CASCADE ON UPDATE CASCADE,
@@ -173,6 +166,7 @@ class Database {
                         id_table INT,
                         commande TEXT,
                         montant_total  VARCHAR(20) NOT NULL,
+                        devise VARCHAR(10) NOT NULL,
                         etat  VARCHAR(20) NOT NULL,
                         date_enreg  DATETIME,
                         FOREIGN KEY (id_table) REFERENCES tables_restaurant(id_table)
@@ -201,6 +195,9 @@ class Database {
                     ':telephone' => '680468901',
                     ':login' => 'admin',
                     ':id_etablissement' => 0,
+                    'code' => 0,
+                    'date_validite' => null,
+                    'code' => 0,
                     ':password' => password_hash("admin", PASSWORD_DEFAULT),
                     ':role' => 0,
                     ':date_enreg' => date("Y-m-d")

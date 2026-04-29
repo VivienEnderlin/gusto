@@ -93,15 +93,6 @@ $('.btn-app').on('click', function() {
 });
 
 
-$('.btn-licence').on('click', function() {
-    $('#contrat')[0].reset();
-    $('#contrat input[name="id"]').val('');
-    $('.modal-licence .modal-title').text("Ajouter un contrat");
-    $('.modal-licence button[type=submit]').text("Ajouter");
-    $('.modal-licence').modal({backdrop: 'static', keyboard: false});
-}); 
-
-
 $('.userLogin').on('click', function() {
     $('.modal-login .modal-title').text("Modifier mes informations");
     $('.modal-login button[type=submit]').text("Modifier");

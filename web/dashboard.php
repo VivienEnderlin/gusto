@@ -197,7 +197,6 @@
           </div>
 
           <div class="container-fluid content" id="licence">
-            <button class="btn-licence mb-4">Ajouter un contrat</button>
             <div class="row"> 
               <div class="card shadow mb-4 col-lg-12">
                 <div class="card-header py-3">
@@ -439,7 +438,6 @@
                   <small class="ml-3">Date d'expiration</small>
                   <input type="date" name="date_validite" class="form-control" required>
                 </div>
-                <textarea name="description" class="form-control" rows="4" placeholder="Ecrivez quelques choses"></textarea>
                 <input type="hidden" name="id">
                 <div class="col-md-12 text-center">
                   <button class="loading" type="submit"></button>

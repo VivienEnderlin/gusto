@@ -21,20 +21,28 @@ if (!$login || !$password) {
     exit;
 }
 
+
 $userModel = new Utilisateur();
+
+$userModel->checkAndExpireContrats();
+
 $user = $userModel->getByLogin($login);
 
-if ($user && password_verify($password, $user['password'])) {
+if (!$user || !password_verify($password, $user['password'])) {
+    echo json_encode([
+        'success' => false,
+    ]);
 
-   
+} elseif ($user['statu'] == 'Expiré') {
+    echo json_encode([
+        'success' => false,
+    ]);
+
+} else {
     $token = Auth::generateToken($user);
     echo json_encode([
         'success' => true,
         'token' => $token,
         'role'  => $user['role'],
-    ]);
-} else {
-    echo json_encode([
-        'success' => false,
     ]);
 }

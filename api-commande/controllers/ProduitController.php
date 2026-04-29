@@ -31,6 +31,7 @@ class ProduitController {
                 'image' => json_decode($e['image'], true), // renvoie un tableau d'images
                 'id_categorie' => $e['id_categorie'],
                 'prix' => $e['prix'],
+                'devise' => $e['devise'],
                 'description' => $e['description'],
                 'id_etablissement' => $e['id_etablissement']
             ];

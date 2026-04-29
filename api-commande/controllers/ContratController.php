@@ -22,16 +22,18 @@ class ContratController {
         $rows = [];
 
         foreach ($data as $e) {
-            if ($e['statu'] === 'Valide') {
+            if ($e['statu'] === 'En attente') {
+                $statutHTML = "<span class='statu-attente'>En attente</span>";
+            } elseif ($e['statu'] === 'Valide') {
                 $statutHTML = "<span class='statu-valide'>Valide</span>";
-            } else {
+            }else{
                 $statutHTML = "<span class='statu-expire'>Expiré</span>";
             }
             $rows[] = [
                 $e['code'],
                 $e['date_validite'],
                 $statutHTML,
-                "<button class='btn btn-sm btn-primary edit-contrat' data-id='{$e['id_contrat']}'>Modifier</button>"
+                "<button class='btn btn-sm btn-primary edit-contrat' data-id='{$e['id_utilisateur']}'>Modifier</button>"
             ];
         }
 
@@ -48,33 +50,6 @@ class ContratController {
         } else {
             echo json_encode(['success'=>false, 'message'=>'Contract not found']);
         }
-        exit;
-    }
-
-
-    // =========================
-    // AJOUT
-    // =========================
-    public function store($data) {
-        header('Content-Type: application/json; charset=utf-8');
-
-        $id = $this->contrat->create($data);
-        $e  = $this->contrat->getById($id);
-
-        if ($e['statu'] === 'Valide') {
-            $statutHTML = "<span class='statu-valide'>Valide</span>";
-        } else {
-            $statutHTML = "<span class='statu-expire'>Expiré</span>";
-        }
-
-        $row = [
-            $e['code'],
-            $e['date_validite'],
-            $statutHTML,
-           "<button class='btn btn-sm btn-primary edit-contrat' data-id='{$e['id_contrat']}'>Modifier</button>"
-        ];
-
-        echo json_encode(['success'=>true,'data'=>$row]);
         exit;
     }
 
@@ -96,19 +71,13 @@ class ContratController {
 
         // Relecture
         $e = $this->contrat->getById($id);
-
-        if ($e['statu'] === 'Valide') {
-            $statutHTML = "<span class='statu-valide'>Valide</span>";
-        } else {
-            $statutHTML = "<span class='statu-expire'>Expiré</span>";
-        }
-
+        
         // Ligne tableau
         $row = [
                 $e['code'],
                 $e['date_validite'],
-                $statutHTML,
-                "<button class='btn btn-sm btn-primary edit-contrat' data-id='{$e['id_contrat']}'>Modifier</button>"
+                "<span class='statu-valide'>Valide</span>",
+                "<button class='btn btn-sm btn-primary edit-contrat' data-id='{$e['id_utilisateur']}'>Modifier</button>"
             ];
 
         echo json_encode(['success'=>true,'data'=>$row]);

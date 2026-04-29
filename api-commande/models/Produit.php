@@ -48,13 +48,14 @@ class Produit extends BaseModel {
     public function create($data, $id_etablissement) {
         $this->insert(
             "produit",
-            ["id_etablissement", "nom", "image", "id_categorie", "prix", "description"],
+            ["id_etablissement", "nom", "image", "id_categorie", "prix", "devise", "description"],
             [
                 $data['id_etablissement'],
                 $data['nom'],
                 $data['image'] ?? null,
                 $data['id_categorie'] ?? null,
                 $data['prix'] ?? 0,
+                $data['devise'] ?? null,
                 $data['description'] ?? ''
             ]
         );

@@ -896,7 +896,7 @@ button.loading.show-loader::after {
   border-color: var(--accent-color);
 }
 
-.btn-user, .btn-ets, .btn-app, .btn-licence {
+.btn-user, .btn-ets, .btn-app {
   margin-left: 10px;
   background: var(--accent-color);
   border: var(--accent-color);
@@ -1043,6 +1043,10 @@ button.loading.show-loader::after {
 
 .modal-f .modal-title, .TG, .montantFinal{
   font-size: 17px;
+}
+
+.statu-attente {
+    color: grey;
 }
 
 .statu-valide {
