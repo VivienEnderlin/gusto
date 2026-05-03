@@ -60,7 +60,7 @@ a:hover{
 }
 
 .logo {
-  font-size: 35px;
+  font-size: 25px;
   margin: 0;
   font-weight: 700;
   color: var(--background-color);
@@ -225,7 +225,7 @@ a:hover{
 @media (max-width: 1199px) {
   .mobile-nav-toggle {
     color: var(--nav-color);
-    font-size: 35px;
+    font-size: 30px;
     line-height: 0;
     margin-right: 10px;
     cursor: pointer;
@@ -257,7 +257,7 @@ a:hover{
     color: var(--nav-dropdown-color);
     padding: 10px 20px;
     font-family: var(--nav-font);
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -478,11 +478,15 @@ a:hover{
 /* ============================
    MENU SECTION
 ============================ */
-.menu-section {
-    padding: 3rem;
-    max-width: 1280px;  
-    text-align: justify; 
+.menu-section  {
+    padding: 2rem;    
 }
+
+.menu-section div {
+    max-width: 1280px; 
+    text-align: justify;  
+}
+
 
 .menu-section h2 {
     font-size: 2rem;

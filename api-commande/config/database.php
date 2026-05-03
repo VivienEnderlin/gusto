@@ -185,8 +185,8 @@ class Database {
             if ($stmt->fetchColumn() == 0) {
                 $stmt = $this->pdo->prepare("
                     INSERT INTO utilisateur 
-                    (nom, adresse, email, telephone, login, password, id_etablissement, role, date_enreg) 
-                    VALUES (:nom, :adresse, :email, :telephone, :login, :password, :id_etablissement, :role, :date_enreg)
+                    (nom, adresse, email, telephone, login, password, id_etablissement, code, date_validite, statu, role, date_enreg) 
+                    VALUES (:nom, :adresse, :email, :telephone, :login, :password, :id_etablissement, :code, :date_validite, :statu, :role, :date_enreg)
                 ");
                 $stmt->execute([
                     ':nom' => 'Djiomou Vivien',
@@ -197,7 +197,7 @@ class Database {
                     ':id_etablissement' => 0,
                     'code' => 0,
                     'date_validite' => null,
-                    'code' => 0,
+                    'statu' => 'En attente',
                     ':password' => password_hash("admin", PASSWORD_DEFAULT),
                     ':role' => 0,
                     ':date_enreg' => date("Y-m-d")

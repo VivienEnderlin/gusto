@@ -36,6 +36,7 @@ if (!$user || !password_verify($password, $user['password'])) {
 } elseif ($user['statu'] == 'Expiré') {
     echo json_encode([
         'success' => false,
+        'statu' => $user['statu'] // ✅ IMPORTANT
     ]);
 
 } else {
@@ -43,6 +44,6 @@ if (!$user || !password_verify($password, $user['password'])) {
     echo json_encode([
         'success' => true,
         'token' => $token,
-        'role'  => $user['role'],
+        'role'  => $user['role']
     ]);
 }

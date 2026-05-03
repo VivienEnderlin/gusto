@@ -61,7 +61,7 @@
 		                	const codeBD = result.data.code;
 		                	if (codeInput === codeBD) {
 		                		localStorage.setItem('code_service', codeBD);
-		                        window.location.href = "menu.php?code=" + qrCode;;
+		                        window.location.href = "menu.php?code=" + qrCode;
 		                	}
 		                	else{
 			                  $('.erreur').hide().html('<div class="alert alert-block alert-danger"><i class="icofont-close" style="margin-right: 10px; font-weight: bold;"></i>Wrong service code </div>').slideDown(500);

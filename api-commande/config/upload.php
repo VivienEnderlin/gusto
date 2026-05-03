@@ -9,10 +9,10 @@ function uploadfile(array $typeFileAllowed, string $link) {
     }
 
     // 🌐 URL publique
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://";
-    $host = $_SERVER['HTTP_HOST'];
+    // $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://";
+    // $host = $_SERVER['HTTP_HOST'];
 
-    $baseUrl = $protocol . $host . "/api-commande/uploads/images/";
+    $baseUrl = "/api-commande/uploads/images/";
 
     foreach ($_FILES as $value) {
 

@@ -140,7 +140,7 @@
 
                 <div class="d-flex justify-content-between">
                     <h5>Total amount :</h5>
-                    <h5 id="montantFinal">0 <?= htmlspecialchars($devise) ?></h5>
+                    <h5 id="montantFinal">0.00 <?= htmlspecialchars($devise) ?></h5>
                 </div>
 
                 <div>
@@ -178,7 +178,7 @@
 
                 <div class="d-flex justify-content-between">
                     <h5>Total amount :</h5>
-                    <h5 id="montantTotal">0 <?= htmlspecialchars($devise) ?></h5>
+                    <h5 id="montantTotal"><?= htmlspecialchars($devise) ?></h5>
                 </div>
 
                 <div>
@@ -387,7 +387,7 @@
             function initWebSocket() {
                 if (socket) return; // 🔥 empêche double connexion
 
-                socket = new WebSocket("ws://192.168.1.167:8080");
+                socket = new WebSocket("ws://172.30.108.90:8080");
 
                 socket.onopen = () => {
                     console.log("✅ WebSocket connected");
@@ -476,7 +476,7 @@
                 }
                 ["id_ticket", "code_service"].forEach(k => localStorage.removeItem(k));
 
-                alert("✅");
+                alert("✅ please wait a few moment your bill is coming");
             });
 
         </script>

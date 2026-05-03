@@ -74,28 +74,30 @@
 
         <section id="presentation" class="menu-section">
             <h2>Présentation du système</h2>
-            <span>Gusto est une plateforme digitale conçue pour simplifier la gestion des commandes dans un etablissement (restaurant, snack...). Grâce à ce systeme bien definit, la gestion devient fluide, securisé et intelligente, tout en permettant une prise de décision rapide grâce à des informations claires et accessibles en temps réel.</span>.
-            <h2>Fonctionnalités principales</h2>
-            <h3>Le client disposant d'un smartphone</h3>
-            <ul>
-              <li>Accèder au menu digitale en scannant le Qrcode de la table</li><br>
-              <li>Commander à distance</li><br>
-              <li>signaler pour reclamer sa facture</li><br>   
-            </ul>
-            <h3>Le serveur disposant d'une tablette</h3>
-            <ul>
-              <li>Ouvrir et fermer le service d'une table</li><br>
-              <li>Selectionner le menu pour le client qui n'a pas de téléphone</li><br>
-              <li>Visualiser l'historique commandes</li><br>
-              <li>Interagir avec le système pour informer du statu de la commande</li><br>
-              <li>Imprimer les factures</li><br>
-            </ul>  
-            <h3>Le Gérant disposant d'un ordinateur</h3>
-            <ul>
-              <li>Gerer des tables, produits, employé etc...</li><br>
-              <li>Visiualiser l'historique des commandes</li><br>
-              <li>Contrôler les trafics en temps réel</li><br>
-            </ul>
+            <div>Gusto est une plateforme digitale conçue pour simplifier la gestion des commandes dans un etablissement (restaurant, snack...). Grâce à ce systeme bien definit, la gestion devient fluide, securisé et intelligente, tout en permettant une prise de décision rapide grâce à des informations claires et accessibles en temps réel.</div>.
+          
+              <h2>Fonctionnalités principales</h2>
+              <h3>Le client disposant d'un smartphone</h3>
+              <ul>
+                <li>Accèder au menu digitale en scannant le Qrcode de la table</li><br>
+                <li>Commander à distance</li><br>
+                <li>signaler pour reclamer sa facture</li><br>   
+              </ul>
+              <h3>Le serveur disposant d'une tablette</h3>
+              <ul>
+                <li>Ouvrir et fermer le service d'une table</li><br>
+                <li>Selectionner le menu pour le client qui n'a pas de téléphone</li><br>
+                <li>Visualiser l'historique commandes</li><br>
+                <li>Interagir avec le système pour informer du statu de la commande</li><br>
+                <li>Imprimer les factures</li><br>
+              </ul>  
+              <h3>Le Gérant disposant d'un ordinateur</h3>
+              <ul>
+                <li>Gerer des tables, produits, employé etc...</li><br>
+                <li>Visiualiser l'historique des commandes</li><br>
+                <li>Contrôler les trafics en temps réel</li><br>
+              </ul>
+            
         </section>
 
         <!-- Call to Action -->

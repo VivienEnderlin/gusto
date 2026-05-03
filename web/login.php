@@ -80,7 +80,7 @@
                     })  
                 }
                 else{
-                  $('.erreur').hide().html('<div class="alert alert-block alert-danger"><i class="icofont-close" style="margin-right: 10px; font-weight: bold;"></i>Information incorrect </div>').slideDown(500);
+                  $('.erreur').hide().html('<div class="alert alert-block alert-danger"><i class="icofont-close" style="margin-right: 10px; font-weight: bold;"></i>Information incorrect  </div>').slideDown(500);
                 }
             },
             error: function(xhr, status, error) {
