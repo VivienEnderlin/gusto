@@ -2,10 +2,10 @@
 class Database {
     private static $servers = [
         [
-            'host' => 'localhost',
-            'dbname' => 'etablissement',
-            'user' => 'root',
-            'password' => ''
+            'host' => <%= ENV['JAWSDB_HOST'] %>,
+            'dbname' => <%= ENV['JAWSDB_DATABASE'] %>,
+            'user' => <%= ENV['JAWSDB_USERNAME'] %>,
+            'password' => <%= ENV['JAWSDB_PASSWORD'] %>
         ],
         // [
         //     'host' => '192.168.1.11',
