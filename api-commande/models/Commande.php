@@ -173,15 +173,15 @@ class Commande extends BaseModel {
         );
     }
 
-    /*
+    
     public function delete($id, $id_etablissement){
         return $this->personalDelete(
             "commande",
-            "WHERE id_commande = ? AND id_etablissement = ? AND etat IN (?, ?)",
+            "WHERE id_commande = ? AND id_etablissement = ? AND etat NOT IN (?, ?)",
             [$id, $id_etablissement, 'Servi', 'Payé']
         );
     }
-    */
+    
 
 
    public function getByServiceRange($id_etablissement, $debut, $fin){

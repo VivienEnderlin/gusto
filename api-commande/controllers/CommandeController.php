@@ -182,7 +182,8 @@ class CommandeController {
         ]);
         exit;
     }
-    /*
+    
+    
     public function delete($id) {
         header('Content-Type: application/json; charset=utf-8');
 
@@ -213,7 +214,7 @@ class CommandeController {
         }
         exit;
     }
-    */
+    
 
 
     public function getByServiceRange($debut, $fin) {
@@ -235,62 +236,83 @@ class CommandeController {
     // CHANGER STATUT
     // =========================
    public function changeStatus($id_ticket) {
-    header('Content-Type: application/json; charset=utf-8');
-    // récupérer établissement depuis token/session
-    $id_etablissement = $this->getEtablissementId();
+        header('Content-Type: application/json; charset=utf-8');
+        // récupérer établissement depuis token/session
+        $id_etablissement = $this->getEtablissementId();
+        // récupérer commandes du ticket
+        $rows = $this->commande->getByTicketAndEtablissement(
+            $id_ticket,
+            $id_etablissement
+        );
+        if (!$rows || count($rows) === 0) {
 
-    // récupérer commandes du ticket
-    $rows = $this->commande->getByTicketAndEtablissement(
-        $id_ticket,
-        $id_etablissement
-    );
-    if (!$rows || count($rows) === 0) {
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Command not found'
-        ]);
-        exit;
-    }
-    // progression des états
-    $next = [
-        'En attente' => 'Servi',
-        'Servi' => 'Payé'
-    ];
-    $updated = false;
-
-    foreach ($rows as $row) {
-
-        if (isset($next[$row['etat']])) {
-
-            $this->commande->updateEtatById(
-                $row['id_commande'],
-                $id_etablissement,
-                $next[$row['etat']]
-            );
-
-            $updated = true;
+            echo json_encode([
+                'success' => false,
+                'message' => 'Command not found'
+            ]);
+            exit;
         }
-    }
-    if (!$updated) {
+        // Vérifie s'il existe au moins un "En attente"
+        $hasEnAttente = false;
+        foreach ($rows as $row) {
 
+            if ($row['etat'] === 'En attente') {
+                $hasEnAttente = true;
+                break;
+            }
+        }
+        $updated = false;
+
+        // PRIORITÉ AUX "En attente"
+        if ($hasEnAttente) {
+            foreach ($rows as $row) {
+
+                if ($row['etat'] === 'En attente') {
+
+                    $this->commande->updateEtatById(
+                        $row['id_commande'],
+                        $id_etablissement,
+                        'Servi'
+                    );
+
+                    $updated = true;
+                }
+            }
+
+        } else {
+            // Seulement s'il n'y a plus de "En attente"
+            foreach ($rows as $row) {
+
+                if ($row['etat'] === 'Servi') {
+
+                    $this->commande->updateEtatById(
+                        $row['id_commande'],
+                        $id_etablissement,
+                        'Payé'
+                    );
+
+                    $updated = true;
+                }
+            }
+        }
+        if (!$updated) {
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'Nothing to update'
+            ]);
+            exit;
+        }
+        // récupérer nouvelles données
+        $data = $this->commande->getByTicketAndEtablissement(
+            $id_ticket,
+            $id_etablissement
+        );
         echo json_encode([
-            'success' => false,
-            'message' => 'Nothing to update'
+            'success' => true,
+            'data' => $data
         ]);
         exit;
     }
-    // récupérer nouvelles données
-    $data = $this->commande->getByTicketAndEtablissement(
-        $id_ticket,
-        $id_etablissement
-    );
-    echo json_encode([
-        'success' => true,
-        'data' => $data
-    ]);
-
-    exit;
-}
 }
 ?>

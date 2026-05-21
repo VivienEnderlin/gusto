@@ -118,10 +118,17 @@ if ($method === 'DELETE') {
     $id_ticket = isset($_GET['id_ticket']) ?? null;
 
     // 👉 CAS 1 : suppression groupe
-    if ($id_ticket) {
-        $controller->deleteTicket($id_ticket);
+    if (!$id_ticket) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'id_ticket required'
+        ]);
         exit;
     }
+
+    $controller->deleteTicket($id_ticket);
+    exit;
 
     // 👉 CAS 2 : suppression simple
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
