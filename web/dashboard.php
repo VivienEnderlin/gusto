@@ -9,7 +9,7 @@
     <meta name="author" content="">
 
     <title>Gusto</title>
-    <link href="./assets/img/gusto.png" class="logo icon" rel="icon">
+    <link href="./assets/img/gusto.png" class="logo icon"  type="image/png" rel="icon">
 
     <!-- Custom fonts for this template-->
     <link href="./assets/vendor/fontawesome-free-5.7.2-web/css/all.min.css" rel="stylesheet">
@@ -940,7 +940,7 @@ button.loading.show-loader::after{
 
         const headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
+            'authorization': 'Bearer ' + token
         };
 
         if (token) {

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gusto</title>
-    <link href="./web/assets/img/gusto.png" class="logo icon" rel="icon">
+    <link href="./web/assets/img/gusto.png" class="logo icon" type="image/png" rel="icon">
     <link href="./web/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="./web/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="./web/assets/vendor/build/intlTelInput.css" rel="stylesheet">
@@ -57,6 +57,10 @@
         color: var(--design-color) !important;
       }
 
+      .nav-link.active{
+        color: var(--design-color) !important;
+      }
+
       .btn-nav{
         background: var(--design-color);
         color:white;
@@ -86,7 +90,7 @@
       }
 
       .hero h1{
-        font-size:60px;
+        font-size:55px;
         font-weight:700;
         line-height:1.2;
       }
@@ -417,6 +421,22 @@
         box-shadow:0 20px 60px rgba(0,0,0,.35);
       }
 
+      @media(max-width:576px){
+
+      #assistantBox{
+        width:90%;
+        left:5%;
+        right:auto;
+        bottom:90px;
+      }
+
+      #assistantToggle{
+        right:20px;
+        bottom:20px;
+      }
+
+    }
+
       .assistant-header{
         background:var(--design-color);
         padding:20px;
@@ -463,6 +483,14 @@
 
       .assistant-body textarea{
         resize:none;
+      }
+
+      .iti{
+        width:100%;
+      }
+
+      .iti--container{
+        z-index:999999999 !important;
       }
 
       .iti__country-name{
@@ -843,7 +871,7 @@
         Gusto
       </h2>
 
-      <div class="socials">
+      <div class="socials d-flex justify-content-center flex-wrap gap-3">
 
         <a href="https://wa.me/+237680468901">
           <i class="bi bi-whatsapp"> +237 6 80 46 89 01</i>
@@ -886,7 +914,7 @@
     <form id="assistantForm">
       <input type="text" name="nom" class="form-control mb-3" placeholder="Votre nom" required>
       <input 
-        type="tel" name="telephone" id="phone" class="form-control mb-3" value="+237 " placeholder="Votre téléphone (whatsapp)" required>
+        type="tel" name="telephone" id="phone" class="form-control mb-3" value="+237&nbsp;" placeholder="Votre téléphone (whatsapp)" required>
       <textarea 
         name="message" class="form-control mb-3" rows="4" placeholder="Votre message..." required></textarea>
       <button type="submit" class="btn-send loading">
@@ -998,6 +1026,31 @@
               }, 100);
             }
           });
+        });
+
+        //---------SCROLL SPY----------
+
+        const sections = document.querySelectorAll("section");
+        const navLinks = document.querySelectorAll(".nav-link");
+        window.addEventListener("scroll", () => {
+          let current = "";
+          sections.forEach(section => {
+            const sectionTop = section.offsetTop - 150;
+            const sectionHeight = section.clientHeight;
+
+            if (scrollY >= sectionTop) {
+              current = section.getAttribute("id");
+            }
+
+          });
+          navLinks.forEach(link => {
+            link.classList.remove("active");
+            if(link.getAttribute("href") === "#" + current){
+              link.classList.add("active");
+            }
+
+          });
+
         });
 
         var input = document.querySelector("#phone");

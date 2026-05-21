@@ -19,7 +19,7 @@ class CommandeController {
         // 🔐 Si token → utiliser JWT
         $headers = getallheaders();
 
-        if (isset($headers['Authorization'])) {
+        if (isset($headers['authorization'])) {
             $user = Middleware::checkAuth();
             return $user->id_etablissement; // ✅ CORRECTION
         }
@@ -176,21 +176,13 @@ class CommandeController {
 
         $deleted = $this->commande->deleteByTicket($id_ticket, $id_etablissement);
 
-        if ($deleted) {
-            echo json_encode([
-                'success' => true,
-                'message' => 'Ticket cancelled'
-            ]);
-        } else {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Delete failed'
-            ]);
-        }
-
+        echo json_encode([
+            'success' => $deleted > 0,
+            'message' => $deleted > 0 ? 'Ticket cancelled' : 'Nothing deleted'
+        ]);
         exit;
     }
-
+    /*
     public function delete($id) {
         header('Content-Type: application/json; charset=utf-8');
 
@@ -221,6 +213,7 @@ class CommandeController {
         }
         exit;
     }
+    */
 
 
     public function getByServiceRange($debut, $fin) {
@@ -241,30 +234,63 @@ class CommandeController {
     // =========================
     // CHANGER STATUT
     // =========================
-    public function changeStatus($id) {
-        header('Content-Type: application/json; charset=utf-8');
+   public function changeStatus($id_ticket) {
+    header('Content-Type: application/json; charset=utf-8');
+    // récupérer établissement depuis token/session
+    $id_etablissement = $this->getEtablissementId();
 
-        $id_etablissement = $this->getEtablissementId()t;
-
-        $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
-
-        if (!$e) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Command not found'
-            ]);
-            exit;
-        }
-
-        $this->commande->toggleStatut($id, $id_etablissement);
-
-        $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
+    // récupérer commandes du ticket
+    $rows = $this->commande->getByTicketAndEtablissement(
+        $id_ticket,
+        $id_etablissement
+    );
+    if (!$rows || count($rows) === 0) {
 
         echo json_encode([
-            'success' => true,
-            'data' => $e
+            'success' => false,
+            'message' => 'Command not found'
         ]);
         exit;
     }
+    // progression des états
+    $next = [
+        'En attente' => 'Servi',
+        'Servi' => 'Payé'
+    ];
+    $updated = false;
+
+    foreach ($rows as $row) {
+
+        if (isset($next[$row['etat']])) {
+
+            $this->commande->updateEtatById(
+                $row['id_commande'],
+                $id_etablissement,
+                $next[$row['etat']]
+            );
+
+            $updated = true;
+        }
+    }
+    if (!$updated) {
+
+        echo json_encode([
+            'success' => false,
+            'message' => 'Nothing to update'
+        ]);
+        exit;
+    }
+    // récupérer nouvelles données
+    $data = $this->commande->getByTicketAndEtablissement(
+        $id_ticket,
+        $id_etablissement
+    );
+    echo json_encode([
+        'success' => true,
+        'data' => $data
+    ]);
+
+    exit;
+}
 }
 ?>

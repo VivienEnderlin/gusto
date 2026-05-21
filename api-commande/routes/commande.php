@@ -10,7 +10,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 // Vérification du token
 // ========================
 $headers = function_exists('getallheaders') ? getallheaders() : [];
-$token = $headers['Authorization'] ?? null;
+$token = $headers['authorization'] ?? null;
 
 // ========================
 // Lire le body JSON
@@ -85,6 +85,32 @@ if ($method === 'DELETE') {
 
     if (!$token) {
         http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Token required'
+        ]);
+        exit;
+    }
+
+    $id_ticket = $_GET['id_ticket'] ?? null;
+
+    if (!$id_ticket) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'id_ticket required'
+        ]);
+        exit;
+    }
+
+    $controller->deleteTicket($id_ticket);
+    exit;
+}
+/*
+if ($method === 'DELETE') {
+
+    if (!$token) {
+        http_response_code(401);
         echo json_encode(['success'=>false,'message'=>'Token required']);
         exit;
     }
@@ -109,29 +135,38 @@ if ($method === 'DELETE') {
     $controller->delete($id);
     exit;
 }
+*/
+
 
 // ========================
 // PATCH : changer statut (token obligatoire)
 // ========================
 if ($method === 'PATCH') {
+
     if (!$token) {
         http_response_code(401);
-        echo json_encode(['success'=>false,'message'=>'Token required']);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Token required'
+        ]);
         exit;
     }
 
-    $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+    $id_ticket = $_GET['id_ticket'] ?? null;
 
-    if (!$id) {
+    if (!$id_ticket) {
         http_response_code(400);
-        echo json_encode(['success'=>false,'message'=>'ID required']);
+        echo json_encode([
+            'success' => false,
+            'message' => 'id_ticket required'
+        ]);
         exit;
     }
 
-    $controller->changeStatus($id);
+    // appel controller
+    $controller->changeStatus($id_ticket);
     exit;
 }
-
 // ========================
 http_response_code(405);
 echo json_encode(['success'=>false,'message'=>'Unauthorised method']);

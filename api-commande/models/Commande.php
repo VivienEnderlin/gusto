@@ -164,15 +164,16 @@ class Commande extends BaseModel {
 
     // delete
 
-    public function deleteByTicket($id_ticket, $id_etablissement) {
+   public function deleteByTicket($id_ticket, $id_etablissement) {
+
         return $this->personalDelete(
             "commande",
-            "WHERE id_ticket = ? AND id_etablissement = ?",
-            [$id_ticket, $id_etablissement]
+            "WHERE id_ticket = ? AND id_etablissement = ? AND etat NOT IN (?, ?)",
+            [$id_ticket, $id_etablissement, "Payé", "Servi"]
         );
-    } 
+    }
 
-
+    /*
     public function delete($id, $id_etablissement){
         return $this->personalDelete(
             "commande",
@@ -180,6 +181,8 @@ class Commande extends BaseModel {
             [$id, $id_etablissement, 'Servi', 'Payé']
         );
     }
+    */
+
 
    public function getByServiceRange($id_etablissement, $debut, $fin){
 
@@ -260,29 +263,27 @@ class Commande extends BaseModel {
         return array_values($grouped);
     }
 
-    public function toggleStatut($id, $id_etablissement) {
-        // Récupérer la commande sécurisée
-        $e = $this->getByIdAndEtablissement($id, $id_etablissement);
-        if (!$e) return false;
+    public function getByTicketAndEtablissement($id_ticket, $id_etablissement) {
 
-        // Définir la progression des statuts
-        $next = [
-            'En attente' => 'Servi',
-            'Servi' => 'Payé'
-        ];
+        $stmt = $this->personnalSelect(
+            "commande",
+            "*",
+            "WHERE id_ticket = ? AND id_etablissement = ?",
+            [$id_ticket, $id_etablissement]
+        );
 
-        // Vérifier s'il y a un statut suivant
-        if (isset($next[$e['etat']])) {
-            $this->set(
-                "commande",
-                ["etat"],
-                [$next[$e['etat']]],
-                "WHERE id_commande = ? AND id_etablissement = ?",
-                [$id, $id_etablissement]
-            );
-        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-        return true;
+    public function updateEtatById($id_commande, $id_etablissement, $etat) {
+
+        return $this->set(
+            "commande",
+            ["etat"],
+            [$etat],
+            "WHERE id_commande = ? AND id_etablissement = ?",
+            [$id_commande, $id_etablissement]
+        );
     }
 
 }

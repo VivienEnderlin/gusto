@@ -198,6 +198,7 @@
         <script>
             const id_etablissement = "<?= htmlspecialchars($id_etablissement) ?>"
             const id_table = "<?= htmlspecialchars($id_table) ?>"; 
+            const nom_table = "<?= htmlspecialchars($nom_table) ?>"; 
             const devise = "<?= htmlspecialchars($etablissements["devise"]) ?>";
             const qrCode = "<?= htmlspecialchars($code) ?>";
             const codeService = localStorage.getItem("code_service");
@@ -409,13 +410,13 @@
                 if (!id_ticket) {
                     const now = new Date();
                     const pad = n => n.toString().padStart(2, "0");
-                   id_ticket = `TCK-${pad(id_table)}-${String(now.getFullYear()).slice(-2)}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}${pad(now.getMilliseconds())}`;
+                   id_ticket = `TC${pad(id_table)}-${String(now.getFullYear()).slice(-2)}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}${pad(now.getMilliseconds())}`;
 
                     localStorage.setItem("id_ticket", id_ticket);
                 }
 
                 let payload = {
-                    id_table,
+                    nom_table,
                     id_etablissement,
                     commande: panier,
                     montant_total: totalGeneral,
@@ -440,7 +441,7 @@
                         socket.send(JSON.stringify({
                             type: "new_command",
                             id_etablissement,
-                            table: id_table,
+                            table: nom_table,
                             commande: panier,
                             montant: totalGeneral,
                             etat: "En attente",
@@ -470,7 +471,7 @@
                     socket.send(JSON.stringify({
                         type: "table_completed",
                         id_etablissement,
-                        table: id_table,
+                        table: nom_table,
                         id_ticket: id_ticket
                     }));
                 }
