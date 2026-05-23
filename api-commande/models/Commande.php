@@ -173,15 +173,36 @@ class Commande extends BaseModel {
         );
     }
 
-    
-    public function delete($id, $id_etablissement){
+    public function deleteByIdCommande($id_commande){
         return $this->personalDelete(
             "commande",
-            "WHERE id_commande = ? AND id_etablissement = ? AND etat NOT IN (?, ?)",
-            [$id, $id_etablissement, 'Servi', 'Payé']
+            "WHERE id_commande = ?",
+            [$id_commande]
         );
     }
     
+    public function getAllByTicket($id_ticket, $id_etablissement)
+    {
+        $stmt = $this->personnalSelect(
+            "commande",
+            "*",
+            "WHERE id_ticket = ? AND id_etablissement = ? AND etat NOT IN (?, ?)",
+            [$id_ticket, $id_etablissement, "Payé", "Servi"]
+        );
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function updateCommandeJsonRow($id_commande, $json)
+    {
+        return $this->set(
+            "commande",
+            ["commande"],
+            [$json],
+            "WHERE id_commande = ?",
+            [$id_commande]
+        );
+    }
 
 
    public function getByServiceRange($id_etablissement, $debut, $fin){

@@ -56,7 +56,7 @@ class Table extends BaseModel {
             [
                 $data['nom'],
                 $id_etablissement,
-                "Fermer"
+                "Fermé"
             ]
         );
 
@@ -94,7 +94,7 @@ class Table extends BaseModel {
             $this->set(
                 "tables_restaurant",
                 ["statu"],
-                ["Fermer"],
+                ["Fermé"],
                 "WHERE id_table = ? AND id_etablissement = ?",
                 [$id, $id_etablissement]
             );

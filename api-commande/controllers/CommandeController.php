@@ -184,37 +184,71 @@ class CommandeController {
     }
     
     
-    public function delete($id) {
+    public function deleteItemFromCommande($id_ticket, $id_item){
+
         header('Content-Type: application/json; charset=utf-8');
-
         $id_etablissement = $this->getEtablissementId();
-
-        $e = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
-
-        if (!$e) {
+        // 🔥 récupérer toutes les lignes du ticket
+        $rows = $this->commande->getAllByTicket($id_ticket, $id_etablissement);
+        if (!$rows || count($rows) === 0) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Command not found'
+                'message' => 'Commande not found'
             ]);
             exit;
         }
+        $found = false;
+        $totalGlobal = 0;
+        foreach ($rows as $row) {
+            $items = json_decode($row['commande'], true);
 
-        $deleted = $this->commande->delete($id, $id_etablissement);
+            if (!is_array($items)) {
+                $items = [];
+            }
+            // 🔥 suppression item
+            $items = array_values(array_filter(
+                $items,
+                function ($item) use ($id_item, &$found) {
 
-        if ($deleted) {
-            echo json_encode([
-                'success' => true,
-                'message' => 'Order cancelled'
-            ]);
-        } else {
+                    if ((string)$item['id'] === (string)$id_item) {
+                        $found = true;
+                        return false;
+                    }
+
+                    return true;
+                }
+            ));
+            // ✅ SI PLUS RIEN
+            if (count($items) === 0) {
+
+                // 🧨 SUPPRIMER LA LIGNE SQL
+                $this->commande->deleteByIdCommande(
+                    $row['id_commande']
+                );
+
+            } else {
+
+                // 🔄 UPDATE NORMAL
+                $this->commande->updateCommandeJsonRow(
+                    $row['id_commande'],
+                    json_encode($items, JSON_UNESCAPED_UNICODE)
+                );
+            }
+        }
+        if (!$found) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Delete failed'
+                'message' => 'Item not found'
             ]);
+            exit;
         }
+        echo json_encode([
+            'success' => true,
+            'message' => 'Item deleted',
+            'total' => $totalGlobal
+        ]);
         exit;
     }
-    
 
 
     public function getByServiceRange($debut, $fin) {

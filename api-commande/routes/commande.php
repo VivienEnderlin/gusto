@@ -81,6 +81,7 @@ if ($method === 'POST') {
 // ========================
 // DELETE : token obligatoire
 // ========================
+
 if ($method === 'DELETE') {
 
     if (!$token) {
@@ -93,57 +94,28 @@ if ($method === 'DELETE') {
     }
 
     $id_ticket = $_GET['id_ticket'] ?? null;
+    $id_item = $_GET['id_item'] ?? null;
 
-    if (!$id_ticket) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'id_ticket required'
-        ]);
+    // 🔥 CAS 1 : supprimer un item
+    if ($id_ticket && $id_item) {
+        $controller->deleteItemFromCommande($id_ticket, $id_item);
         exit;
     }
 
-    $controller->deleteTicket($id_ticket);
+    // 🔥 CAS 2 : supprimer un ticket complet
+    if ($id_ticket && !$id_item) {
+        $controller->deleteTicket($id_ticket);
+        exit;
+    }
+
+    // ❌ erreur si rien n'est fourni
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'id_ticket required (and optionally id_item)'
+    ]);
     exit;
 }
-/*
-if ($method === 'DELETE') {
-
-    if (!$token) {
-        http_response_code(401);
-        echo json_encode(['success'=>false,'message'=>'Token required']);
-        exit;
-    }
-
-    $id_ticket = isset($_GET['id_ticket']) ?? null;
-
-    // 👉 CAS 1 : suppression groupe
-    if (!$id_ticket) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'id_ticket required'
-        ]);
-        exit;
-    }
-
-    $controller->deleteTicket($id_ticket);
-    exit;
-
-    // 👉 CAS 2 : suppression simple
-    $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
-
-    if (!$id) {
-        http_response_code(400);
-        echo json_encode(['success'=>false,'message'=>'ID required']);
-        exit;
-    }
-
-    $controller->delete($id);
-    exit;
-}
-*/
-
 
 // ========================
 // PATCH : changer statut (token obligatoire)
