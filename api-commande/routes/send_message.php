@@ -6,7 +6,7 @@ use Dotenv\Dotenv;
 
 // Charger .env
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-$dotenv->load();
+$dotenv->safeLoad();
 
 $nom = $_POST['nom'] ?? '';
 $telephone = $_POST['telephone'] ?? '';

@@ -2,7 +2,7 @@
 require __DIR__ . '/../../vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
-$dotenv->load();
+$dotenv->safeLoad();
 require_once __DIR__ . '/BaseModel.php';
 
 class QrCode extends BaseModel {

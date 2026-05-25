@@ -3,7 +3,7 @@
 require __DIR__ . '/../../vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
-$dotenv->load();
+$dotenv->safeLoad();
 
 return [
     'JWT_SECRET' => $_ENV['JWT_SECRET'] ?? getenv('JWT_SECRET'),
