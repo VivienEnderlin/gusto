@@ -1,9 +1,8 @@
 <?php
 require_once __DIR__ . '/../controllers/CommandeController.php';
-require_once __DIR__ . '/../core/Middleware.php';
+
 
 header('Content-Type: application/json; charset=utf-8');
-$user = Middleware::checkAuth();
 
 $controller = new CommandeController();
 $method = $_SERVER['REQUEST_METHOD'];
