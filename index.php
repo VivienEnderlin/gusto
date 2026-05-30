@@ -789,7 +789,7 @@
 
             <div class="step-number">1</div>
 
-            <h3>Scannne du QR Code</h3>
+            <h3>Scan du QR Code</h3>
 
             <p>
               Le client scanne le QR code installé sur la table.
