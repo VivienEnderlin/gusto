@@ -1,21 +1,13 @@
 <?php
 require_once __DIR__ . '/../controllers/QrCodeController.php';
+require_once __DIR__ . '/../core/Middleware.php';
+$user = Middleware::checkAuth();
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 // ========================
 // Vérification token
 // ========================
-$headers = function_exists('getallheaders') ? getallheaders() : [];
-
-if (!isset($headers['Authorization'])) {
-    http_response_code(401);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Token required'
-    ]);
-    exit;
-}
 
 $controller = new QrCodeController();
 

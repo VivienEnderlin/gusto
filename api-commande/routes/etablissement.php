@@ -1,24 +1,13 @@
 <?php
 require_once __DIR__ . '/../controllers/EtablissementController.php';
+require_once __DIR__ . '/../core/Middleware.php';
 
 header('Content-Type: application/json; charset=utf-8');
+$user = Middleware::checkAuth();
 
 $controller = new EtablissementController();
 $method = $_SERVER['REQUEST_METHOD'];
 
-// ========================
-// Vérification du token
-// ========================
-$headers = function_exists('getallheaders') ? getallheaders() : [];
-
-if (!isset($headers['Authorization'])) {
-    http_response_code(401);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Token required'
-    ]);
-    exit;
-}
 
 // ========================
 // Lire le body JSON (POST)
