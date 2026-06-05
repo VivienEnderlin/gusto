@@ -29,13 +29,6 @@
         exit("QR code modifié ou invalide");
     }
 
-    require_once './../api-commande/models/Commande.php';
-    $ServiceModel = new Commande();
-    $serviceActif = $ServiceModel->isTableActive($id_table, $id_etablissement);
-    if (!$serviceActif) {
-        require_once'./forbidden.php';
-        exit;
-    }
 
     require_once './../api-commande/models/Etablissement.php';
     $etablissementModel = new Etablissement();

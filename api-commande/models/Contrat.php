@@ -1,5 +1,11 @@
 <?php
 require_once __DIR__ . '/BaseModel.php';
+require_once __DIR__ . '/../utils/phpmailer/src/Exception.php';
+require_once __DIR__ . '/../utils/phpmailer/src/PHPMailer.php';
+require_once __DIR__ . '/../utils/phpmailer/src/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class Contrat extends BaseModel {
 
@@ -48,11 +54,11 @@ class Contrat extends BaseModel {
     }
 
     // Mettre à jour un établissement
-    public function update($id, $data) {
+    public function update($id, $data){
 
-        $licence = $data['code'] ?? $this->generateLicenceCode($data['id_etablissement'], $data['date_validite']);
+        $licence = $data['code'] ?? $this->generateLicenceCode($data['id_etablissement'],$data['date_validite']);
 
-        return $this->set(
+        $result = $this->set(
             "utilisateur",
             ["code", "date_validite", "statu"],
             [
@@ -63,6 +69,42 @@ class Contrat extends BaseModel {
             "WHERE id_utilisateur = ?",
             [$id]
         );
+
+        if ($result) {
+            $user = $this->getById($id);
+            try {
+                $mail = new PHPMailer(true);
+
+                $mail->isSMTP();
+                $mail->Host       = 'smtp.gmail.com';
+                $mail->SMTPAuth   = true;
+                $mail->Username   = 'djiomounandavivienenderlin@gmail.com';
+                $mail->Password   = 'vvzm ioaa gckv vcze ';
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port       = 587;
+
+                $mail->setFrom('djiomounandavivienenderlin@gmail.com', 'Gusto');
+                $mail->addAddress($user['email'], $user['nom']);
+
+                $mail->isHTML(true);
+                $mail->Subject = 'Subscription renewal';
+                $mail->Body = "
+                    <h3>Hello {$user['nom']},</h3>
+                    <p>Your subscription has been successfully renewed.</p>
+                    <p>It will expire on <strong>{$data['date_validite']}</strong>.</p>
+                ";
+
+                $mail->send();
+
+            } catch (Exception $e) {
+                error_log(
+                    "Error sending email to {$user['email']}: "
+                    . $mail->ErrorInfo
+                );
+            }
+        }
+
+        return $result;
     }
 }
 ?>

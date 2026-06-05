@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/BaseModel.php';
-
 require_once __DIR__ . '/../utils/phpmailer/src/Exception.php';
 require_once __DIR__ . '/../utils/phpmailer/src/PHPMailer.php';
 require_once __DIR__ . '/../utils/phpmailer/src/SMTP.php';
@@ -133,8 +132,8 @@ class Utilisateur extends BaseModel {
             $mail->isHTML(true);
             $mail->Subject = 'Login details for the Manager account';
             $mail->Body    = "
-                <h3>Bonjour {$data['nom']},</h3>
-                <p>Votre compte a été créé avec succès.</p>
+                <h3>Hello {$data['nom']},</h3>
+                <p>Your account has been successfully created.</p>
                 <p><strong>Login :</strong> {$data['login']}<br>
                    <strong>Password:</strong> {$password}</p>
                 <p>You can change your password at any time</p>
