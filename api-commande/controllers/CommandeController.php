@@ -123,7 +123,7 @@ class CommandeController {
 
         // Vérification table ouverte
         $table = $this->commande->ShowTableActive(
-            $data['nom'],
+            $nom,
             $id_etablissement
         );
 
