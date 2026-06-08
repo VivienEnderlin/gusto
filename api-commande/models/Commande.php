@@ -125,6 +125,17 @@ class Commande extends BaseModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function ShowTableActive($nom, $id_etablissement) {
+        $stmt = $this->personnalSelect(
+            "tables_restaurant",
+            "*",
+            "WHERE nom = ? AND id_etablissement = ? AND statu = 'Ouvert'",
+            [$nom, $id_etablissement]
+        );
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
 
     // Créer
     public function create($data, $id_etablissement) {
