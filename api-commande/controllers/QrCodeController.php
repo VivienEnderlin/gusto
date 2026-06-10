@@ -24,7 +24,7 @@ class QrCodeController {
         // =========================
         // Récupération user
         // =========================
-        $id_etablissement = $this->user->id_etablissement;
+        return $user->id_etablissement;
 
         if (!$id || !ctype_digit((string)$id)) {
             http_response_code(400);

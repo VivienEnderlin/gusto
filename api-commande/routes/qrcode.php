@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../controllers/QrCodeController.php';
 require_once __DIR__ . '/../core/Middleware.php';
+header('Content-Type: application/json; charset=utf-8');
+
 $user = Middleware::checkAuth();
 
 $method = $_SERVER['REQUEST_METHOD'];
