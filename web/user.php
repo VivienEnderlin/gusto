@@ -303,7 +303,7 @@
                     success: function(result) {
                         $('button.loading').removeClass('show-loader').prop('disabled', false);
 
-                        if (result.success && result.token) {
+                        if (result.success && result.token && result.role == 1) {
 
                             localStorage.setItem('token', result.token);
                             $('.erreur').html('<div class="custom-alert success-alert"><i class="icofont-check" style="margin-right: 10px; font-weight: bold;"></i>Vous êtes connecté</div>').delay(500).hide(
