@@ -1,7 +1,13 @@
 const token = localStorage.getItem('token');
+let allOrders = []; // on stocke toutes les commandes
 
 
 document.addEventListener("DOMContentLoaded", async function () {
+    const aujourdHui = new Date();
+    const annee = aujourdHui.getFullYear();
+
+    document.getElementById('dateDebut').value = `${annee}-01-01`;
+    document.getElementById('dateFin').value = aujourdHui.toISOString().split('T')[0];
 
     if (!token) {
         console.error("Token manquant !");
@@ -219,72 +225,95 @@ document.addEventListener("DOMContentLoaded", async function () {
         // COMMANDES
         // ======================
         if (orderRes?.success && Array.isArray(orderRes.data)) {
+            allOrders = orderRes.data; // stock global
 
-            const container = document.getElementById('commandesContainer');
-            container.innerHTML = '';
-
-            orderRes.data.forEach(ticket => {
-
-                let itemsHTML = '';
-
-                ticket.commandes.forEach(cmd => {
-
-                    const badgeClass = cmd.etat === "Servi"
-                        ? "badge-success"
-                        : "badge-warning";
-
-                    itemsHTML += `
-                        <div class="commande-item">
-                            <div>
-                                <strong>${cmd.libelle}</strong><br>
-                                <small>${cmd.quantite} x ${cmd.prix} ${ticket.devise}</small>
-                            </div>
-
-                            <div>
-                                <span class="${badgeClass}">
-                                    ${cmd.etat}
-                                </span>
-                                <div><b>${cmd.total} ${ticket.devise}</b></div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML += `
-                    <div class="ticket-card">
-
-                        <div class="ticket-header">
-                            <div>
-                                <h3>Ticket #${ticket.id_ticket}</h3>
-                                <small>${ticket.date_enreg}</small>
-                            </div>
-
-                            <div>
-                                <h3>${ticket.montant_total} ${ticket.devise}</h3>
-                            </div>
-                        </div>
-
-                        <div class="ticket-body">
-                            ${itemsHTML}
-                        </div>
-
-                    </div>
-                `;
-            });
+            renderFilteredOrders(); // affichage initial
         }
-
-
     } catch (err) {
         console.error("ERREUR GLOBAL:", err);
     }
 
 });
+function renderFilteredOrders() {
+
+    const container = document.getElementById('commandesContainer');
+    container.innerHTML = '';
+
+    const dateDebut = document.getElementById('dateDebut').value;
+    const dateFin = document.getElementById('dateFin').value;
+
+    let filtered = [...allOrders];
+
+    if (dateDebut) {
+        filtered = filtered.filter(ticket =>
+            new Date(ticket.date_enreg.replace(' ', 'T')) >= new Date(dateDebut)
+        );
+    }
+
+    if (dateFin) {
+        filtered = filtered.filter(ticket =>
+            new Date(ticket.date_enreg.replace(' ', 'T')) <= new Date(dateFin)
+        );
+    }
+
+    filtered.forEach(ticket => {
+
+        let itemsHTML = '';
+
+        ticket.commandes.forEach(cmd => {
+
+            const badgeClass = cmd.etat === "Servi"
+                ? "badge-success"
+                : "badge-warning";
+
+            itemsHTML += `
+                <div class="commande-item">
+                    <div>
+                        <strong>${cmd.libelle}</strong><br>
+                        <small>${cmd.quantite} x ${cmd.prix} ${ticket.devise}</small>
+                    </div>
+
+                    <div>
+                        <span class="${badgeClass}">
+                            ${cmd.etat}
+                        </span>
+                        <div><b>${cmd.total} ${ticket.devise}</b></div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML += `
+            <div class="ticket-card">
+
+                <div class="ticket-header">
+                    <div>
+                        <h3>Ticket #${ticket.id_ticket}</h3>
+                        <small>${ticket.date_enreg}</small>
+                    </div>
+
+                    <div>
+                        <h3>${ticket.montant_total} ${ticket.devise}</h3>
+                    </div>
+                </div>
+
+                <div class="ticket-body">
+                    ${itemsHTML}
+                </div>
+
+            </div>
+        `;
+    });
+}
 
 
 document.addEventListener("DOMContentLoaded", () => {
 
     const menuItems = document.querySelectorAll(".menu li");
     const sections = document.querySelectorAll(".content-section");
+
+    document.getElementById('dateDebut').addEventListener('change', renderFilteredOrders);
+    document.getElementById('dateFin').addEventListener('change', renderFilteredOrders);
 
     function showSection(id) {
         sections.forEach(sec => {
@@ -370,14 +399,16 @@ const headers = {
 };
 
 if (token) {
-  const payload = parseJwt(token);
+    const payload = parseJwt(token);
 
-  if (payload && payload.data && payload.data.login) {
-      document.getElementById('userLogin').textContent = payload.data.login;
-  } else {
-      document.getElementById('userLogin').textContent = 'Invité';
-  }
-} else {
+    if (payload && payload.data && payload.data.login) {
+        document.getElementById('userLogin').textContent = payload.data.login;
+    } 
+    else {
+        document.getElementById('userLogin').textContent = 'Invité';
+    }
+} 
+else {
   window.location.href = './user.php';
 }
 

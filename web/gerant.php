@@ -640,6 +640,63 @@
             font-size: 12px;
         }
 
+        .trie{
+            display: flex;
+             justify-content: flex-end; /* pousse le contenu à droite */
+            gap: 15px;
+            align-items: center;
+            padding: 15px 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .trie input[type="date"]{
+            padding: 10px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #333;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        .trie input[type="date"]:hover{
+            border-color: #ff7a00;
+        }
+
+        .trie input[type="date"]:focus{
+            outline: none;
+            border-color: #ff7a00;
+            box-shadow: 0 0 0 4px rgba(255,122,0,0.15);
+            background: #fff;
+        }
+
+        .trie input[type="date"]::-webkit-calendar-picker-indicator{
+            cursor: pointer;
+            opacity: 0.8;
+            transition: 0.3s;
+        }
+
+        .trie input[type="date"]::-webkit-calendar-picker-indicator:hover{
+            opacity: 1;
+        }
+        .date-group{
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .date-group label{
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+        }
+
     </style>
 </head>
 
@@ -834,6 +891,17 @@
     </section>
 
     <section id="commandes" class="content-section" style="display:none">
+        <div class="trie">
+            <div class="date-group">
+                <label>Date début</label>
+                <input type="date" id="dateDebut">
+            </div>
+
+            <div class="date-group">
+                <label>Date fin</label>
+                <input type="date" id="dateFin">
+            </div>
+        </div>
         <div id="commandesContainer"></div>
     </section>
 
