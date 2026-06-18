@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gusto Manager</title>
+    <link href="./assets/img/gusto.png" class="logo icon" rel="icon">
 
     <link href="./assets/vendor/icofont/icofont.min.css" rel="stylesheet">
     <link href="./assets/vendor/datatables/datatables.bootstrap4.min.css" rel="stylesheet">
@@ -78,7 +79,7 @@
         }
 
         .logo span{
-            font-size:30px;
+            font-size:20px;
             font-weight:800;
             letter-spacing:3px;
             background:linear-gradient(135deg,var(--primary),var(--secondary));
@@ -169,8 +170,8 @@
         .avatar img{
             width:100%;
             height:100%;
-            object-fit:cover;
-            f
+            /*object-fit:cover;
+            f*/
         }
 
         /* ======================
@@ -595,7 +596,49 @@
             outline:none !important;
         }
 
+        #commandesContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
+        .ticket-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+
+        .commande-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
 
     </style>
 </head>
@@ -605,7 +648,8 @@
     <aside class="sidebar">
 
     <div class="logo">
-        <span> restaurant</span>
+        <span id="etabName"></span>
+        <hr style="margin-top:20px;">
     </div>
 
     <ul class="menu">
@@ -662,9 +706,7 @@
                 <i class="fa-solid fa-bell"></i>
             </button>
 
-            <div class="avatar" id="profileBtn">
-                <img src="https://i.pravatar.cc/150?img=12">
-            </div>
+            <div class="avatar" id="profileBtn"></div>
 
         </div>
 
@@ -748,25 +790,19 @@
             </button>
         </div>
 
-        <div class="products-grid">
+        <table class="DataTable info-produit">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Nom</th>
+                    <th>Catégorie</th>
+                    <th>Prix</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
 
-            <div class="product-card">
-
-                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500">
-
-                <div class="product-content">
-                    <h3>Burger Classic</h3>
-                    <p>3500 FCFA</p>
-
-                    <div class="product-actions">
-                        <button class="icon-btn"><i class="fa-solid fa-pen"></i></button>
-                        <button class="icon-btn danger"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
+            <tbody id="produitBody"></tbody>
+        </table>
 
     </section>
 
@@ -784,28 +820,21 @@
         <table class="DataTable info-user">
             <thead>
                 <tr>
-                    <th>Photo</th>
                     <th>Nom</th>
-                    <th>Poste</th>
                     <th>Téléphone</th>
+                    <th>login</th>
+                    <th>Date</th>
                     <th>Actions</th>
                 </tr>
             </thead>
 
-            <tbody>
-                <tr>
-                    <td><img class="employee-avatar" src="https://i.pravatar.cc/100?img=20"></td>
-                    <td>Jean Dupont</td>
-                    <td>Serveur</td>
-                    <td>690000000</td>
-                    <td>
-                        <button class="icon-btn"><i class="fa-solid fa-pen"></i></button>
-                        <button class="icon-btn danger"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-            </tbody>
+            <tbody id="userBody"></tbody>
         </table>
 
+    </section>
+
+    <section id="commandes" class="content-section" style="display:none">
+        <div id="commandesContainer"></div>
     </section>
 
 </main>

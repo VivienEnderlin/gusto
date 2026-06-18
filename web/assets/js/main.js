@@ -1,17 +1,17 @@
-document.addEventListener("DOMContentLoaded", function () {
+const token = localStorage.getItem('token');
 
-    const token = localStorage.getItem('token');
+
+document.addEventListener("DOMContentLoaded", async function () {
 
     if (!token) {
         console.error("Token manquant !");
         return;
     }
 
-    // ======================
-    // CHARTS
-    // ======================
-    fetch('/api-commande/routes/statistique.php', {
-        method: 'GET',
+    const payload = token ? parseJwt(token) : null;
+    const idEtab = payload?.data?.id_etablissement;
+
+    fetch('/api-commande/routes/etablissement.php', {
         headers: {
             'Authorization': 'Bearer ' + token
         }
@@ -19,100 +19,265 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(res => res.json())
     .then(result => {
 
-        console.log("API RESULT :", result);
+        if (!result?.success) return;
 
-        if (!result?.success || !Array.isArray(result.data)) {
-            console.error("Données invalides :", result);
-            return;
-        }
+        // on cherche l’établissement du token
+        const etab = result.data.find(item => item[5] == idEtab);
 
-        const data = result.data;
+        if (!etab) return;
 
-        const moisNoms = [
-            "Jan","Fév","Mar","Avr","Mai","Juin",
-            "Juil","Août","Sep","Oct","Nov","Déc"
-        ];
+        // 🖼️ logo
+        document.querySelector('.avatar').innerHTML = etab[0];
 
-        const labels = data.map(i => moisNoms[i.mois - 1]);
-        const values = data.map(i => Number(i.total));
-
-        new Chart(document.getElementById('barChart'), {
-            type: 'bar',
-            data: {
-                labels,
-                datasets: [{
-                    label: 'Total',
-                    data: values,
-                    backgroundColor: '#ff7a00',
-                    borderRadius: 10
-                }]
-            }
-        });
-
-        new Chart(document.getElementById('pieChart'), {
-            type: 'doughnut',
-            data: {
-                labels,
-                datasets: [{
-                    data: values,
-                    backgroundColor: [
-                        '#ff7a00','#ff8924','#ff9535','#ffa245',
-                        '#ffaf57','#ffbc69','#ffd08a','#ffdca6',
-                        '#ffe6c0','#fff0d6','#fff5e5','#fff9f0'
-                    ]
-                }]
-            }
-        });
+        // 🏷️ nom
+        document.getElementById('etabName').textContent = etab[1];
 
     });
 
-    // ======================
-    // TABLES
-    // ======================
-    fetch('/api-commande/routes/table.php', {
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + token
+    try {
+
+        // ======================
+        // CHARGEMENT PARALLÈLE
+        // ======================
+        const [statsRes, tableRes, produitRes, userRes, orderRes] = await Promise.all([
+
+            fetch('/api-commande/routes/statistique.php', {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token }
+            }).then(r => r.json()),
+
+            fetch('/api-commande/routes/table.php', {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token }
+            }).then(r => r.json()),
+
+            fetch('/api-commande/routes/produit.php', {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token }
+            }).then(r => r.json()),
+
+            fetch('/api-commande/routes/employe.php', {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token }
+            }).then(r => r.json()),
+
+            fetch('/api-commande/routes/commande.php', {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token }
+            }).then(r => r.json())
+
+        ]);
+
+        console.log("STATS:", statsRes);
+        console.log("TABLES:", tableRes);
+        console.log("PRODUITS:", produitRes);
+        console.log("USERS:", userRes);
+        console.log("ORDERS:", orderRes);
+
+        // ======================
+        // GRAPHIQUES
+        // ======================
+        if (statsRes?.success && Array.isArray(statsRes.data)) {
+
+            const moisNoms = [
+                "Jan","Fév","Mar","Avr","Mai","Juin",
+                "Juil","Août","Sep","Oct","Nov","Déc"
+            ];
+
+            const labels = statsRes.data.map(i => moisNoms[i.mois - 1]);
+            const values = statsRes.data.map(i => Number(i.total));
+
+            new Chart(document.getElementById('barChart'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Total',
+                        data: values,
+                        backgroundColor: '#ff7a00',
+                        borderRadius: 10
+                    }]
+                }
+            });
+
+            new Chart(document.getElementById('pieChart'), {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: [
+                            '#ff7a00','#ff8924','#ff9535','#ffa245',
+                            '#ffaf57','#ffbc69','#ffd08a','#ffdca6',
+                            '#ffe6c0','#fff0d6','#fff9f0'
+                        ]
+                    }]
+                }
+            });
         }
-    })
-    .then(res => res.json())
-    .then(result => {
 
-        console.log("TABLE API:", result);
+        // ======================
+        // TABLES
+        // ======================
+        if (tableRes?.success && Array.isArray(tableRes.data)) {
 
-        if (!result?.success || !Array.isArray(result.data)) {
-            console.error("Erreur API table :", result);
-            return;
+            tables.clear();
+
+            tableRes.data.forEach(table => {
+
+                const isOpen = table.statu === "Ouvert";
+
+                tables.row.add([
+                    table.nom,
+                    `<span class="badge ${isOpen ? "success" : "danger"}">
+                        ${isOpen ? "Ouvert" : "Fermé"}
+                    </span>`,
+                    `
+                    <button class="icon-btn edit-table" data-id="${table.id_table}">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="icon-btn danger drop-table" data-id="${table.id_table}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button class="icon-btn qr" data-id="${table.id_table}">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </button>
+                    <button class="icon-btn view view-service" data-id="${table.id_table}">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    `
+                ]);
+
+            });
+
+            tables.draw();
         }
 
-        tables.clear();
+        // ======================
+        // PRODUITS
+        // ======================
+        if (produitRes?.success && Array.isArray(produitRes.data)) {
 
-        result.data.forEach(table => {
+            produits.clear();
 
-            const isOpen = table.statu === "Ouvert";
+            produitRes.data.forEach(produit => {
 
-            const badgeClass = isOpen ? "success" : "danger";
-            const badgeText = isOpen ? "Ouvert" : "Fermé";
+                const image = produit.image?.length
+                    ? `<img src="${produit.image[0]}" width="50" height="50" style="object-fit:cover;border-radius:5px;">`
+                    : 'Aucune image';
 
-            tables.row.add([
-                table.nom,
-                `<span class="badge ${badgeClass}">
-                    ${badgeText}
-                </span>`,
-                `
-                <button class="icon-btn"><i class="fa-solid fa-pen"></i></button>
-                <button class="icon-btn danger"><i class="fa-solid fa-trash"></i></button>
-                <button class="icon-btn qr"><i class="fa-solid fa-qrcode"></i></button>
-                <button class="icon-btn view"><i class="fa-solid fa-eye"></i></button>
-                `
-            ]);
+                produits.row.add([
+                    image,
+                    produit.nom,
+                    produit.id_categorie,
+                    `${produit.prix} ${produit.devise}`,
+                    `
+                    <button class="icon-btn edit-produit" data-id="${produit.id_produit}">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="icon-btn danger delete-produit" data-id="${produit.id_produit}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    `
+                ]);
 
-        });
+            });
 
-        tables.draw();
+            produits.draw();
+        }
 
-    })
-    .catch(err => console.error("ERROR TABLE:", err));
+        // ======================
+        // UTILISATEUR
+        // ======================
+        if (userRes?.success && Array.isArray(userRes.data)) {
+
+            users.clear();
+
+            userRes.data.forEach(utilisateur => {
+
+                users.row.add([
+                    utilisateur.nom,
+                    utilisateur.telephone,
+                    utilisateur.login,
+                    utilisateur.date_enreg,
+                    `
+                    <button class="icon-btn edit-user" data-id="${utilisateur.id_utilisateur}">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="icon-btn danger delete-user" data-id="${utilisateur.id_utilisateur}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    `
+                ]);
+
+            });
+
+            users.draw();
+        }
+
+        // ======================
+        // COMMANDES
+        // ======================
+        if (orderRes?.success && Array.isArray(orderRes.data)) {
+
+            const container = document.getElementById('commandesContainer');
+            container.innerHTML = '';
+
+            orderRes.data.forEach(ticket => {
+
+                let itemsHTML = '';
+
+                ticket.commandes.forEach(cmd => {
+
+                    const badgeClass = cmd.etat === "Servi"
+                        ? "badge-success"
+                        : "badge-warning";
+
+                    itemsHTML += `
+                        <div class="commande-item">
+                            <div>
+                                <strong>${cmd.libelle}</strong><br>
+                                <small>${cmd.quantite} x ${cmd.prix} ${ticket.devise}</small>
+                            </div>
+
+                            <div>
+                                <span class="${badgeClass}">
+                                    ${cmd.etat}
+                                </span>
+                                <div><b>${cmd.total} ${ticket.devise}</b></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML += `
+                    <div class="ticket-card">
+
+                        <div class="ticket-header">
+                            <div>
+                                <h3>Ticket #${ticket.id_ticket}</h3>
+                                <small>${ticket.date_enreg}</small>
+                            </div>
+
+                            <div>
+                                <h3>${ticket.montant_total} ${ticket.devise}</h3>
+                            </div>
+                        </div>
+
+                        <div class="ticket-body">
+                            ${itemsHTML}
+                        </div>
+
+                    </div>
+                `;
+            });
+        }
+
+
+    } catch (err) {
+        console.error("ERREUR GLOBAL:", err);
+    }
+
 });
 
 
@@ -152,7 +317,17 @@ let tables = $('.info-table').DataTable({
     }
 });
 
-let t = $('.info-user').DataTable({
+let produits = $('.info-produit').DataTable({
+    pageLength: 5,
+    language:{
+        paginate:{
+            previous:"<i class='fas fa-angle-left'></i>",
+            next:"<i class='fas fa-angle-right'></i>"
+        }
+    }
+});
+
+let users = $('.info-user').DataTable({
     pageLength: 5,
     language:{
         paginate:{
@@ -188,9 +363,6 @@ function parseJwt(token) {
         return null;
     }
 }
-
-// Récupérer le token stocké dans localStorage
-const token = localStorage.getItem('token');
 
 const headers = {
     'Content-Type': 'application/json',
