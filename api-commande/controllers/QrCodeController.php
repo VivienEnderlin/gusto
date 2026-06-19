@@ -21,58 +21,49 @@ class QrCodeController {
     }
 
     public function generate($id) {
+        try {
 
-        // =========================
-        // Récupération user
-        // =========================
-        $id_etablissement = $this->user->id_etablissement;
+            if (!$this->user || !isset($this->user->id_etablissement)) {
+                http_response_code(401);
+                echo "Unauthorized";
+                exit;
+            }
 
-        if (!$id || !ctype_digit((string)$id)) {
-            http_response_code(400);
-            echo json_encode([
-                "success" => false,
-                "message" => "Invalid table ID"
-            ]);
-            return;
+            $id_etablissement = $this->user->id_etablissement;
+            if (!$id || !ctype_digit((string)$id)) {
+                http_response_code(400);
+                echo "Invalid ID";
+                exit;
+            }
+
+            $tableData = $this->model->getByIdAndEtablissement($id, $id_etablissement);
+
+            if (!$tableData) {
+                http_response_code(404);
+                echo "Not found";
+                exit;
+            }
+
+            $url = $this->model->generateQrUrl(
+                $id_etablissement,
+                $tableData['id_table']
+            );
+
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+
+            header('Content-Type: image/png');
+            header('Content-Disposition: attachment; filename="qrcode.png"');
+
+            QRcode::png($url, false, QR_ECLEVEL_H, 8);
+
+            exit;
+
+        } catch (Throwable $e) {
+            http_response_code(500);
+            echo $e->getMessage();
+            exit;
         }
-
-        // =========================
-        // Récupération en base
-        // =========================
-        $tableData = $this->model->getByIdAndEtablissement($id, $id_etablissement);
-
-        if (!$tableData) {
-            http_response_code(404);
-            echo json_encode([
-                "success" => false,
-                "message" => "Table not found"
-            ]);
-            return;
-        }
-
-        // =========================
-        // Données fiables
-        // =========================
-        $id_table = $tableData['id_table'];
-        $nom_table = $tableData['nom'];
-
-        // =========================
-        // Génération URL sécurisée
-        // =========================
-        $url = $this->model->generateQrUrl($id_etablissement, $id_table);
-
-        // =========================
-        // Génération QR
-        // =========================
-        $filename = "qrcode_table_" . preg_replace('/[^a-zA-Z0-9_-]/', '_', $nom_table) . ".png";
-
-        header('Content-Type: image/png');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Pragma: no-cache');
-
-        QRcode::png($url, null, QR_ECLEVEL_H, 8);
-
-        exit;
     }
 }

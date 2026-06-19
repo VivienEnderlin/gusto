@@ -1,22 +1,12 @@
+
 <?php
 require_once __DIR__ . '/../controllers/QrCodeController.php';
 require_once __DIR__ . '/../core/Middleware.php';
-header('Content-Type: application/json; charset=utf-8');
-
-$user = Middleware::checkAuth();
-
-$method = $_SERVER['REQUEST_METHOD'];
-
-// ========================
-// Vérification token
-// ========================
 
 $controller = new QrCodeController();
 
-// ========================
-// GET : générer QR code
-// ========================
-if ($method === 'GET') {
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
 
     if (!$id) {
@@ -32,13 +22,10 @@ if ($method === 'GET') {
     exit;
 }
 
-// ========================
-// Méthodes non autorisées
-// ========================
 http_response_code(405);
 echo json_encode([
     'success' => false,
-    'message' => 'Unauthorised method'
+    'message' => ' Unauthorised method'
 ]);
 exit;
 ?>
