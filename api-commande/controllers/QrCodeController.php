@@ -19,9 +19,9 @@ class QrCodeController {
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
 
-        // ========================
-        // AUTH JWT FIX
-        // ========================
+        // ======================
+        // JWT AUTH FIX
+        // ======================
         $user = Middleware::checkAuth();
 
         if (!$user) {
@@ -38,49 +38,43 @@ class QrCodeController {
             return;
         }
 
-        // ========================
+        // ======================
         // VALIDATION ID
-        // ========================
+        // ======================
         if (!ctype_digit((string)$id)) {
             http_response_code(400);
-            echo json_encode([
-                "success" => false,
-                "message" => "Invalid table ID"
-            ]);
+            echo json_encode(["error" => "Invalid ID"]);
             return;
         }
 
-        // ========================
+        // ======================
         // GET TABLE
-        // ========================
+        // ======================
         $tableData = $this->model->getByIdAndEtablissement($id, $id_etablissement);
 
         if (!$tableData) {
             http_response_code(404);
-            echo json_encode([
-                "success" => false,
-                "message" => "Table not found"
-            ]);
+            echo json_encode(["error" => "Table not found"]);
             return;
         }
 
         $id_table = $tableData['id_table'];
         $nom_table = $tableData['nom'];
 
-        // ========================
-        // GENERATE URL
-        // ========================
+        // ======================
+        // QR URL
+        // ======================
         $url = $this->model->generateQrUrl($id_etablissement, $id_table);
 
         if (!$url) {
             http_response_code(500);
-            echo json_encode(["error" => "QR URL generation failed"]);
+            echo json_encode(["error" => "QR generation failed"]);
             return;
         }
 
-        // ========================
-        // QR OUTPUT
-        // ========================
+        // ======================
+        // OUTPUT IMAGE
+        // ======================
         $filename = "qrcode_table_" . preg_replace('/[^a-zA-Z0-9_-]/', '_', $nom_table) . ".png";
 
         header('Content-Type: image/png');
