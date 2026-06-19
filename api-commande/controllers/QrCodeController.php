@@ -2,10 +2,8 @@
 
 require_once __DIR__ . '/../models/QrCode.php';
 require_once __DIR__ . '/../core/Middleware.php';
+require_once __DIR__ . '/../utils/phpqrcode/qrlib.php';
 
-if (!class_exists('QRcode')) {
-    require_once __DIR__ . '/../utils/phpqrcode/qrlib.php';
-}
 
 class QrCodeController {
 
@@ -58,9 +56,9 @@ class QrCodeController {
         // ========================
         $tableData = $this->model->getByIdAndEtablissement($id, $id_etablissement);
 
-        var_dump($id);
-var_dump($id_etablissement);
-var_dump($tableData);
+//         var_dump($id);
+// var_dump($id_etablissement);
+// var_dump($tableData);
 
         if (!$tableData) {
             http_response_code(404);
