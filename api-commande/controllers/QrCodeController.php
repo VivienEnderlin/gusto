@@ -83,7 +83,7 @@ class QrCodeController {
         header('Content-Disposition: attachment; filename="qrcode.png"');
         header('Cache-Control: no-cache, no-store, must-revalidate');
 
-        QRcode::png($url, null, QR_ECLEVEL_H, 8);
+        \QRcode::png($url, null, QR_ECLEVEL_H, 8);
 
         exit;
     }
