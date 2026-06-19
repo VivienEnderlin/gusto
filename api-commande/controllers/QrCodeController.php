@@ -1,6 +1,6 @@
 <?php
-
 require_once __DIR__ . '/../models/QrCode.php';
+require_once __DIR__ . '/../core/Middleware.php';
 
 if (!class_exists('QRcode')) {
     require_once __DIR__ . '/../utils/phpqrcode/qrlib.php';
