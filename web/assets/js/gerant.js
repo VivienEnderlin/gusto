@@ -539,16 +539,16 @@ $('#table').on('submit', async function(e) {
 //view service
 
 $(document).on('click', '.view-service', async function() {
-    const servId = $(this).data('id');
+    const idTable = $(this).data('id');
     editingRow = tables.row($(this).closest('tr'));
     try {
-        const response = await fetch(`/api-commande/routes/service.php?id=${servId}`, {
+        const response = await fetch(`/api-commande/routes/service.php?id=${idTable}`, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await response.json();
         if(result.success) {
             const e = result.data;
-            $('.modal-service input[name="id"]').val(servId);
+            $('.modal-service input[name="id"]').val(idTable);
             $('.code').text(e.code);
             $('.date_ouverture').text(e.date_heure_ouverture);
             $('.date_fermeture').text(e.date_heure_fermeture);
