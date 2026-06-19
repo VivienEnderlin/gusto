@@ -18,6 +18,16 @@ class QrCode extends BaseModel {
         //$this->secret = $_ENV['secret_key'];
     }
 
+    public function getByIdAndEtablissement($id, $id_etablissement) {
+        $stmt = $this->personnalSelect(
+            "tables_restaurant",
+            "*",
+            "WHERE id_table = ? AND id_etablissement = ?",
+            [$id, $id_etablissement]
+        );
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function generateQrUrl($id_etablissement, $id_table)
     {
         $signature = hash_hmac('sha256', $id_etablissement . ":" . $id_table, $this->secret);
