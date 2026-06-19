@@ -3,22 +3,18 @@
 require_once __DIR__ . '/../controllers/QrCodeController.php';
 
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Authorization, Content-Type");
+header("Access-Control-Allow-Headers: Content-Type");
 
 $controller = new QrCodeController();
 
-$method = $_SERVER['REQUEST_METHOD'];
-
-if ($method === 'GET') {
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
 
     if (!$id) {
         http_response_code(400);
-        echo json_encode([
-            "success" => false,
-            "message" => "ID required"
-        ]);
+        header('Content-Type: application/json');
+        echo json_encode(["error" => "ID required"]);
         exit;
     }
 
@@ -27,8 +23,6 @@ if ($method === 'GET') {
 }
 
 http_response_code(405);
-echo json_encode([
-    "success" => false,
-    "message" => "Method not allowed"
-]);
+header('Content-Type: application/json');
+echo json_encode(["error" => "Method not allowed"]);
 exit;
