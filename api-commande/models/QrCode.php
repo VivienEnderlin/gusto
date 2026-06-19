@@ -1,51 +1,26 @@
 <?php
-
 require __DIR__ . '/../../vendor/autoload.php';
 
-use Dotenv\Dotenv;
+if (file_exists(__DIR__ . '/../../.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+    $dotenv->load();
+}
+require_once __DIR__ . '/BaseModel.php';
 
 class QrCode extends BaseModel {
 
     private $secret;
 
-    public function __construct() {
-
-        if (file_exists(__DIR__ . '/../../.env')) {
-            $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-            $dotenv->load();
-        }
-
-        $this->secret = getenv('secret_key');
-    }
-
-    // ======================
-    // IMPORTANT: FIX MANQUANT
-    // ======================
-    public function getByIdAndEtablissement($id, $id_etablissement)
+    public function __construct()
     {
-
-        $stmt = $this->personnalSelect(
-            "tables_restaurant",
-            "*",
-            "WHERE id_table = ? AND id_etablissement = ?",
-            [$id, $id_etablissement]
-        );
-
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $this->secret = getenv('secret_key');
+        //ce qui marche en local
+        //$this->secret = $_ENV['secret_key'];
     }
 
-    // ======================
-    // QR URL SECURE
-    // ======================
     public function generateQrUrl($id_etablissement, $id_table)
     {
-        if (!$this->secret) return null;
-
-        $signature = hash_hmac(
-            'sha256',
-            $id_etablissement . ":" . $id_table,
-            $this->secret
-        );
+        $signature = hash_hmac('sha256', $id_etablissement . ":" . $id_table, $this->secret);
 
         $data = $id_etablissement . ":" . $id_table . ":" . $signature;
 
