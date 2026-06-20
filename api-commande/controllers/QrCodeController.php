@@ -17,9 +17,6 @@ class QrCodeController {
 
     public function generate($id) {
 
-        error_reporting(E_ALL);
-        ini_set('display_errors', 1);
-
         // 🔥 START CLEAN BUFFER (IMPORTANT)
         while (ob_get_level() > 0) {
             ob_end_clean();
