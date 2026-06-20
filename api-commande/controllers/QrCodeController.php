@@ -2,12 +2,7 @@
 
 require_once __DIR__ . '/../models/QrCodeModel.php';
 require_once __DIR__ . '/../core/Middleware.php';
-
-if (!class_exists('QRcode')) {
-    require_once __DIR__ . '/../utils/phpqrcode/qrlib.php';
-    var_dump(class_exists('QRcode'));
-die();
-}
+require_once __DIR__ . '/../utils/phpqrcode/qrlib.php';
 
 class QrCodeController {
 
