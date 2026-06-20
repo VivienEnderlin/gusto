@@ -13,19 +13,22 @@ class QrCodeController {
     private $user;
 
     public function __construct() {
-        $this->user = Middleware::checkAuth();
         $this->model = new QrCodeModel();
+
+        // ⚠️ DEBUG SAFE (évite crash middleware)
+        $this->user = Middleware::checkAuth();
     }
 
     public function generate($id) {
 
+        // ================= AUTH =================
         if (!$this->user) {
             http_response_code(401);
             echo json_encode(["error" => "Unauthorized"]);
             exit;
         }
 
-        $id_etablissement = $this->user->id_etablissement;
+        $id_etablissement = $this->user->id_etablissement ?? null;
 
         if (!$id_etablissement) {
             http_response_code(400);
@@ -33,12 +36,14 @@ class QrCodeController {
             exit;
         }
 
+        // ================= VALIDATION =================
         if (!ctype_digit((string)$id)) {
             http_response_code(400);
             echo json_encode(["error" => "Invalid table ID"]);
             exit;
         }
 
+        // ================= DATA =================
         $tableData = $this->model->getByIdAndEtablissement($id, $id_etablissement);
 
         if (!$tableData) {
@@ -52,13 +57,14 @@ class QrCodeController {
             $tableData['id_table']
         );
 
+        // ================= CLEAN OUTPUT =================
         while (ob_get_level() > 0) {
             ob_end_clean();
         }
 
         ini_set('zlib.output_compression', 'Off');
 
-        // ================= QR CODE PHP 7.4 =================
+        // ================= QR CODE (PHP 7.4 SAFE) =================
         $qrCode = new QrCode($url);
 
         $writer = new PngWriter();
