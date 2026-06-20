@@ -7,6 +7,9 @@ require_once __DIR__ . '/../utils/phpqrcode/qrlib.php';
 
 header('Content-Type: image/png');
 
-QRcode::png("HELLO TEST");
+// 🔥 FORCER NETTOYAGE TOTAL
+while (ob_get_level()) ob_end_clean();
+
+QRcode::png("TEST HEROKU");
 
 exit;
