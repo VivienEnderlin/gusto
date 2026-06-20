@@ -65,8 +65,6 @@ class QrCodeController {
             $tableData['id_table']
         );
 
-        var_dump($url);
-
         // 🔥 CLEAN AGAIN BEFORE IMAGE
         while (ob_get_level() > 0) {
             ob_end_clean();
@@ -77,6 +75,10 @@ class QrCodeController {
         header('Content-Type: image/png');
         header('Content-Disposition: attachment; filename="qrcode.png"');
         header('Cache-Control: no-cache, no-store, must-revalidate');
+
+        var_dump(function_exists('imagepng'));
+var_dump(function_exists('imagecreate'));
+exit;
 
         QRcode::png($url, null, QR_ECLEVEL_H, 8);
 
