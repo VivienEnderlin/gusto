@@ -14,22 +14,17 @@ class CommandeController {
     // =========================
     // Déterminer l'id_etablissement
     // =========================
-    private function getEtablissementId() {
-
-        $user = Middleware::checkAuth();
-        return $user->id_etablissement; // ✅ CORRECTION
-        
-
-        // 🌍 Sinon → client
-        if (isset($_GET['id_etablissement'])) {
-            return $_GET['id_etablissement'];
+    private function getEtablissementId()
+    {
+        // Client QR Code
+        if (!empty($_GET['id_etablissement'])) {
+            return (int) $_GET['id_etablissement'];
         }
 
-        echo json_encode([
-            'success' => false,
-            'message' => 'Etablishment ID required'
-        ]);
-        exit;
+        // Back-office authentifié
+        $user = Middleware::checkAuth();
+
+        return $user->id_etablissement;
     }
 
     public function code_verfiy() {
