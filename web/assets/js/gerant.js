@@ -1,6 +1,11 @@
 const token = localStorage.getItem('token');
 let allOrders = []; // on stocke toutes les commandes
 const tableMap = new Map();
+const menuItems = document.querySelectorAll(".menu li");
+const sections = document.querySelectorAll(".content-section");
+
+document.getElementById('dateDebut').addEventListener('change', renderFilteredOrders);
+document.getElementById('dateFin').addEventListener('change', renderFilteredOrders);
 
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -19,9 +24,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const idEtab = payload?.data?.id_etablissement;
 
     fetch('/api-commande/routes/etablissement.php', {
-        headers: {
-            'Authorization': 'Bearer ' + token
-        }
+        headers: {'Authorization': 'Bearer ' + token}
     })
     .then(res => res.json())
     .then(result => {
@@ -50,32 +53,32 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             fetch('/api-commande/routes/statistique.php', {
                 method: 'GET',
-                headers: { 'Authorization': 'Bearer ' + token }
+                headers: {'Authorization': 'Bearer ' + token}
             }).then(r => r.json()),
 
             fetch('/api-commande/routes/table.php', {
                 method: 'GET',
-                headers: { 'Authorization': 'Bearer ' + token }
+                headers: {'Authorization': 'Bearer ' + token}
             }).then(r => r.json()),
 
             fetch('/api-commande/routes/produit.php', {
                 method: 'GET',
-                headers: { 'Authorization': 'Bearer ' + token }
+                headers: {'Authorization': 'Bearer ' + token}
             }).then(r => r.json()),
 
             fetch('/api-commande/routes/employe.php', {
                 method: 'GET',
-                headers: { 'Authorization': 'Bearer ' + token }
+                headers: {'Authorization': 'Bearer ' + token}
             }).then(r => r.json()),
 
             fetch('/api-commande/routes/commande.php', {
                 method: 'GET',
-                headers: { 'Authorization': 'Bearer ' + token }
+                headers: {'Authorization': 'Bearer ' + token}
             }).then(r => r.json()),
 
             fetch('/api-commande/routes/categorie.php', {
                 method: 'GET',
-                headers: { 'Authorization': 'Bearer ' + token }
+                headers: {'Authorization': 'Bearer ' + token}
             }).then(r => r.json())
 
         ]);
@@ -90,15 +93,20 @@ document.addEventListener("DOMContentLoaded", async function () {
         // ======================
         // GRAPHIQUES
         // ======================
-        if (statsRes?.success && Array.isArray(statsRes.data)) {
+        
+        if (statsRes?.success && Array.isArray(statsRes.stats)) {
 
             const moisNoms = [
-                "Jan","Fév","Mar","Avr","Mai","Juin",
-                "Juil","Août","Sep","Oct","Nov","Déc"
+                "Jan", "Fév", "Mar", "Avr", "Mai", "Juin",
+                "Juil", "Août", "Sep", "Oct", "Nov", "Déc"
             ];
 
-            const labels = statsRes.data.map(i => moisNoms[i.mois - 1]);
-            const values = statsRes.data.map(i => Number(i.total));
+            // ======================
+            // GRAPHIQUE BARRE
+            // ======================
+
+            const labels = statsRes.stats.map(i => moisNoms[i.mois - 1]);
+            const values = statsRes.stats.map(i => Number(i.total));
 
             new Chart(document.getElementById('barChart'), {
                 type: 'bar',
@@ -113,6 +121,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
             });
 
+            // ======================
+            // GRAPHIQUE CAMEMBERT
+            // ======================
+
             new Chart(document.getElementById('pieChart'), {
                 type: 'doughnut',
                 data: {
@@ -120,13 +132,50 @@ document.addEventListener("DOMContentLoaded", async function () {
                     datasets: [{
                         data: values,
                         backgroundColor: [
-                            '#ff7a00','#ff8924','#ff9535','#ffa245',
-                            '#ffaf57','#ffbc69','#ffd08a','#ffdca6',
-                            '#ffe6c0','#fff0d6','#fff9f0'
+                            '#ff7a00', '#ff8924', '#ff9535', '#ffa245',
+                            '#ffaf57', '#ffbc69', '#ffd08a', '#ffdca6',
+                            '#ffe6c0', '#fff0d6', '#fff9f0'
                         ]
                     }]
                 }
             });
+
+            // ======================
+            // CARDS DASHBOARD
+            // ======================
+
+            if (statsRes.vals) {
+
+                let totalServices = 0;
+                let totalCmd = 0;
+                let totalGain = 0;
+
+                // Services
+                if (Array.isArray(statsRes.vals.services)) {
+                    statsRes.vals.services.forEach(item => {
+                        totalServices += Number(item.nb_services || 0);
+                    });
+                }
+
+                // Commandes
+                if (Array.isArray(statsRes.vals.commandes)) {
+                    statsRes.vals.commandes.forEach(item => {
+                        totalCmd += Number(item.nb_commandes || 0);
+                    });
+                }
+
+                // Gains
+                if (Array.isArray(statsRes.vals.gains)) {
+                    statsRes.vals.gains.forEach(item => {
+                        totalGain += Number(item.total_gain || 0);
+                    });
+                }
+
+                // Affichage
+                $("#svc").text(totalServices);
+                $("#cmd").text(totalCmd);
+                $("#gain").text(totalGain.toLocaleString('fr-FR') + " FCFA");
+            }
         }
 
         // ======================
@@ -280,6 +329,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.error("ERREUR GLOBAL:", err);
     }
 
+
 });
 
 function renderFilteredOrders() {
@@ -361,33 +411,22 @@ function renderFilteredOrders() {
 
 
 
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const menuItems = document.querySelectorAll(".menu li");
-    const sections = document.querySelectorAll(".content-section");
-
-    document.getElementById('dateDebut').addEventListener('change', renderFilteredOrders);
-    document.getElementById('dateFin').addEventListener('change', renderFilteredOrders);
-
-    function showSection(id) {
-        sections.forEach(sec => {
-            sec.style.display = (sec.id === id) ? "block" : "none";
-        });
-    }
-
-    menuItems.forEach(item => {
-        item.addEventListener("click", () => {
-
-            menuItems.forEach(i => i.classList.remove("active"));
-            item.classList.add("active");
-
-            const target = item.getAttribute("data-target");
-            showSection(target);
-
-        });
+function showSection(id) {
+    sections.forEach(sec => {
+        sec.style.display = (sec.id === id) ? "block" : "none";
     });
+}
 
+menuItems.forEach(item => {
+    item.addEventListener("click", () => {
+
+        menuItems.forEach(i => i.classList.remove("active"));
+        item.classList.add("active");
+
+        const target = item.getAttribute("data-target");
+        showSection(target);
+
+    });
 });
 
 
@@ -417,10 +456,10 @@ function parseJwt(token) {
     }
 }
 
-const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + token
-};
+// const headers = {
+//     'Content-Type': 'application/json',
+//     'Authorization': 'Bearer ' + token
+// };
 
 if (token) {
     const payload = parseJwt(token);
@@ -509,10 +548,7 @@ $('#userLoginForm').on('submit', function(e){
     $.ajax({
         url: '/api-commande/routes/updateLogin.php',
         type: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-            'Content-Type': 'application/json'
-        },
+        headers: {'Authorization': 'Bearer ' + token},
         data: JSON.stringify(payload),
 
         success: function(res){
@@ -593,7 +629,7 @@ $('#table').on('submit', async function(e) {
     try {
         const response = await fetch('/api-commande/routes/table.php', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token },
+            headers: {'Authorization': 'Bearer ' + token},
             body: formData
         });
         const result = await response.json();
@@ -649,7 +685,7 @@ $(document).on('click', '.view-service', async function() {
     editingRow = tables.row($(this).closest('tr'));
     try {
         const response = await fetch(`/api-commande/routes/service.php?id_table=${idTable}`, {
-            headers: { 'Authorization': 'Bearer ' + token }
+            headers: {'Authorization': 'Bearer ' + token}
         });
         const result = await response.json();
         if(result.success) {
@@ -677,7 +713,7 @@ $(document).on('click', '.edit-table', async function() {
     editingRow = tables.row($(this).closest('tr'));
     try {
         const response = await fetch(`/api-commande/routes/table.php?id=${tableId}`, {
-            headers: { 'Authorization': 'Bearer ' + token }
+            headers: {'Authorization': 'Bearer ' + token}
         });
         const result = await response.json();
         if(result.success) {
@@ -704,9 +740,7 @@ $(document).on('click', '.delete-table', async function () {
     try {
         const response = await fetch(`/api-commande/routes/table.php?id=${id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                }
+                headers: {'Authorization': 'Bearer ' + token}
             }
         );
         const result = await response.json();
@@ -734,9 +768,7 @@ $(document).on('click', '.qr', async function () {
     try {
         const response = await fetch(`/api-commande/routes/qrcode.php?id=${id}`, {
             method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
+            headers: {'Authorization': 'Bearer ' + token}
         });
         if (!response.ok) {
             const errorText = await response.text();
@@ -776,7 +808,7 @@ $('#categorie').on('submit', async function(e) {
     try {
         const response = await fetch('/api-commande/routes/categorie.php', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token },
+            headers: { 'Authorization': 'Bearer ' + token},
             body: formData
         });
         const result = await response.json();
@@ -819,7 +851,7 @@ $(document).on('click', '.edit-cat', async function() {
     editingRow = cats.row($(this).closest('tr'));
     try {
         const response = await fetch(`/api-commande/routes/categorie.php?id=${catId}`, {
-            headers: { 'Authorization': 'Bearer ' + token }
+            headers: {'Authorization': 'Bearer ' + token}
         });
         const result = await response.json();
         if(result.success) {
@@ -846,9 +878,7 @@ $(document).on('click', '.delete-cat', async function () {
     try {
         const response = await fetch(`/api-commande/routes/categorie.php?id=${id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                }
+                headers: {'Authorization': 'Bearer ' + token}
             }
         );
         const result = await response.json();
@@ -885,7 +915,7 @@ $('#produit').on('submit', async function(e) {
     try {
         const response = await fetch('/api-commande/routes/produit.php', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token },
+            headers: {'Authorization': 'Bearer ' + token},
             body: formData
         });
         const result = await response.json();
@@ -935,7 +965,7 @@ $(document).on('click', '.edit-produit', async function() {
     editingRow = produits.row($(this).closest('tr'));
     try {
         const response = await fetch(`/api-commande/routes/produit.php?id=${produitId}`, {
-            headers: { 'Authorization': 'Bearer ' + token }
+            headers: {'Authorization': 'Bearer ' + token}
         });
         const result = await response.json();
         if(result.success) {
@@ -968,9 +998,7 @@ $(document).on('click', '.delete-produit', async function () {
     try {
         const response = await fetch(`/api-commande/routes/produit.php?id=${id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                }
+                headers: {'Authorization': 'Bearer ' + token}
             }
         );
         const result = await response.json();
@@ -1007,7 +1035,7 @@ $('#user').on('submit', async function(e) {
     try {
         const response = await fetch('/api-commande/routes/employe.php', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token },
+            headers: {'Authorization': 'Bearer ' + token},
             body: formData
         });
         const result = await response.json();
@@ -1052,7 +1080,7 @@ $(document).on('click', '.edit-user', async function() {
     editingRow = users.row($(this).closest('tr'));
     try {
         const response = await fetch(`/api-commande/routes/employe.php?id=${userId}`, {
-            headers: { 'Authorization': 'Bearer ' + token }
+            headers: {'Authorization': 'Bearer ' + token}
         });
         const result = await response.json();
         if(result.success) {
@@ -1084,9 +1112,7 @@ $(document).on('click', '.delete-user', async function () {
     try {
         const response = await fetch(`/api-commande/routes/employe.php?id=${id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                }
+                headers: {'Authorization': 'Bearer ' + token}
             }
         );
         const result = await response.json();

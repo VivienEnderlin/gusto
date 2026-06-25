@@ -82,14 +82,16 @@ class CommandeController {
         header('Content-Type: application/json; charset=utf-8');
 
         $id_etablissement = $this->getEtablissementId();
-        $data = $this->commande->getstatByEtablissement($id_etablissement);
-
+        $stats = $this->commande->getstatByEtablissement($id_etablissement);
+        $vals  = $this->commande->getvalsByEtablissement($id_etablissement);
         echo json_encode([
             'success' => true,
-            'data' => $data
+            'stats'   => $stats,
+            'vals'    => $vals
         ]);
         exit;
     }
+
 
     // =========================
     // AFFICHER UNE COMMANDE

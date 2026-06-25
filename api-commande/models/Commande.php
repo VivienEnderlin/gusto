@@ -89,11 +89,61 @@ class Commande extends BaseModel {
             ORDER BY annee ASC, mois ASC
             ',
             [$id_etablissement]
-        );
+        )
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
+    public function getvalsByEtablissement($id_etablissement)
+    { 
+        $svc = $this->personnalSelect(
+            'service',
+            '
+            DATE(date_enreg) AS jour,
+            COUNT(*) AS nb_services
+            ',
+            '
+            WHERE id_etablissement = ?
+            GROUP BY DATE(date_enreg)
+            ORDER BY jour ASC
+            ',
+            [$id_etablissement]
+        )->fetchAll(PDO::FETCH_ASSOC);
 
+       $gain = $this->personnalSelect(
+            'commande',
+            '
+            DATE(date_enreg) AS jour,
+            SUM(montant_total) AS sum_commandes
+            ',
+            '
+            WHERE id_etablissement = ?
+            GROUP BY DATE(date_enreg)
+            ORDER BY jour ASC
+            ',
+            [$id_etablissement]
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+       $cmd = $this->personnalSelect(
+            'commande',
+            '
+            DATE(date_enreg) AS jour,
+            COUNT(*) AS nb_commandes
+            ',
+            '
+            WHERE id_etablissement = ?
+            GROUP BY DATE(date_enreg)
+            ORDER BY jour ASC
+            ',
+            [$id_etablissement]
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+        return [
+            'services' => $svc,
+            'commandes' => $cmd,
+            'gains' => $gain
+        ];
+    }
     // Récupérer par ID
     public function getById($id) {
         $stmt = $this->personnalSelect(

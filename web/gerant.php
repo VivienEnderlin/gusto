@@ -97,19 +97,19 @@
             <div class="card stat-card">
                 <i class="fa-solid fa-utensils"></i>
                 <h3>Services  journalier</h3>
-                <h1>14</h1>
+                <h1 id="svc"></h1>
             </div>
 
             <div class="card stat-card">
                 <i class="fa-solid fa-money-bill-wave"></i>
                 <h3>Gains Journalier</h3>
-                <h1>150 000 FCFA</h1>
+                <h1 id="gain"></h1>
             </div>
 
             <div class="card stat-card">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <h3>Commandes journalier</h3>
-                <h1>327</h1>
+                <h1 id="cmd"></h1>
             </div>
 
         </div>
@@ -182,10 +182,6 @@
 
             <div class="section-header">
                 <h2>Produits</h2>
-
-                <button class="btn-primary btn-cat">
-                    <i class="fa-solid fa-list"></i> Gérer les catégorie
-                </button>
 
                 <button class="btn-primary btn-produit">
                     <i class="fa-solid fa-plus"></i> Ajouter Produit
