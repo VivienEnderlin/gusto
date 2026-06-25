@@ -89,7 +89,7 @@ class Commande extends BaseModel {
             ORDER BY annee ASC, mois ASC
             ',
             [$id_etablissement]
-        )
+        );
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -99,7 +99,7 @@ class Commande extends BaseModel {
         $svc = $this->personnalSelect(
             'service',
             '
-            DATE(date_enreg) AS jour,
+            DATE(date_heure_fermeture) AS jour,
             COUNT(*) AS nb_services
             ',
             '
@@ -144,6 +144,7 @@ class Commande extends BaseModel {
             'gains' => $gain
         ];
     }
+
     // Récupérer par ID
     public function getById($id) {
         $stmt = $this->personnalSelect(

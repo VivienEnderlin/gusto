@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 // Gains
                 if (Array.isArray(statsRes.vals.gains)) {
                     statsRes.vals.gains.forEach(item => {
-                        totalGain += Number(item.total_gain || 0);
+                        totalGain += Number(item.sum_commandes || 0);
                     });
                 }
 
