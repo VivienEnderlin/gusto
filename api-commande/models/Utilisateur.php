@@ -31,8 +31,8 @@ class Utilisateur extends BaseModel {
         $stmt = $this->personnalSelect(
             "utilisateur",
             "*",
-            "WHERE role != ?",
-            [0]
+            "WHERE role = ?",
+            [1]
         );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -106,10 +106,10 @@ class Utilisateur extends BaseModel {
                 password_hash($password, PASSWORD_DEFAULT),
                 $data['id_etablissement'],
                 "En attente",
-                date('Y-m-d'),
+                gmdate('Y-m-d'),
                 "En attente",
                 1,
-                date('Y-m-d'),
+                gmdate('Y-m-d'),
             ]
         );
 
@@ -166,7 +166,7 @@ class Utilisateur extends BaseModel {
 
     public function checkAndExpireContrats() {
 
-        $today = date('Y-m-d');
+        $today = gmdate('Y-m-d');
 
         return $this->set(
             "utilisateur",

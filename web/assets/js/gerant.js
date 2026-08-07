@@ -1,4 +1,340 @@
 const token = localStorage.getItem('token');
+//===============================
+// WEBSOCKET
+//===============================
+
+let socket = null;
+let reconnectTimer = null;
+
+let barChart = null;
+let pieChart = null;
+
+function connectSocket() {
+
+    if (!token) return;
+
+    const payload = parseJwt(token);
+
+    if (!payload || !payload.data) return;
+
+    const id_etablissement = payload.data.id_etablissement;
+
+    if (socket && socket.readyState !== WebSocket.CLOSED) {
+        socket.close();
+    }
+
+    socket = new WebSocket("wss://gusto-websocket-062d8a7bc8a5.herokuapp.com");
+
+    socket.onopen = () => {
+
+        console.log("✅ WebSocket connecté");
+
+        socket.send(JSON.stringify({
+            type: "register",
+            id_etablissement: id_etablissement
+        }));
+
+    };
+
+    socket.onclose = () => {
+
+        console.log("⚠️ Socket fermé");
+
+        if (reconnectTimer) {
+            clearTimeout(reconnectTimer);
+        }
+
+        reconnectTimer = setTimeout(() => {
+            connectSocket();
+        }, 3000);
+
+    };
+
+    socket.onerror = (e)=>{
+
+        console.log(e);
+
+    };
+
+    socket.onmessage = recevoirMessage;
+
+}
+
+function afficherStatistics(statsRes) {
+
+    if (!statsRes?.success || !Array.isArray(statsRes.stats)) {
+        return;
+    }
+
+
+    const moisNoms = [
+        "Jan", "Fév", "Mar", "Avr", "Mai", "Juin",
+        "Juil", "Août", "Sep", "Oct", "Nov", "Déc"
+    ];
+
+
+    const labels = statsRes.stats.map(
+        i => moisNoms[i.mois - 1]
+    );
+
+
+    const values = statsRes.stats.map(
+        i => Number(i.total)
+    );
+
+
+
+    // ======================
+    // BAR CHART
+    // ======================
+
+    if (barChart === null) {
+
+        barChart = new Chart(
+            document.getElementById('barChart'),
+            {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total',
+                        data: values,
+                        backgroundColor:'#ff7a00',
+                        borderRadius:10
+                    }]
+                }
+            }
+        );
+
+    } else {
+
+        barChart.data.labels = labels;
+        barChart.data.datasets[0].data = values;
+        barChart.update();
+
+    }
+
+
+
+    // ======================
+    // PIE CHART
+    // ======================
+
+    if (pieChart === null) {
+
+        pieChart = new Chart(
+            document.getElementById('pieChart'),
+            {
+                type:'doughnut',
+                data:{
+                    labels:labels,
+                    datasets:[{
+                        data:values,
+                        backgroundColor:[
+                            '#ff7a00',
+                            '#ff8924',
+                            '#ff9535',
+                            '#ffa245',
+                            '#ffaf57',
+                            '#ffbc69',
+                            '#ffd08a',
+                            '#ffdca6',
+                            '#ffe6c0',
+                            '#fff0d6',
+                            '#fff9f0'
+                        ]
+                    }]
+                }
+            }
+        );
+
+    } else {
+
+        pieChart.data.labels = labels;
+        pieChart.data.datasets[0].data = values;
+        pieChart.update();
+
+    }
+
+
+
+    // ======================
+    // CARDS
+    // ======================
+
+    if(statsRes.vals){
+
+        let totalServices = 0;
+        let totalCmd = 0;
+
+
+        if(statsRes.vals.services){
+
+            totalServices =
+            Number(statsRes.vals.services.nb_services || 0);
+
+        }
+
+
+        if(statsRes.vals.commandes){
+
+            totalCmd =
+            Number(statsRes.vals.commandes.nb_commandes || 0);
+
+        }
+
+
+        let gainText = "";
+
+
+        if(Array.isArray(statsRes.vals.gains)){
+
+            gainText = statsRes.vals.gains
+            .map(g =>
+                `${Number(g.total_jour || 0)} ${g.devise}`
+            )
+            .join(" | ");
+
+        }
+
+
+        $("#svc").text(totalServices);
+        $("#cmd").text(totalCmd);
+        $("#gain").text(gainText);
+
+    }
+
+}
+
+async function nouvelleCommande(data){
+
+    notification(
+        "🛎 Nouvelle commande de la table <b>"+data.table+"</b>",
+        "#ff7a00"
+    );
+
+    allOrders.unshift(data.ticket);
+
+    renderFilteredOrders();
+
+
+}
+
+async function tableTerminee(data){
+
+    notification(
+
+        "🍽 La table <b>"+data.table+
+        "</b> a terminé le ticket <b>"+data.numero_facture+
+        "</b>",
+
+        "#28a745"
+
+    );
+
+}
+
+async function tableOpened(data){
+
+    tables.rows().every(function(){
+
+        let row=$(this.node());
+
+        let btn=row.find(".view-service");
+
+        if(btn.data("id")==data.id_table){
+
+            this.data([
+
+                data.nom_table,
+
+                '<span class="badge success">Ouvert</span>',
+
+                this.data()[2]
+
+            ]).draw(false);
+
+        }
+
+    });
+
+}
+
+function fermerTable(idTable){
+
+    tables.rows().every(function(){
+
+        let row=$(this.node());
+
+        let btn=row.find(".view-service");
+
+        if(btn.data("id")==idTable){
+
+            this.data([
+
+                this.data()[0],
+
+                '<span class="badge danger">Fermé</span>',
+
+                this.data()[2]
+
+            ]).draw(false);
+
+        }
+
+    });
+
+}
+
+function recevoirMessage(event){
+
+    const msg = JSON.parse(event.data);
+
+    switch(msg.type){
+
+        case "new_command":
+
+            nouvelleCommande(msg.data);
+
+            if(msg.data.stats){
+                afficherStatistics(msg.data.stats);
+            }
+
+            break;
+
+        case "table_opened":
+
+            tableOpened(msg.data);
+
+            if(msg.data.stats){
+                afficherStatistics(msg.data.stats);
+            }
+
+            break;
+
+        case "table_completed":
+
+            tableTerminee(msg.data);
+
+            break;
+
+        case "command_status_changed":
+
+            // Si le serveur envoie un statut "Closed",
+            // on ferme la table dans l'interface.
+            if(msg.data.status === "Closed"){
+                fermerTable(msg.data.id_table);
+            }
+
+            // Tu peux aussi gérer ici les autres statuts
+            // (Preparing, Served, etc.)
+
+            break;
+
+    }
+
+}
+
 let allOrders = []; // on stocke toutes les commandes
 const tableMap = new Map();
 const menuItems = document.querySelectorAll(".menu li");
@@ -93,90 +429,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         // ======================
         // GRAPHIQUES
         // ======================
-        
-        if (statsRes?.success && Array.isArray(statsRes.stats)) {
-
-            const moisNoms = [
-                "Jan", "Fév", "Mar", "Avr", "Mai", "Juin",
-                "Juil", "Août", "Sep", "Oct", "Nov", "Déc"
-            ];
-
-            // ======================
-            // GRAPHIQUE BARRE
-            // ======================
-
-            const labels = statsRes.stats.map(i => moisNoms[i.mois - 1]);
-            const values = statsRes.stats.map(i => Number(i.total));
-
-            new Chart(document.getElementById('barChart'), {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Total',
-                        data: values,
-                        backgroundColor: '#ff7a00',
-                        borderRadius: 10
-                    }]
-                }
-            });
-
-            // ======================
-            // GRAPHIQUE CAMEMBERT
-            // ======================
-
-            new Chart(document.getElementById('pieChart'), {
-                type: 'doughnut',
-                data: {
-                    labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: [
-                            '#ff7a00', '#ff8924', '#ff9535', '#ffa245',
-                            '#ffaf57', '#ffbc69', '#ffd08a', '#ffdca6',
-                            '#ffe6c0', '#fff0d6', '#fff9f0'
-                        ]
-                    }]
-                }
-            });
-
-            // ======================
-            // CARDS DASHBOARD
-            // ======================
-
-            if (statsRes.vals) {
-
-                let totalServices = 0;
-                let totalCmd = 0;
-
-                // Services
-                if (statsRes.vals.services) {
-                    totalServices = Number(statsRes.vals.services.nb_services || 0);
-                }
-
-                // Commandes
-                if (statsRes.vals.commandes) {
-                    totalCmd = Number(statsRes.vals.commandes.nb_commandes || 0);
-                }
-
-                // Gains (ARRAY maintenant)
-                let gainText = "";
-
-                if (Array.isArray(statsRes.vals.gains)) {
-
-                    gainText = statsRes.vals.gains
-                        .map(g => `${Number(g.total_jour || 0)} ${g.devise}`)
-                        .join(" | ");
-
-                }
-
-                // Affichage
-                $("#svc").text(totalServices);
-                $("#cmd").text(totalCmd);
-                $("#gain").text(gainText);
-            }
+        if(statsRes?.success){
+            afficherStatistics(statsRes);
         }
-
+                
         // ======================
         // TABLES
         // ======================
@@ -1140,3 +1396,5 @@ toggle.addEventListener("click", () => {
     sidebar.classList.toggle("close");
     main.classList.toggle("full");
 });
+
+connectSocket();

@@ -1480,7 +1480,7 @@
             function initWebSocket() {
                 if (socket) return; // 🔥 empêche double connexion
 
-                socket = new WebSocket("ws://10.203.2.90:8080"); //wss://gusto-api-48f214a89058.herokuapp.com
+                socket = new WebSocket("wss://gusto-websocket-062d8a7bc8a5.herokuapp.com");
 
                 socket.onopen = () => {
                     console.log("✅ WebSocket connected");
@@ -1568,6 +1568,7 @@
                         id_ticket: id_ticket
                     }));
                 }
+                if (!confirm("Do you want to process ?")) return;
                 ["id_ticket", "code_service"].forEach(k => localStorage.removeItem(k));
 
                 alert("✅ please wait a few moment your bill is coming");

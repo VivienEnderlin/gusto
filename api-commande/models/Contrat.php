@@ -36,8 +36,8 @@ class Contrat extends BaseModel {
         $stmt = $this->personnalSelect(
             "utilisateur",
             "*",
-            "WHERE role != ?",
-            [0]
+            "WHERE role = ?",
+            [1]
         );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

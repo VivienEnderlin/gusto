@@ -95,19 +95,19 @@
 
             <div class="card stat-card">
                 <i class="fa-solid fa-utensils"></i>
-                <h3>Services  journalier</h3>
+                <h3>Services  journaliers</h3>
                 <h1 id="svc"></h1>
             </div>
 
             <div class="card stat-card">
                 <i class="fa-solid fa-money-bill-wave"></i>
-                <h3>Gains Journalier</h3>
+                <h3>Recette Journalière</h3>
                 <h1 id="gain"></h1>
             </div>
 
             <div class="card stat-card">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <h3>Commandes journalier</h3>
+                <h3>Commandes journalières</h3>
                 <h1 id="cmd"></h1>
             </div>
 
@@ -122,7 +122,7 @@
             </div>
 
             <div class="card chart-card">
-                <h3>Répartition des Revenus</h3>
+                <h3>Répartition des recettes</h3>
                 <canvas id="pieChart"></canvas>
             </div>
 

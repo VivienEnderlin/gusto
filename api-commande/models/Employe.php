@@ -32,8 +32,8 @@ class Utilisateur extends BaseModel {
         $stmt = $this->personnalSelect(
             "utilisateur",
             "*",
-            "WHERE id_etablissement = ? AND role != ?",
-            [$id_etablissement, 1]
+            "WHERE id_etablissement = ? AND role = ?",
+            [$id_etablissement, 2]
         );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -84,7 +84,7 @@ class Utilisateur extends BaseModel {
                 password_hash($password, PASSWORD_DEFAULT),
                 $id_etablissement,
                 2,
-                date('Y-m-d'),
+                gmdate('Y-m-d'),
             ]
         );
 
