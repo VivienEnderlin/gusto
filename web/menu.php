@@ -1478,20 +1478,40 @@
            /* SOCKET */
 
             function initWebSocket() {
-                if (socket) return; // 🔥 empêche double connexion
+                if (socket) return;
 
-                socket = new WebSocket("wss://gusto-websocket-062d8a7bc8a5.herokuapp.com");
+                socket = new WebSocket(
+                    "wss://gusto-websocket-062d8a7bc8a5.herokuapp.com"
+                );
 
                 socket.onopen = () => {
                     console.log("✅ WebSocket connected");
+
                     socket.send(JSON.stringify({
                         type: "register",
                         id_etablissement
                     }));
                 };
 
-                socket.onerror = err => console.error("❌ WS error", err);
-                socket.onclose = () => console.warn("⚠️ WS closed");
+                // 📩 Réception des messages du serveur
+                socket.onmessage = (event) => {
+                    console.log("📩 Message reçu du serveur :", event.data);
+
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log("📦 Données :", data);
+                    } catch (e) {
+                        console.error("❌ Message WebSocket invalide :", event.data);
+                    }
+                };
+
+                socket.onerror = err => {
+                    console.error("❌ WS error", err);
+                };
+
+                socket.onclose = () => {
+                    console.warn("⚠️ WS closed");
+                };
             }
 
             $(document).on('click', '#btn-valider', function () {
@@ -1531,6 +1551,7 @@
                     }
 
                     if (socket?.readyState === WebSocket.OPEN) {
+                      console.log("📤 Envoi new_command");
                         socket.send(JSON.stringify({
                             type: "new_command",
                             id_etablissement,
@@ -1559,16 +1580,26 @@
             // ================= TERMINER =================
 
             $(document).on('click', '.terminer', function () {
+
+                if (!confirm("Do you want to process ?")) return;
+
                 let id_ticket = localStorage.getItem("id_ticket");
+
                 if (socket?.readyState === WebSocket.OPEN) {
+
                     socket.send(JSON.stringify({
                         type: "table_completed",
                         id_etablissement,
                         table: nom_table,
                         id_ticket: id_ticket
                     }));
+
+                } else {
+                    console.error("❌ WebSocket non connecté");
+                    alert("Connection error. Please try again.");
+                    return;
                 }
-                if (!confirm("Do you want to process ?")) return;
+
                 ["id_ticket", "code_service"].forEach(k => localStorage.removeItem(k));
 
                 alert("✅ please wait a few moment your bill is coming");
