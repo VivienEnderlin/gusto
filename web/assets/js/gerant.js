@@ -206,31 +206,222 @@ function afficherStatistics(statsRes) {
 
 }
 
-async function nouvelleCommande(data){
+function notification(message, couleur = "#ff7a00") {
+
+    const notif = document.createElement("div");
+
+    notif.innerHTML = message;
+
+    notif.style.position = "fixed";
+    notif.style.top = "20px";
+    notif.style.right = "20px";
+    notif.style.zIndex = "99999";
+
+    notif.style.backgroundColor = couleur;
+    notif.style.color = "#fff";
+
+    notif.style.padding = "15px 20px";
+    notif.style.borderRadius = "8px";
+
+    notif.style.fontSize = "15px";
+    notif.style.fontWeight = "500";
+
+    notif.style.boxShadow = "0 4px 15px rgba(0,0,0,0.2)";
+
+    notif.style.maxWidth = "350px";
+
+    document.body.appendChild(notif);
+
+    setTimeout(() => {
+
+        notif.style.opacity = "0";
+        notif.style.transition = "opacity 0.4s";
+
+        setTimeout(() => {
+            notif.remove();
+        }, 400);
+
+    }, 4000);
+}
+
+async function actualiserStatistiques() {
+
+    try {
+
+        const response = await fetch(
+            '/api-commande/routes/statistique.php',
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            }
+        );
+
+        const statsRes = await response.json();
+
+        console.log("📊 NOUVELLES STATISTIQUES :", statsRes);
+
+        if (statsRes?.success) {
+            afficherStatistics(statsRes);
+        }
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur statistiques :",
+            error
+        );
+
+    }
+}
+
+async function nouvelleCommande(data) {
+
+    console.log("🛎 Nouvelle commande :", data);
+
+    // ============================
+    // NOTIFICATION
+    // ============================
 
     notification(
-        "🛎 Nouvelle commande de la table <b>"+data.table+"</b>",
+        "🛎 Nouvelle commande de la table <b>" +
+        (data.table || data.nom_table || data.id_table || "inconnue") +
+        "</b>",
         "#ff7a00"
     );
 
-    allOrders.unshift(data.ticket);
+
+    // ============================
+    // TABLE
+    // ============================
+
+    const idTable = data.id_table
+        ? Number(data.id_table)
+        : null;
+
+    const nomTable =
+        data.nom_table ||
+        data.table ||
+        (idTable ? tableMap.get(idTable) : null) ||
+        "Table inconnue";
+
+
+    // ============================
+    // DEVISE
+    // ============================
+
+    const devise =
+        data.devise ||
+        data.currency ||
+        data.monnaie ||
+        "FCFA";
+
+
+    // ============================
+    // TICKET
+    // ============================
+
+    const ticket = {
+
+        id_ticket: data.id_ticket,
+
+        id_commande: data.id_commande,
+
+        id_etablissement: data.id_etablissement,
+
+        id_table: idTable,
+
+        table_nom: nomTable,
+
+        montant_total: Number(
+            data.montant_total ??
+            data.montant ??
+            0
+        ),
+
+        devise: devise,
+
+        date_enreg:
+            data.date_enreg ||
+            new Date().toISOString()
+                .slice(0, 19)
+                .replace("T", " "),
+
+        commandes: Array.isArray(data.commande)
+            ? data.commande.map(cmd => ({
+
+                id: cmd.id,
+
+                libelle: cmd.libelle,
+
+                prix: Number(cmd.prix || 0),
+
+                quantite: Number(cmd.quantite || 0),
+
+                total: Number(
+                    cmd.total ??
+                    (Number(cmd.prix || 0) *
+                     Number(cmd.quantite || 0))
+                ),
+
+                etat:
+                    cmd.etat ||
+                    data.etat ||
+                    "En attente"
+
+            }))
+            : []
+    };
+
+
+    console.log("🎫 Ticket construit :", ticket);
+
+
+    // ============================
+    // AJOUT
+    // ============================
+
+    allOrders.unshift(ticket);
 
     renderFilteredOrders();
 
 
+    // ============================
+    // STATISTIQUES
+    // ============================
+
+    actualiserStatistiques();
 }
 
-async function tableTerminee(data){
+async function tableTerminee(data) {
 
-    notification(
+    console.log("🍽 Table terminée :", data);
 
-        "🍽 La table <b>"+data.table+
-        "</b> a terminé le ticket <b>"+data.numero_facture+
-        "</b>",
+    if (typeof notification === "function") {
 
-        "#28a745"
+        notification(
 
-    );
+            "🍽 La table <b>" +
+            (data.table || "inconnue") +
+            "</b> a terminé le ticket <b>" +
+            (data.numero_facture || "") +
+            "</b>",
+
+            "#28a745"
+        );
+
+    } else {
+
+        console.warn("⚠️ Fonction notification() non définie");
+
+        alert(
+            "🍽 La table " +
+            (data.table || "inconnue") +
+            " a terminé le ticket " +
+            (data.numero_facture || "")
+        );
+    }
 
 }
 
@@ -286,53 +477,152 @@ function fermerTable(idTable){
 
 }
 
-function recevoirMessage(event){
+function recevoirMessage(event) {
 
-    const msg = JSON.parse(event.data);
+    console.log("📩 WEBSOCKET REÇU :", event.data);
 
-    switch(msg.type){
+    let msg;
+
+    try {
+
+        msg = JSON.parse(event.data);
+
+    } catch (e) {
+
+        console.error("❌ JSON invalide :", event.data);
+
+        return;
+    }
+
+    console.log("📦 MESSAGE :", msg);
+
+
+    if (!msg || !msg.type) {
+
+        console.warn("⚠️ Message sans type :", msg);
+
+        return;
+    }
+
+
+    switch (msg.type) {
+
+
+        // =====================================
+        // NOUVELLE COMMANDE
+        // =====================================
 
         case "new_command":
 
-            nouvelleCommande(msg.data);
+            console.log("🛎 Nouvelle commande reçue");
 
-            if(msg.data.stats){
-                afficherStatistics(msg.data.stats);
-            }
+            nouvelleCommande(msg);
 
             break;
+
+
+        // =====================================
+        // TABLE OUVERTE
+        // =====================================
 
         case "table_opened":
 
-            tableOpened(msg.data);
+            console.log("🟢 Table ouverte");
 
-            if(msg.data.stats){
-                afficherStatistics(msg.data.stats);
-            }
+            tableOpened(msg.data || msg);
 
             break;
+
+
+        // =====================================
+        // TABLE TERMINÉE
+        // =====================================
 
         case "table_completed":
 
-            tableTerminee(msg.data);
+            console.log("🧾 Table terminée");
+
+            tableTerminee(msg.data || msg);
 
             break;
+
+
+        // =====================================
+        // STATUT COMMANDE MODIFIÉ
+        // =====================================
 
         case "command_status_changed":
 
-            // Si le serveur envoie un statut "Closed",
-            // on ferme la table dans l'interface.
-            if(msg.data.status === "Closed"){
-                fermerTable(msg.data.id_table);
-            }
+            console.log("🔄 Statut commande changé");
 
-            // Tu peux aussi gérer ici les autres statuts
-            // (Preparing, Served, etc.)
+            const statusData = msg.data || msg;
+
+            if (statusData.status === "Closed") {
+
+                if (statusData.id_table) {
+
+                    fermerTable(statusData.id_table);
+
+                }
+
+            }
 
             break;
 
-    }
 
+        // =====================================
+        // STATISTIQUES
+        // =====================================
+
+        case "statistics":
+
+            console.log("📊 Statistiques reçues");
+
+            afficherStatistics(msg.data || msg);
+
+            break;
+
+
+        // =====================================
+        // CONNEXION
+        // =====================================
+
+        case "connected":
+
+            console.log("🔌 Serveur WebSocket connecté");
+
+            break;
+
+
+        // =====================================
+        // ENREGISTREMENT
+        // =====================================
+
+        case "registered":
+
+            console.log("✅ Établissement enregistré");
+
+            break;
+
+
+        // =====================================
+        // TYPE INCONNU
+        // =====================================
+
+        default:
+
+            console.warn(
+                "⚠️ Type WebSocket inconnu :",
+                msg.type
+            );
+
+            console.warn(
+                "📦 Message :",
+                msg
+            );
+
+            break;
+    }
 }
 
 let allOrders = []; // on stocke toutes les commandes
@@ -442,7 +732,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             tableMap.clear();
 
             tableRes.data.forEach(table => {
-                tableMap.set(table.id_table, table.nom);
+                tableMap.set(Number(table.id_table), table.nom);
 
                 const isOpen = table.statu === "Ouvert";
 
@@ -598,10 +888,13 @@ function renderFilteredOrders() {
     let filtered = [...allOrders];
 
     filtered = filtered.map(ticket => ({
-        ...ticket,
-        table_nom: tableMap.get(ticket.id_table) || "Table inconnue"
-    }));
-
+    ...ticket,
+    table_nom:
+        tableMap.get(Number(ticket.id_table)) ||
+        ticket.table_nom ||
+        ticket.table ||
+        "Table inconnue"
+}));
     if (dateDebut) {
         filtered = filtered.filter(ticket =>
             new Date(ticket.date_enreg.replace(' ', 'T')) >= new Date(dateDebut)
