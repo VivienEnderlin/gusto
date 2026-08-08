@@ -1631,6 +1631,7 @@
                         socket.send(JSON.stringify({
                             type: "new_command",
                             id_etablissement,
+                            id_table: id_table,
                             table: nom_table,
                             commande: panier,
                             montant: totalGeneral,
