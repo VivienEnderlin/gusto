@@ -406,7 +406,7 @@ async function tableTerminee(data) {
 
         notification("🍽 Client — Ticket N° <b>" + (data.id_ticket) + "</b> de la table <b>" +
         (data.table) +
-        "</b> a terminé.", ``` "#28a745" ```);
+        "</b> a terminé.", '#28a745');
 
 
     } else {
