@@ -1478,39 +1478,115 @@
            /* SOCKET */
 
             function initWebSocket() {
-                if (socket) return;
+
+                // Si une connexion est déjà ouverte ou en cours de connexion,
+                // on ne crée pas une deuxième connexion.
+                if (
+                    socket &&
+                    (socket.readyState === WebSocket.OPEN ||
+                     socket.readyState === WebSocket.CONNECTING)
+                ) {
+                    return;
+                }
+
+                console.log("🔄 Tentative de connexion WebSocket...");
 
                 socket = new WebSocket(
                     "wss://gusto-websocket-062d8a7bc8a5.herokuapp.com"
                 );
 
+                // =========================
+                // CONNEXION OUVERTE
+                // =========================
                 socket.onopen = () => {
-                    console.log("✅ WebSocket connected");
 
+                    console.log("✅ WebSocket connecté");
+
+                    // Enregistrer cet établissement
                     socket.send(JSON.stringify({
                         type: "register",
-                        id_etablissement
+                        id_etablissement: id_etablissement
                     }));
+
+                    console.log("🏢 Établissement enregistré :", id_etablissement);
                 };
 
-                // 📩 Réception des messages du serveur
+
+                // =========================
+                // MESSAGE REÇU
+                // =========================
                 socket.onmessage = (event) => {
-                    console.log("📩 Message reçu du serveur :", event.data);
+
+                    console.log("📩 Message reçu :", event.data);
 
                     try {
+
                         const data = JSON.parse(event.data);
+
                         console.log("📦 Données :", data);
+
+                        // Exemple :
+                        // Le serveur peut envoyer :
+                        //
+                        // {
+                        //     type: "new_command",
+                        //     id_commande: "...",
+                        //     ...
+                        // }
+
+                        if (data.type === "new_command") {
+
+                            console.log("🆕 NOUVELLE COMMANDE !");
+                            console.log(data);
+
+                            // Ici tu peux actualiser ton interface
+                            // ou afficher une notification.
+
+                        }
+
                     } catch (e) {
-                        console.error("❌ Message WebSocket invalide :", event.data);
+
+                        console.error(
+                            "❌ Message WebSocket invalide :",
+                            event.data
+                        );
+
                     }
                 };
 
-                socket.onerror = err => {
-                    console.error("❌ WS error", err);
+
+                // =========================
+                // ERREUR
+                // =========================
+                socket.onerror = (error) => {
+
+                    console.error("❌ Erreur WebSocket :", error);
+
                 };
 
-                socket.onclose = () => {
-                    console.warn("⚠️ WS closed");
+
+                // =========================
+                // CONNEXION FERMÉE
+                // =========================
+                socket.onclose = (event) => {
+
+                    console.warn("⚠️ WebSocket fermé");
+
+                    console.warn("Code :", event.code);
+                    console.warn("Reason :", event.reason);
+                    console.warn("Clean :", event.wasClean);
+
+                    // On détruit l'ancienne connexion
+                    socket = null;
+
+                    // On essaie automatiquement de se reconnecter
+                    console.log("🔄 Reconnexion dans 2 secondes...");
+
+                    setTimeout(() => {
+
+                        initWebSocket();
+
+                    }, 2000);
                 };
             }
 

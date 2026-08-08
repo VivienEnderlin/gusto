@@ -36,18 +36,20 @@ function connectSocket() {
 
     };
 
-    socket.onclose = () => {
+    socket.onclose = (event) => {
 
         console.log("⚠️ Socket fermé");
-
-        if (reconnectTimer) {
-            clearTimeout(reconnectTimer);
-        }
+        console.log("🔢 Code :", event.code);
+        console.log("📝 Reason :", event.reason);
+        console.log("🧹 Clean :", event.wasClean);
 
         reconnectTimer = setTimeout(() => {
-            connectSocket();
-        }, 3000);
 
+            console.log("🔄 Reconnexion...");
+
+            connectSocket();
+
+        }, 2000);
     };
 
     socket.onerror = (e)=>{
@@ -287,6 +289,8 @@ async function nouvelleCommande(data) {
     notification(
         "🛎 Nouvelle commande de la table <b>" +
         (data.table || data.nom_table || data.id_table || "inconnue") +
+        "</b> — Ticket N° <b>" +
+        (data.numero_facture || "inconnu") +
         "</b>",
         "#ff7a00"
     );
