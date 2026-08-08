@@ -536,6 +536,56 @@ function recevoirMessage(event) {
 
             break;
 
+            // =====================================
+// TABLE FERMÉE
+// =====================================
+
+        case "table_closed": {
+
+            console.log("🔴 Table fermée");
+
+            const tableData = msg.data || msg;
+
+            const idTable = String(
+                tableData.id_table ||
+                ""
+            ).trim();
+
+            const nomTable =
+                tableData.nom_table ||
+                tableData.table ||
+                "Table inconnue";
+
+            const status =
+                tableData.status ||
+                "Fermé";
+
+            console.log("🪑 ID TABLE :", idTable);
+            console.log("🏷️ NOM TABLE :", nomTable);
+            console.log("📌 STATUT :", status);
+
+            if (!idTable) {
+
+                console.warn(
+                    "⚠️ Données table fermée incomplètes :",
+                    tableData
+                );
+
+                break;
+            }
+
+            fermerTable(idTable);
+
+            notification(
+                "🔴 La table <b>" +
+                nomTable +
+                "</b> est maintenant fermée.",
+                "#dc3545"
+            );
+
+            break;
+        }
+
 
         // =====================================
         // TABLE TERMINÉE
@@ -556,169 +606,169 @@ function recevoirMessage(event) {
 
         case "command_status_changed": {
 
-    console.log("🔄 Statut commande changé");
+            console.log("🔄 Statut commande changé");
 
-    const statusData = msg.data || msg;
+            const statusData = msg.data || msg;
 
-    const idTicket = String(
-        statusData.idTicket ||
-        statusData.id_ticket ||
-        ""
-    ).trim();
+            const idTicket = String(
+                statusData.idTicket ||
+                statusData.id_ticket ||
+                ""
+            ).trim();
 
-    const nouveauStatut = String(
-        statusData.status ||
-        statusData.statut ||
-        ""
-    ).trim();
+            const nouveauStatut = String(
+                statusData.status ||
+                statusData.statut ||
+                ""
+            ).trim();
 
-    console.log("🎫 Ticket reçu :", idTicket);
-    console.log("📌 Nouveau statut :", nouveauStatut);
-    console.log("📦 Données reçues :", statusData);
+            console.log("🎫 Ticket reçu :", idTicket);
+            console.log("📌 Nouveau statut :", nouveauStatut);
+            console.log("📦 Données reçues :", statusData);
 
-    if (!idTicket || !nouveauStatut) {
+            if (!idTicket || !nouveauStatut) {
 
-        console.warn(
-            "⚠️ Données statut incomplètes :",
-            statusData
-        );
+                console.warn(
+                    "⚠️ Données statut incomplètes :",
+                    statusData
+                );
 
-        break;
-    }
-
-
-    // ==========================================
-    // CHERCHER LE TICKET
-    // ==========================================
-
-    const ticket = allOrders.find(t => {
-
-        const id = String(
-            t.id_ticket ||
-            t.idTicket ||
-            ""
-        ).trim();
-
-        return id === idTicket;
-
-    });
+                break;
+            }
 
 
-    if (!ticket) {
+            // ==========================================
+            // CHERCHER LE TICKET
+            // ==========================================
 
-        console.warn(
-            "⚠️ Ticket introuvable dans allOrders :",
-            idTicket
-        );
+            const ticket = allOrders.find(t => {
 
-        console.log(
-            "🎫 Tickets disponibles :",
-            allOrders.map(t => ({
-                id_ticket: t.id_ticket,
-                idTicket: t.idTicket
-            }))
-        );
+                const id = String(
+                    t.id_ticket ||
+                    t.idTicket ||
+                    ""
+                ).trim();
 
-        break;
-    }
+                return id === idTicket;
+
+            });
 
 
-    console.log("✅ TICKET TROUVÉ :", ticket);
+            if (!ticket) {
+
+                console.warn(
+                    "⚠️ Ticket introuvable dans allOrders :",
+                    idTicket
+                );
+
+                console.log(
+                    "🎫 Tickets disponibles :",
+                    allOrders.map(t => ({
+                        id_ticket: t.id_ticket,
+                        idTicket: t.idTicket
+                    }))
+                );
+
+                break;
+            }
 
 
-    // ==========================================
-    // RÉCUPÉRER LES COMMANDES
-    // ==========================================
-
-    let commandes = ticket.commandes || ticket.commande;
+            console.log("✅ TICKET TROUVÉ :", ticket);
 
 
-    if (!Array.isArray(commandes)) {
+            // ==========================================
+            // RÉCUPÉRER LES COMMANDES
+            // ==========================================
 
-        console.error(
-            "❌ Aucune commande trouvée dans le ticket :",
-            ticket
-        );
-
-        break;
-    }
+            let commandes = ticket.commandes || ticket.commande;
 
 
-    // ==========================================
-    // NORMALISER
-    // ==========================================
+            if (!Array.isArray(commandes)) {
 
-    if (!Array.isArray(ticket.commandes)) {
+                console.error(
+                    "❌ Aucune commande trouvée dans le ticket :",
+                    ticket
+                );
 
-        ticket.commandes = commandes;
-
-    }
-
-
-    console.log(
-        "🍽 Commandes à modifier :",
-        ticket.commandes
-    );
+                break;
+            }
 
 
-    // ==========================================
-    // MODIFIER LE STATUT
-    // ==========================================
+            // ==========================================
+            // NORMALISER
+            // ==========================================
 
-    ticket.commandes.forEach(cmd => {
+            if (!Array.isArray(ticket.commandes)) {
 
-        console.log(
-            "🔄",
-            cmd.libelle,
-            ":",
-            cmd.etat,
-            "→",
-            nouveauStatut
-        );
+                ticket.commandes = commandes;
 
-        cmd.etat = nouveauStatut;
-
-    });
+            }
 
 
-    // ==========================================
-    // VÉRIFICATION
-    // ==========================================
-
-    console.log(
-        "✅ Ticket après modification :",
-        ticket
-    );
+            console.log(
+                "🍽 Commandes à modifier :",
+                ticket.commandes
+            );
 
 
-    // ==========================================
-    // RAFRAÎCHIR L'INTERFACE
-    // ==========================================
+            // ==========================================
+            // MODIFIER LE STATUT
+            // ==========================================
 
-    renderFilteredOrders();
+            ticket.commandes.forEach(cmd => {
+
+                console.log(
+                    "🔄",
+                    cmd.libelle,
+                    ":",
+                    cmd.etat,
+                    "→",
+                    nouveauStatut
+                );
+
+                cmd.etat = nouveauStatut;
+
+            });
 
 
-    console.log(
-        "🖥️ Interface gérant actualisée pour :",
-        idTicket
-    );
+            // ==========================================
+            // VÉRIFICATION
+            // ==========================================
+
+            console.log(
+                "✅ Ticket après modification :",
+                ticket
+            );
 
 
-    // ==========================================
-    // TABLE FERMÉE
-    // ==========================================
+            // ==========================================
+            // RAFRAÎCHIR L'INTERFACE
+            // ==========================================
 
-    if (
-        nouveauStatut === "Closed" &&
-        statusData.id_table
-    ) {
+            renderFilteredOrders();
 
-        fermerTable(statusData.id_table);
 
-    }
+            console.log(
+                "🖥️ Interface gérant actualisée pour :",
+                idTicket
+            );
 
-    break;
-}
+
+            // ==========================================
+            // TABLE FERMÉE
+            // ==========================================
+
+            if (
+                nouveauStatut === "Closed" &&
+                statusData.id_table
+            ) {
+
+                fermerTable(statusData.id_table);
+
+            }
+
+            break;
+        }
 
 
         // =====================================
