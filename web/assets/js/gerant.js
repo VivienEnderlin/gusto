@@ -556,21 +556,98 @@ function recevoirMessage(event) {
 
         case "command_status_changed":
 
-            console.log("🔄 Statut commande changé");
+    console.log("🔄 Statut commande changé");
 
-            const statusData = msg.data || msg;
+    const statusData = msg.data || msg;
 
-            if (statusData.status === "Closed") {
+    const idTicket = statusData.idTicket;
+    const nouveauStatut = statusData.status;
 
-                if (statusData.id_table) {
+    console.log("🎫 Ticket :", idTicket);
+    console.log("📌 Nouveau statut :", nouveauStatut);
 
-                    fermerTable(statusData.id_table);
+    if (!idTicket || !nouveauStatut) {
+        console.warn("⚠️ Données statut incomplètes :", statusData);
+        break;
+    }
 
-                }
+    // ==========================================
+    // CHERCHER LE TICKET DANS allOrders
+    // ==========================================
+
+    const ticket = allOrders.find(
+        t => String(t.id_ticket) === String(idTicket)
+    );
+
+    if (!ticket) {
+
+        console.warn(
+            "⚠️ Ticket introuvable dans allOrders :",
+            idTicket
+        );
+
+        break;
+    }
+
+    console.log("🎫 Ticket trouvé :", ticket);
+
+    // ==========================================
+    // MODIFIER LES COMMANDES
+    // ==========================================
+
+    if (Array.isArray(ticket.commandes)) {
+
+        ticket.commandes.forEach(cmd => {
+
+            // En attente → Servi
+            if (
+                nouveauStatut === "Servi" &&
+                cmd.etat === "En attente"
+            ) {
+
+                cmd.etat = "Servi";
 
             }
 
-            break;
+            // Servi → Payé
+            else if (
+                nouveauStatut === "Payé" &&
+                cmd.etat === "Servi"
+            ) {
+
+                cmd.etat = "Payé";
+
+            }
+
+        });
+
+    }
+
+    console.log(
+        "✅ Commandes mises à jour :",
+        ticket.commandes
+    );
+
+    // ==========================================
+    // RAFRAÎCHIR L'AFFICHAGE
+    // ==========================================
+
+    renderFilteredOrders();
+
+    // ==========================================
+    // SI LA TABLE EST FERMÉE
+    // ==========================================
+
+    if (
+        nouveauStatut === "Closed" &&
+        statusData.id_table
+    ) {
+
+        fermerTable(statusData.id_table);
+
+    }
+
+    break;
 
 
         // =====================================
