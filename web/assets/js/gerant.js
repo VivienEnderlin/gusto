@@ -536,62 +536,14 @@ function recevoirMessage(event) {
 
             break;
 
-            // =====================================
-// TABLE FERMÉE
-// =====================================
 
-        case "table_closed": {
-
-            console.log("🔴 Table fermée");
-
-            const tableData = msg.data || msg;
-
-            const idTable = String(
-                tableData.id_table ||
-                ""
-            ).trim();
-
-            const nomTable =
-                tableData.nom_table ||
-                tableData.table ||
-                "Table inconnue";
-
-            const status =
-                tableData.status ||
-                "Fermé";
-
-            console.log("🪑 ID TABLE :", idTable);
-            console.log("🏷️ NOM TABLE :", nomTable);
-            console.log("📌 STATUT :", status);
-
-            if (!idTable) {
-
-                console.warn(
-                    "⚠️ Données table fermée incomplètes :",
-                    tableData
-                );
-
-                break;
-            }
-
-            fermerTable(idTable);
-
-            notification(
-                "🔴 La table <b>" +
-                nomTable +
-                "</b> est maintenant fermée.",
-                "#dc3545"
-            );
-
-            break;
-        }
 
 
         // =====================================
         // TABLE TERMINÉE
         // =====================================
 
-        case "table_completed":
+        case "table_closed":
 
             console.log("🧾 Table terminée");
 
