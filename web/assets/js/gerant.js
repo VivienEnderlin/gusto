@@ -288,9 +288,9 @@ async function nouvelleCommande(data) {
 
     notification(
         "🛎 Nouvelle commande de la table <b>" +
-        (data.table || data.nom_table || data.id_table || "inconnue") +
+        (data.table) +
         "</b> — Ticket N° <b>" +
-        (data.numero_facture || "inconnu") +
+        (data.id_ticket) +
         "</b>",
         "#ff7a00"
     );
@@ -407,9 +407,9 @@ async function tableTerminee(data) {
         notification(
 
             "🍽 La table <b>" +
-            (data.table || "inconnue") +
+            (data.table) +
             "</b> a terminé le ticket <b>" +
-            (data.numero_facture || "") +
+            (data.id_ticket) +
             "</b>",
 
             "#28a745"
@@ -421,9 +421,9 @@ async function tableTerminee(data) {
 
         alert(
             "🍽 La table " +
-            (data.table || "inconnue") +
+            (data.table) +
             " a terminé le ticket " +
-            (data.numero_facture || "")
+            (data.id_ticket)
         );
     }
 
@@ -518,12 +518,11 @@ function recevoirMessage(event) {
 
         case "new_command":
 
-            console.log("🛎 Nouvelle commande reçue");
+        console.log("🛎 Nouvelle commande reçue");
 
-            nouvelleCommande(msg);
+        nouvelleCommande(msg.data || msg);
 
-            break;
-
+        break;
 
         // =====================================
         // TABLE OUVERTE
