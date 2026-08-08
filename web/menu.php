@@ -1610,6 +1610,7 @@
                     commande: panier,
                     montant_total: totalGeneral,
                     devise: devise,
+                    etat: "En attente",
                     id_ticket
                 };
 
@@ -1630,14 +1631,15 @@
                       console.log("📤 Envoi new_command");
                         socket.send(JSON.stringify({
                             type: "new_command",
-                            id_etablissement,
-                            id_table: id_table,
-                            table: nom_table,
-                            commande: panier,
-                            montant: totalGeneral,
-                            etat: "En attente",
+                            id_ticket: id_ticket,
                             id_commande: res.id_commande,
-                            id_ticket: id_ticket
+                            id_etablissement: id_etablissement,
+                            id_table: id_table,
+                            nom_table: nom_table,
+                            commande: panier,
+                            montant_total: totalGeneral,
+                            devise: devise,
+                            etat: "En attente"
                         }));
                     }
 
