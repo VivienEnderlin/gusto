@@ -554,30 +554,55 @@ function recevoirMessage(event) {
         // STATUT COMMANDE MODIFIÉ
         // =====================================
 
-        case "command_status_changed":
+        case "command_status_changed": {
 
     console.log("🔄 Statut commande changé");
 
     const statusData = msg.data || msg;
 
-    const idTicket = statusData.idTicket;
-    const nouveauStatut = statusData.status;
+    const idTicket = String(
+        statusData.idTicket ||
+        statusData.id_ticket ||
+        ""
+    ).trim();
 
-    console.log("🎫 Ticket :", idTicket);
+    const nouveauStatut = String(
+        statusData.status ||
+        statusData.statut ||
+        ""
+    ).trim();
+
+    console.log("🎫 Ticket reçu :", idTicket);
     console.log("📌 Nouveau statut :", nouveauStatut);
+    console.log("📦 Données reçues :", statusData);
 
     if (!idTicket || !nouveauStatut) {
-        console.warn("⚠️ Données statut incomplètes :", statusData);
+
+        console.warn(
+            "⚠️ Données statut incomplètes :",
+            statusData
+        );
+
         break;
     }
 
+
     // ==========================================
-    // CHERCHER LE TICKET DANS allOrders
+    // CHERCHER LE TICKET
     // ==========================================
 
-    const ticket = allOrders.find(
-        t => String(t.id_ticket) === String(idTicket)
-    );
+    const ticket = allOrders.find(t => {
+
+        const id = String(
+            t.id_ticket ||
+            t.idTicket ||
+            ""
+        ).trim();
+
+        return id === idTicket;
+
+    });
+
 
     if (!ticket) {
 
@@ -586,56 +611,101 @@ function recevoirMessage(event) {
             idTicket
         );
 
+        console.log(
+            "🎫 Tickets disponibles :",
+            allOrders.map(t => ({
+                id_ticket: t.id_ticket,
+                idTicket: t.idTicket
+            }))
+        );
+
         break;
     }
 
-    console.log("🎫 Ticket trouvé :", ticket);
+
+    console.log("✅ TICKET TROUVÉ :", ticket);
+
 
     // ==========================================
-    // MODIFIER LES COMMANDES
+    // RÉCUPÉRER LES COMMANDES
     // ==========================================
 
-    if (Array.isArray(ticket.commandes)) {
+    let commandes = ticket.commandes || ticket.commande;
 
-        ticket.commandes.forEach(cmd => {
 
-            // En attente → Servi
-            if (
-                nouveauStatut === "Servi" &&
-                cmd.etat === "En attente"
-            ) {
+    if (!Array.isArray(commandes)) {
 
-                cmd.etat = "Servi";
+        console.error(
+            "❌ Aucune commande trouvée dans le ticket :",
+            ticket
+        );
 
-            }
+        break;
+    }
 
-            // Servi → Payé
-            else if (
-                nouveauStatut === "Payé" &&
-                cmd.etat === "Servi"
-            ) {
 
-                cmd.etat = "Payé";
+    // ==========================================
+    // NORMALISER
+    // ==========================================
 
-            }
+    if (!Array.isArray(ticket.commandes)) {
 
-        });
+        ticket.commandes = commandes;
 
     }
 
+
     console.log(
-        "✅ Commandes mises à jour :",
+        "🍽 Commandes à modifier :",
         ticket.commandes
     );
 
+
     // ==========================================
-    // RAFRAÎCHIR L'AFFICHAGE
+    // MODIFIER LE STATUT
+    // ==========================================
+
+    ticket.commandes.forEach(cmd => {
+
+        console.log(
+            "🔄",
+            cmd.libelle,
+            ":",
+            cmd.etat,
+            "→",
+            nouveauStatut
+        );
+
+        cmd.etat = nouveauStatut;
+
+    });
+
+
+    // ==========================================
+    // VÉRIFICATION
+    // ==========================================
+
+    console.log(
+        "✅ Ticket après modification :",
+        ticket
+    );
+
+
+    // ==========================================
+    // RAFRAÎCHIR L'INTERFACE
     // ==========================================
 
     renderFilteredOrders();
 
+
+    console.log(
+        "🖥️ Interface gérant actualisée pour :",
+        idTicket
+    );
+
+
     // ==========================================
-    // SI LA TABLE EST FERMÉE
+    // TABLE FERMÉE
     // ==========================================
 
     if (
@@ -648,6 +718,7 @@ function recevoirMessage(event) {
     }
 
     break;
+}
 
 
         // =====================================
