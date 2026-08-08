@@ -925,14 +925,14 @@ function renderFilteredOrders() {
                 <div class="commande-item">
                     <div>
                         <strong>${cmd.libelle}</strong><br>
-                        <small>${cmd.quantite} x ${cmd.prix} ${ticket.devise}</small>
+                        <small>${cmd.quantite} x ${Number(cmd.prix || 0).toFixed(2)} ${ticket.devise}</small>
                     </div>
 
                     <div>
                         <span class="${badgeClass}">
                             ${cmd.etat}
                         </span>
-                        <div><b>${cmd.total} ${ticket.devise}</b></div>
+                        <div><b>${Number(cmd.total || 0).toFixed(2)} ${ticket.devise}</b></div>
                     </div>
                 </div>
             `;
@@ -948,7 +948,7 @@ function renderFilteredOrders() {
                     </div>
 
                     <div>
-                        <h3>${ticket.montant_total} ${ticket.devise}</h3>
+                        <h3>${Number(ticket.montant_total || 0).toFixed(2)} ${ticket.devise}</h3>
                     </div>
                 </div>
 
