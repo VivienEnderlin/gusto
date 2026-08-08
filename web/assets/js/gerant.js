@@ -193,7 +193,7 @@ function afficherStatistics(statsRes) {
 
             gainText = statsRes.vals.gains
             .map(g =>
-                `${Number(g.total_jour || 0)} ${g.devise}`
+               `${Number(g.total_jour || 0).toFixed(2)} ${g.devise}`
             )
             .join(" | ");
 
