@@ -543,14 +543,33 @@ function recevoirMessage(event) {
         // TABLE TERMINÉE
         // =====================================
 
-        case "table_closed":
+        case "table_closed": {
 
             console.log("🧾 Table terminée");
 
-            tableTerminee(msg.data || msg);
+            const tableData = msg.data || msg;
+
+            console.log("🍽 Table fermée :", tableData);
+
+            // Notification
+            tableTerminee(tableData);
+
+            // Mise à jour de la ligne dans DataTable
+            if (tableData.id_table) {
+
+                fermerTable(tableData.id_table);
+
+            } else {
+
+                console.warn(
+                    "⚠️ id_table manquant dans table_closed :",
+                    tableData
+                );
+
+            }
 
             break;
-
+        }
 
         // =====================================
         // STATUT COMMANDE MODIFIÉ
