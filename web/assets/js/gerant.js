@@ -536,6 +536,14 @@ function recevoirMessage(event) {
 
             break;
 
+        case "table_closed":
+
+            console.log("🔴 Table fermée");
+
+            console.log(msg.data || msg);
+
+            break;
+
 
         // =====================================
         // TABLE TERMINÉE
@@ -546,25 +554,6 @@ function recevoirMessage(event) {
             console.log("🧾 Table terminée");
 
             tableTerminee(msg.data || msg);
-
-            break;
-
-            case "table_closed":
-
-            console.log("🔴 Table fermée");
-
-            console.log("📦 Données table fermée :", msg.data || msg);
-
-            const tableClosedData = msg.data || msg;
-
-            fermerTable(tableClosedData.id_table);
-
-            notification(
-                "🍽 La table <b>" +
-                (tableClosedData.nom_table || tableClosedData.id_table) +
-                "</b> est maintenant fermée.",
-                "#28a745"
-            );
 
             break;
 
