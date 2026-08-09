@@ -283,21 +283,7 @@ async function nouvelleCommande(data) {
     console.log("🛎 Nouvelle commande :", data);
 
     // ============================
-    // NOTIFICATION
-    // ============================
-
-    notification(
-        "🛎 Nouvelle commande de la table <b>" +
-        (data.nom_table) +
-        "</b> — Ticket N° <b>" +
-        (data.id_ticket) +
-        "</b>",
-        "#ff7a00"
-    );
-
-
-    // ============================
-    // TABLE
+    // RÉCUPÉRER LE NOM DE LA TABLE
     // ============================
 
     const idTable = data.id_table
@@ -306,9 +292,28 @@ async function nouvelleCommande(data) {
 
     const nomTable =
         data.nom_table ||
+        data.table_nom ||
         data.table ||
-        (idTable ? tableMap.get(idTable) : null) ||
+        (idTable !== null ? tableMap.get(idTable) : null) ||
         "Table inconnue";
+
+
+    console.log("🪑 ID TABLE :", idTable);
+    console.log("🪑 NOM TABLE :", nomTable);
+
+
+    // ============================
+    // NOTIFICATION
+    // ============================
+
+    notification(
+        "🛎 Nouvelle commande de la table <b>" +
+        nomTable +
+        "</b> — Ticket N° <b>" +
+        data.id_ticket +
+        "</b>",
+        "#ff7a00"
+    );
 
 
     // ============================
@@ -323,7 +328,7 @@ async function nouvelleCommande(data) {
 
 
     // ============================
-    // TICKET
+    // CONSTRUCTION DU TICKET
     // ============================
 
     const ticket = {
@@ -336,6 +341,8 @@ async function nouvelleCommande(data) {
 
         id_table: idTable,
 
+        // IMPORTANT :
+        // on garde toujours le nom ici
         table_nom: nomTable,
 
         montant_total: Number(
@@ -365,8 +372,10 @@ async function nouvelleCommande(data) {
 
                 total: Number(
                     cmd.total ??
-                    (Number(cmd.prix || 0) *
-                     Number(cmd.quantite || 0))
+                    (
+                        Number(cmd.prix || 0) *
+                        Number(cmd.quantite || 0)
+                    )
                 ),
 
                 etat:
@@ -379,14 +388,19 @@ async function nouvelleCommande(data) {
     };
 
 
-    console.log("🎫 Ticket construit :", ticket);
+    console.log("🎫 TICKET CONSTRUIT :", ticket);
 
 
     // ============================
-    // AJOUT
+    // AJOUT DU TICKET
     // ============================
 
     allOrders.unshift(ticket);
+
+
+    // ============================
+    // AFFICHAGE
+    // ============================
 
     renderFilteredOrders();
 
