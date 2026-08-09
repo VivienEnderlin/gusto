@@ -537,39 +537,37 @@ function recevoirMessage(event) {
             break;
 
 
-
-
         // =====================================
         // TABLE TERMINÉE
         // =====================================
 
-        case "table_closed": {
+        case "table_completed":
 
             console.log("🧾 Table terminée");
 
-            const tableData = msg.data || msg;
-
-            console.log("🍽 Table fermée :", tableData);
-
-            // Notification
-            tableTerminee(tableData);
-
-            // Mise à jour de la ligne dans DataTable
-            if (tableData.id_table) {
-
-                fermerTable(tableData.id_table);
-
-            } else {
-
-                console.warn(
-                    "⚠️ id_table manquant dans table_closed :",
-                    tableData
-                );
-
-            }
+            tableTerminee(msg.data || msg);
 
             break;
-        }
+
+            case "table_closed":
+
+            console.log("🔴 Table fermée");
+
+            console.log("📦 Données table fermée :", msg.data || msg);
+
+            const tableClosedData = msg.data || msg;
+
+            fermerTable(tableClosedData.id_table);
+
+            notification(
+                "🍽 La table <b>" +
+                (tableClosedData.nom_table || tableClosedData.id_table) +
+                "</b> est maintenant fermée.",
+                "#28a745"
+            );
+
+            break;
+
 
         // =====================================
         // STATUT COMMANDE MODIFIÉ
