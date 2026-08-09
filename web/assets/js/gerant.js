@@ -556,19 +556,18 @@ function recevoirMessage(event) {
 
             const tableData = msg.data || msg;
 
-            console.log("📦 Données table fermée :", tableData);
+            console.log("📦 Données reçues :", tableData);
 
-            if (!tableData.id_table) {
+            const idTable = tableData.id_table;
 
-                console.warn(
-                    "⚠️ id_table manquant dans table_closed :",
-                    tableData
-                );
+            console.log("🆔 ID TABLE À FERMER :", idTable);
 
+            if (!idTable) {
+                console.warn("⚠️ id_table absent !");
                 break;
             }
 
-            fermerTable(tableData.id_table);
+            fermerTable(idTable);
 
             break;
         }
