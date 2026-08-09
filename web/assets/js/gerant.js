@@ -288,7 +288,7 @@ async function nouvelleCommande(data) {
 
     notification(
         "🛎 Nouvelle commande de la table <b>" +
-        (data.table) +
+        (data.nom_table) +
         "</b> — Ticket N° <b>" +
         (data.id_ticket) +
         "</b>",
