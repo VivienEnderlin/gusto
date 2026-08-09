@@ -550,13 +550,28 @@ function recevoirMessage(event) {
 
             break;
 
-        case "table_closed":
+        case "table_closed": {
 
             console.log("🔴 Table fermée");
 
-            console.log(msg.data || msg);
+            const tableData = msg.data || msg;
+
+            console.log("📦 Données table fermée :", tableData);
+
+            if (!tableData.id_table) {
+
+                console.warn(
+                    "⚠️ id_table manquant dans table_closed :",
+                    tableData
+                );
+
+                break;
+            }
+
+            fermerTable(tableData.id_table);
 
             break;
+        }
 
 
         // =====================================
