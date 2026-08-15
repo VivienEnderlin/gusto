@@ -1289,8 +1289,11 @@ if (token) {
         const dateValidite = payload.data.date;
         console.log("📅 DATE VALIDITÉ :", dateValidite);
 
-        // Afficher la notification
-        afficherNotificationContrat(dateValidite);
+        setTimeout(() => {
+
+            afficherNotificationContrat(dateValidite);
+
+        }, 3000);
     } 
     else {
         document.getElementById('userLogin').textContent = 'Invité';
