@@ -246,6 +246,66 @@ function notification(message, couleur = "#ff7a00") {
     }, 4000);
 }
 
+function afficherNotificationContrat(date_validite) {
+
+    if (!date_validite) {
+        return;
+    }
+
+    // Date d'aujourd'hui
+    const aujourdHui = new Date();
+
+    // Date de fin récupérée depuis la BD
+    const finContrat = new Date(date_validite);
+
+    // Calcul de la différence
+    const difference = finContrat - aujourdHui;
+
+    // Nombre de jours restants
+    const joursRestants = Math.ceil(
+        difference / (1000 * 60 * 60 * 24)
+    );
+
+    // ============================
+    // CONTRAT NON EXPIRÉ
+    // ============================
+
+    if (joursRestants > 0) {
+
+        notification(
+            `⚠️ Votre contrat expire dans <b>${joursRestants} jours</b>.`,
+            "#ff7a00"
+        );
+
+    }
+
+    // ============================
+    // CONTRAT EXPIRE AUJOURD'HUI
+    // ============================
+
+    else if (joursRestants === 0) {
+
+        notification(
+            `⚠️ <b>Votre contrat expire aujourd'hui.</b>`,
+            "#dc3545"
+        );
+
+    }
+
+    // ============================
+    // CONTRAT EXPIRÉ
+    // ============================
+
+    else {
+
+        notification(
+            `❌ <b>Votre contrat est expiré.</b>`,
+            "#dc3545"
+        );
+
+    }
+}
+
 async function actualiserStatistiques() {
 
     try {
@@ -1144,6 +1204,30 @@ function renderFilteredOrders() {
     });
 }
 
+function ajouterCategorieDansSelect(categorie) {
+
+    const selects = document.querySelectorAll('.select');
+
+    selects.forEach(select => {
+
+        // Vérifier que la catégorie n'existe pas déjà
+        const existe = Array.from(select.options).some(
+            option => option.value == categorie.id_categorie
+        );
+
+        if (!existe) {
+
+            const option = document.createElement('option');
+
+            option.value = categorie.id_categorie;
+            option.textContent = "\u00A0\u00A0\u00A0" + categorie.libelle;
+
+            select.appendChild(option);
+        }
+
+    });
+}
+
 
 
 function showSection(id) {
@@ -1201,6 +1285,12 @@ if (token) {
 
     if (payload && payload.data && payload.data.login) {
         document.getElementById('userLogin').textContent = payload.data.login;
+        // Récupérer la date de validité venant de la BD
+        const dateValidite = payload.data.date;
+        console.log("📅 DATE VALIDITÉ :", dateValidite);
+
+        // Afficher la notification
+        afficherNotificationContrat(dateValidite);
     } 
     else {
         document.getElementById('userLogin').textContent = 'Invité';
@@ -1553,6 +1643,7 @@ $('#categorie').on('submit', async function(e) {
             submitBtn.removeClass('show-loader').prop('disabled', false);
             $('.modal-cat').modal('hide');
             form.reset();
+            ajouterCategorieDansSelect(result.data);
             const rowData = [
                 result.data.libelle,
                 `<button class="icon-btn edit-cat" data-id="${result.data.id_categorie}">

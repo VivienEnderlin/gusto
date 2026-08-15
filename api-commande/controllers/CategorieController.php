@@ -51,6 +51,13 @@ class CategorieController {
 
         $id_etablissement = $this->user->id_etablissement;
         $id = $this->categorie->create($data, $id_etablissement);
+        if ($id === false) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'This item already existing.'
+            ]);
+            exit;
+        }
         $e  = $this->categorie->getByIdAndEtablissement($id, $id_etablissement);
 
         echo json_encode(['success'=>true,'data'=>$e]);

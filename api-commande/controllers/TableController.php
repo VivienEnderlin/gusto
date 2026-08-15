@@ -51,6 +51,13 @@ class TableController {
 
         $id_etablissement = $this->user->id_etablissement;
         $id = $this->table->create($data, $id_etablissement);
+        if ($id === false) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'This table already existing.'
+            ]);
+            exit;
+        }
         $e  = $this->table->getByIdAndEtablissement($id, $id_etablissement);
 
         // Renvoie toutes les données brutes

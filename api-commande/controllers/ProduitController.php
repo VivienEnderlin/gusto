@@ -65,6 +65,13 @@ class ProduitController {
 
         $id_etablissement = $this->user->id_etablissement;
         $id = $this->produit->create($data, $id_etablissement);
+        if ($id === false) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'This product already existing.'
+            ]);
+            exit;
+        }
         $e  = $this->produit->getByIdAndEtablissement($id, $id_etablissement);
         $e['image'] = json_decode($e['image'], true);
 

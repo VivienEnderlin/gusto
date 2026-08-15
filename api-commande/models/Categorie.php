@@ -16,6 +16,17 @@ class Categorie extends BaseModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getByLibelleAndEtablissement($libelle, $id_etablissement) {
+        $stmt = $this->personnalSelect(
+            "tables_restaurant",
+            "*",
+            "WHERE libelle = ? AND id_etablissement = ?",
+            [$libelle, $id_etablissement]
+        );
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // =========================
     // Récupérer par ID et établissement (sécurisé)
     // =========================
@@ -33,6 +44,14 @@ class Categorie extends BaseModel {
     // Créer une catégorie
     // =========================
     public function create($data, $id_etablissement) {
+        $libelle = trim($data['libelle']);
+
+        // Vérifier si le libelle existe déjà dans cet établissement
+        $existing = $this->getByLibelleAndEtablissement($libelle, $id_etablissement);
+
+        if ($existing) {
+            return false;
+        }
         $this->insert(
             "categorie",
             ["id_etablissement", "libelle"],

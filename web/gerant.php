@@ -17,6 +17,7 @@
 
 <body>
 
+
     <aside class="sidebar">
 
         <div class="logo">
@@ -48,7 +49,7 @@
 
             <li data-target="employes">
                 <i class="fa-solid fa-users"></i>
-                Employés
+                Serveurs
             </li>
 
             <li data-target="commandes">
@@ -87,6 +88,8 @@
             </div>
 
         </header>
+
+        <div id="contratNotifications"></div>
 
         <!-- DASHBOARD -->
         <section id="dashboard" class="content-section">

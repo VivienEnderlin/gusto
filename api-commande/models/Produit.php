@@ -16,6 +16,17 @@ class Produit extends BaseModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getByNomAndEtablissement($nom, $id_etablissement) {
+        $stmt = $this->personnalSelect(
+            "tables_restaurant",
+            "*",
+            "WHERE nom = ? AND id_etablissement = ?",
+            [$nom, $id_etablissement]
+        );
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // =========================
     // Récupérer par ID
     // =========================
@@ -47,6 +58,14 @@ class Produit extends BaseModel {
     // =========================
 
     public function create($data, $id_etablissement) {
+        $nom = trim($data['nom']);
+
+        // Vérifier si le nom existe déjà dans cet établissement
+        $existing = $this->getByNomAndEtablissement($nom, $id_etablissement);
+
+        if ($existing) {
+            return false;
+        }
         $stmt = $this->personnalSelect(
             "etablissement",
             "devise",

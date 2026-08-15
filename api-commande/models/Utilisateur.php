@@ -186,7 +186,7 @@ class Utilisateur extends BaseModel {
         $stmt = $this->personnalSelect(
             "utilisateur",
             "*",
-            "WHERE BINARY login = ?",
+            "WHERE login = ?",
             [$login]
         );
         return $stmt->fetch(PDO::FETCH_ASSOC);
