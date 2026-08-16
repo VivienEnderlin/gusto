@@ -66,6 +66,7 @@ class ProduitController {
         $id_etablissement = $this->user->id_etablissement;
         $id = $this->produit->create($data, $id_etablissement);
         if ($id === false) {
+            http_response_code(409);
             echo json_encode([
                 'success' => false,
                 'message' => 'This product already existing.'

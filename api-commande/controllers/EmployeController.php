@@ -55,6 +55,7 @@ class EmployeController {
 
         $id = $this->model->create($data, $id_etablissement);
         if ($id === false) {
+            http_response_code(409);
             echo json_encode([
                 'success' => false,
                 'message' => 'This item already existing.'

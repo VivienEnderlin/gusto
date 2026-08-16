@@ -1653,7 +1653,17 @@
 
                     alert("Command sent please wait a moment");
                 })
-                .fail(() => alert("Server error ❌"));
+                .fail(function(xhr, status, error) {
+                    console.log("❌ Erreur serveur :", xhr.responseText);
+
+                    let message = "Server error ❌";
+
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    alert(message);
+                });
             });
 
             // ================= TERMINER =================

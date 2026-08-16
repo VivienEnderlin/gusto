@@ -1509,6 +1509,7 @@ $('#table').on('submit', async function(e) {
                 tables.row.add(rowData).draw(false);
             }
         } else {
+            submitBtn.removeClass('show-loader').prop('disabled', false);
             alert(result.message || "Erreur lors de l'enregistrement");
         }
     } catch(err) {
@@ -1677,6 +1678,7 @@ $('#categorie').on('submit', async function(e) {
                 cats.row.add(rowData).draw(false);
             }
         } else {
+            submitBtn.removeClass('show-loader').prop('disabled', false);
             alert(result.message || "Erreur lors de l'enregistrement");
         }
     } catch(err) {
@@ -1791,6 +1793,7 @@ $('#produit').on('submit', async function(e) {
                 produits.row.add(rowData).draw(false);
             }
         } else {
+            submitBtn.removeClass('show-loader').prop('disabled', false);
             alert(result.message || "Erreur lors de l'enregistrement");
         }
     } catch(err) {
@@ -1906,6 +1909,7 @@ $('#user').on('submit', async function(e) {
                 users.row.add(rowData).draw(false);
             }
         } else {
+            submitBtn.removeClass('show-loader').prop('disabled', false);
             alert(result.message || "Erreur lors de l'enregistrement");
         }
     } catch(err) {

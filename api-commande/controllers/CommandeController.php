@@ -114,49 +114,12 @@ class CommandeController {
     // AJOUTER UNE COMMANDE
     // =========================
 
-    public function store($data) {
-        header('Content-Type: application/json; charset=utf-8');
-
-        $id_etablissement = $this->getEtablissementId();
-        $id = $this->commande->create($data, $id_etablissement);
-        $e  = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
-
-        echo json_encode([
-            'success' => true,
-            'id_commande' => $id,
-            'data' => $e
-        ]);
-        exit;
-    }
     // public function store($data) {
     //     header('Content-Type: application/json; charset=utf-8');
 
     //     $id_etablissement = $this->getEtablissementId();
-
-    //     // Vérification table ouverte
-    //     $table = $this->commande->tableActive(
-    //         $data['nom'],
-    //         $id_etablissement
-    //     );
-
-    //     if (!$table) {
-    //         http_response_code(400);
-
-    //         echo json_encode([
-    //             'success' => false,
-    //             'message' => 'No active services for this table'
-    //         ]);
-    //         exit;
-    //     }
-    //     $data['id_table'] = $table['id_table'];
-
-    //     // Insertion seulement si service actif
     //     $id = $this->commande->create($data, $id_etablissement);
-
-    //     $e = $this->commande->getByIdAndEtablissement(
-    //         $id,
-    //         $id_etablissement
-    //     );
+    //     $e  = $this->commande->getByIdAndEtablissement($id, $id_etablissement);
 
     //     echo json_encode([
     //         'success' => true,
@@ -165,6 +128,41 @@ class CommandeController {
     //     ]);
     //     exit;
     // }
+    public function store($data) {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $id_etablissement = $this->getEtablissementId();
+        $id_table = $data['id_table'];
+
+        // Vérification table ouverte
+        $table = $this->commande->isTableActive(
+            $id_table,
+            $id_etablissement
+        );
+
+        if (!$table) {
+            http_response_code(400);
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'No active services for this table'
+            ]);
+            exit;
+        }
+        $data['id_table'] = $table['id_table'];
+
+        // Insertion seulement si service actif
+        $id = $this->commande->create($data, $id_etablissement);
+
+        $e = $this->commande->getByIdAndEtablissement($id,$id_etablissement);
+
+        echo json_encode([
+            'success' => true,
+            'id_commande' => $id,
+            'data' => $e
+        ]);
+        exit;
+    }
 
     // =========================
     // MODIFIER UNE COMMANDE
