@@ -18,7 +18,7 @@ class Categorie extends BaseModel {
 
     public function getByLibelleAndEtablissement($libelle, $id_etablissement) {
         $stmt = $this->personnalSelect(
-            "tables_restaurant",
+            "categorie",
             "*",
             "WHERE libelle = ? AND id_etablissement = ?",
             [$libelle, $id_etablissement]

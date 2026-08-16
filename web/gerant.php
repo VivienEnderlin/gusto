@@ -216,10 +216,10 @@
         <section id="employes" class="content-section" style="display:none">
 
             <div class="section-header">
-                <h2>Employés</h2>
+                <h2>Serveur</h2>
 
                 <button class="btn-primary btn-user">
-                    <i class="fa-solid fa-plus"></i> Ajouter Employé
+                    <i class="fa-solid fa-plus"></i> Ajouter un serveur
                 </button>
             </div>
 
@@ -418,7 +418,7 @@
                 <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>" method="post" role="form" id='user' class="php-form">
                   <div class="row">
                     <div class="col-lg-12">
-                      <input type="text" name="nom" placeholder="Entrer le nom de l'employé" class="form-control">
+                      <input type="text" name="nom" placeholder="Entrer le nom du serveur" class="form-control">
                     </div>
                     <div class="col-lg-12">
                       <input type="text" name="login" placeholder="Entrer le login" class="form-control">

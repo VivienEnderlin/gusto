@@ -54,6 +54,14 @@ class EmployeController {
         $id_etablissement = $this->user->id_etablissement;
 
         $id = $this->model->create($data, $id_etablissement);
+        if ($id === false) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'This item already existing.'
+            ]);
+            exit;
+        }
+        $e
         $e  = $this->model->getByIdAndEtablissement($id, $id_etablissement);
 
         echo json_encode(['success'=>true,'data'=>$e]);

@@ -18,7 +18,7 @@ class Produit extends BaseModel {
 
     public function getByNomAndEtablissement($nom, $id_etablissement) {
         $stmt = $this->personnalSelect(
-            "tables_restaurant",
+            "produit",
             "*",
             "WHERE nom = ? AND id_etablissement = ?",
             [$nom, $id_etablissement]

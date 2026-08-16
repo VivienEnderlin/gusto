@@ -38,6 +38,17 @@ class Utilisateur extends BaseModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getByInfoAndEtablissement($login, $telephone, $email, $id_etablissement) {
+        $stmt = $this->personnalSelect(
+            "utilisateur",
+            "*",
+            "WHERE login = ? AND telephone = ? AND email = ? AND id_etablissement = ?",
+            [$login, $telephone, $email, $id_etablissement]
+        );
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // =========================
     // Récupérer par ID et établissement (sécurisé)
     // =========================
@@ -60,6 +71,17 @@ class Utilisateur extends BaseModel {
         // Génération automatique du mot de passe
         $password = $data['password'] ?? $this->generateRestaurantCode($data['nom']);
         $data['password'] = $password;
+
+        $lodin = trim($data['lodin']);
+        $telephone = trim($data['telephone']);
+        $email = trim($data['email']);
+
+        // Vérifier si le libelle existe déjà dans cet établissement
+        $existing = $this->getByInfoAndEtablissement($login, $telephone, $email, $id_etablissement);
+
+        if ($existing) {
+            return false;
+        }
 
         // Insertion en base
         $this->insert(

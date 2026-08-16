@@ -1160,9 +1160,20 @@ function renderFilteredOrders() {
 
         ticket.commandes.forEach(cmd => {
 
-            const badgeClass = cmd.etat === "Servi"
-                ? "badge-success"
-                : "badge-warning";
+            let badgeClass = "";
+
+            if (cmd.etat === "En attente") {
+                badgeClass = "badge-secondary"; // gris
+            } 
+            else if (cmd.etat === "Servi") {
+                badgeClass = "badge-warning"; // jaune
+            } 
+            else if (cmd.etat === "Paye") {
+                badgeClass = "badge-success"; // vert
+            } 
+            else {
+                badgeClass = "badge-secondary"; // gris par défaut
+            }
 
             itemsHTML += `
                 <div class="commande-item">

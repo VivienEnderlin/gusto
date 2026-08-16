@@ -685,6 +685,14 @@
             font-size: 12px;
         }
 
+        .badge-secondary {
+            background: #6c757d;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
         .trie{
             display: flex;
              justify-content: flex-end; /* pousse le contenu à droite */
