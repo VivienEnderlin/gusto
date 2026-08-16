@@ -61,7 +61,6 @@ class EmployeController {
             ]);
             exit;
         }
-        $e
         $e  = $this->model->getByIdAndEtablissement($id, $id_etablissement);
 
         echo json_encode(['success'=>true,'data'=>$e]);
