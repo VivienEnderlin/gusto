@@ -1168,7 +1168,7 @@ function renderFilteredOrders() {
             else if (cmd.etat === "Servi") {
                 badgeClass = "badge-warning"; // jaune
             } 
-            else if (cmd.etat === "Paye") {
+            else if (cmd.etat === "Payé") {
                 badgeClass = "badge-success"; // vert
             } 
             else {
