@@ -142,10 +142,7 @@ class ProduitController {
     }
 
 }
-?>
 
-
-/////////amazone////
 
 
 // require_once __DIR__ . '/../models/Produit.php';
