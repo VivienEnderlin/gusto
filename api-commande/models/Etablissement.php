@@ -44,7 +44,7 @@ class Etablissement extends BaseModel {
                 $data['country'],
                 $data['site_web'],
                 $data['description'],
-                date('Y-m-d'),
+                gmdate('Y-m-d'),
             ]
         );
 

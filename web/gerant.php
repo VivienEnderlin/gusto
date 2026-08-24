@@ -203,6 +203,7 @@
                             <th>Image</th>
                             <th>Nom</th>
                             <th>Prix</th>
+                            <th>Catégorie</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -216,7 +217,7 @@
         <section id="employes" class="content-section" style="display:none">
 
             <div class="section-header">
-                <h2>Serveur</h2>
+                <h2>Serveurs</h2>
 
                 <button class="btn-primary btn-user">
                     <i class="fa-solid fa-plus"></i> Ajouter un serveur
@@ -334,6 +335,49 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="modal fade modal-qrcode" tabindex="-1" role="dialog">
+
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+
+                        <h5 class="modal-title">
+                            QR Code de la table
+                        </h5>
+
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body text-center">
+
+                        <h4 id="qrTableName"></h4>
+
+                        <div id="qrContainer" class="mt-3">
+                            <img id="qrImage" src="" alt="QR Code" style="width:300px; height:300px; object-fit:contain;">
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Fermer
+                        </button>
+
+                        <button type="button" class="btn btn-primary" id="printQrBtn">
+                            <i class="fa-solid fa-print"></i>
+                            Imprimer
+                        </button>
+
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="modal fade modal-produit" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">

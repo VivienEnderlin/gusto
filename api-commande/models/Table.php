@@ -127,7 +127,7 @@ class Table extends BaseModel {
             $this->set(
                 "service",
                 ["date_heure_fermeture"],
-                [date('Y-m-d H:i:s')],
+                [gmdate('Y-m-d H:i:s')],
                  "WHERE id_table = ? AND id_etablissement = ? AND date_heure_fermeture IS NULL ORDER BY date_heure_ouverture DESC LIMIT 1",
                 [$id, $id_etablissement]
             );
@@ -147,7 +147,7 @@ class Table extends BaseModel {
             $this->insert(
                 "service",
                 ["id_table", "id_utilisateur", "code", "id_etablissement", "date_heure_ouverture", "date_heure_fermeture"],
-                [$id, $id_utilisateur, $code, $id_etablissement, date('Y-m-d H:i:s'), null]
+                [$id, $id_utilisateur, $code, $id_etablissement, gmdate('Y-m-d H:i:s'), null]
             );
             //trouver un moyen pour imprimer le ticket avec le mobile donc apres avoir ouvert la facture je dois trouver un moyen pour emrimer du coté du telephone
         }

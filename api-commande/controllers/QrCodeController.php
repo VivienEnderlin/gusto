@@ -81,13 +81,25 @@ class QrCodeController {
         $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($url);
 
         // ========================
-        // OPTION 1: DOWNLOAD IMAGE
+        // AFFICHER LE QR CODE
         // ========================
+
+        $image = file_get_contents($qrUrl);
+
+        if ($image === false) {
+            http_response_code(500);
+            header('Content-Type: application/json');
+            echo json_encode([
+                "success" => false,
+                "message" => "Impossible de générer le QR code"
+            ]);
+            exit;
+        }
+
         header('Content-Type: image/png');
-        header('Content-Disposition: attachment; filename="qrcode.png"');
         header('Cache-Control: no-cache, no-store, must-revalidate');
 
-        echo file_get_contents($qrUrl);
+        echo $image;
         exit;
     }
 }

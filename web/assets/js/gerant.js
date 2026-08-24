@@ -62,6 +62,36 @@ function connectSocket() {
 
 }
 
+function getNomCategorie(idCategorie) {
+
+    const option = document.querySelector(
+        `.select option[value="${idCategorie}"]`
+    );
+
+    return option
+        ? option.textContent.trim()
+        : "Catégorie inconnue";
+}
+
+function afficherDateLocale(dateUTC) {
+
+    if (!dateUTC) {
+        return '-';
+    }
+
+    // Transformer "2026-08-22 17:00:00"
+    // en format compréhensible par JavaScript comme UTC
+    const date = new Date(
+        dateUTC.replace(' ', 'T') + 'Z'
+    );
+
+    if (isNaN(date.getTime())) {
+        return dateUTC;
+    }
+
+    return date.toLocaleString();
+}
+
 function afficherStatistics(statsRes) {
 
     if (!statsRes?.success || !Array.isArray(statsRes.stats)) {
@@ -338,9 +368,25 @@ async function actualiserStatistiques() {
     }
 }
 
+// ===============================
+// SON NOUVELLE COMMANDE
+// ===============================
+
+const sonNouvelleCommande = new Audio(
+    '/api-commande/utils/sounds/notification.mp3'
+);
+
+sonNouvelleCommande.volume = 1.0;
+
 async function nouvelleCommande(data) {
 
     console.log("🛎 Nouvelle commande :", data);
+
+    sonNouvelleCommande.currentTime = 0;
+
+    sonNouvelleCommande.play().catch(error => {
+        console.warn("⚠️ Impossible de jouer le son :", error);
+    });
 
     // ============================
     // RÉCUPÉRER LE NOM DE LA TABLE
@@ -526,6 +572,7 @@ async function tableOpened(data){
         }
 
     });
+    actualiserStatistiques();
 
 }
 
@@ -989,6 +1036,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                         ${isOpen ? "Ouvert" : "Fermé"}
                     </span>`,
                     `
+                    <button class="icon-btn change change-statu" data-id="${table.id_table}">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
                     <button class="icon-btn view view-service" data-id="${table.id_table}">
                         <i class="fa-solid fa-eye"></i>
                     </button>
@@ -1019,13 +1069,16 @@ document.addEventListener("DOMContentLoaded", async function () {
             produitRes.data.forEach(produit => {
 
                 const image = produit.image?.length
-                    ? `<img src="${produit.image[0]}" width="50" height="50" style="object-fit:cover;border-radius:5px;">`
-                    : 'Aucune image';
+                ? `<img src="${produit.image[0]}" width="50" height="50" style="object-fit:cover;border-radius:5px;">`
+                : 'Aucune image';
+
+                const libelleCategorie = getNomCategorie(produit.id_categorie);
 
                 produits.row.add([
                     image,
                     produit.nom,
                     produit.prix,
+                    libelleCategorie,
                     `<button class="icon-btn edit-produit" data-id="${produit.id_produit}">
                         <i class="fa-solid fa-pen"></i>
                     </button>
@@ -1135,22 +1188,24 @@ function renderFilteredOrders() {
     let filtered = [...allOrders];
 
     filtered = filtered.map(ticket => ({
-    ...ticket,
-    table_nom:
-        tableMap.get(Number(ticket.id_table)) ||
-        ticket.table_nom ||
-        ticket.table ||
-        "Table inconnue"
-}));
+        ...ticket,
+        table_nom:
+            tableMap.get(Number(ticket.id_table)) ||
+            ticket.table_nom ||
+            ticket.table ||
+            "Table inconnue"
+    }));
     if (dateDebut) {
         filtered = filtered.filter(ticket =>
-            new Date(ticket.date_enreg.replace(' ', 'T')) >= new Date(dateDebut)
+            new Date(ticket.date_enreg.replace(' ', 'T') + 'Z') >=
+            new Date(dateDebut)
         );
     }
 
     if (dateFin) {
         filtered = filtered.filter(ticket =>
-            new Date(ticket.date_enreg.replace(' ', 'T')) <= new Date(dateFin)
+            new Date(ticket.date_enreg.replace(' ', 'T') + 'Z') <=
+            new Date(dateFin)
         );
     }
 
@@ -1198,11 +1253,18 @@ function renderFilteredOrders() {
                 <div class="ticket-header">
                     <div>
                         <h3>${ticket.table_nom}: ${ticket.id_ticket}</h3>
-                        <small>${ticket.date_enreg}</small>
+                        <small>${afficherDateLocale(ticket.date_enreg)}</small>
                     </div>
 
                     <div>
                         <h3>${Number(ticket.montant_total || 0).toFixed(2)} ${ticket.devise}</h3>
+                        <button
+                            type="button"
+                            class="icon-btn print-ticket"
+                            data-ticket-id="${ticket.id_ticket}"
+                            title="Imprimer la commande">
+                            <i class="fa-solid fa-print"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -1213,6 +1275,195 @@ function renderFilteredOrders() {
             </div>
         `;
     });
+}
+
+function imprimerTicket(ticket) {
+
+    if (!ticket) {
+        alert("Commande introuvable.");
+        return;
+    }
+
+    const printWindow = window.open(
+        '',
+        '_blank',
+        'width=500,height=700'
+    );
+
+    if (!printWindow) {
+        alert("Impossible d'ouvrir la fenêtre d'impression.");
+        return;
+    }
+
+    let commandesHTML = '';
+
+    ticket.commandes.forEach(cmd => {
+
+        commandesHTML += `
+            <div class="commande">
+
+                <div>
+                    <strong>${cmd.libelle}</strong>
+                </div>
+
+                <div class="ligne">
+
+                    <span>
+                        ${cmd.quantite} x
+                        ${Number(cmd.prix || 0).toFixed(2)}
+                        ${ticket.devise}
+                    </span>
+
+                    <strong>
+                        ${Number(cmd.total || 0).toFixed(2)}
+                        ${ticket.devise}
+                    </strong>
+
+                </div>
+
+            </div>
+        `;
+    });
+
+
+    printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>Ticket ${ticket.id_ticket}</title>
+
+            <style>
+
+                * {
+                    box-sizing: border-box;
+                }
+
+                body {
+                    margin: 0;
+                    padding: 20px;
+                    font-family: Arial, sans-serif;
+                    color: #000;
+                }
+
+                .ticket {
+                    width: 100%;
+                    max-width: 380px;
+                    margin: auto;
+                }
+
+                .center {
+                    text-align: center;
+                }
+
+                h2 {
+                    margin: 0 0 5px;
+                }
+
+                h3 {
+                    margin: 5px 0;
+                }
+
+                .date {
+                    font-size: 13px;
+                    margin-bottom: 15px;
+                }
+
+                .separator {
+                    border-top: 1px dashed #000;
+                    margin: 12px 0;
+                }
+
+                .commande {
+                    margin-bottom: 12px;
+                }
+
+                .ligne {
+                    display: flex;
+                    justify-content: space-between;
+                    gap: 10px;
+                    margin-top: 4px;
+                    font-size: 14px;
+                }
+
+                .total {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 18px;
+                    font-weight: bold;
+                }
+
+                @media print {
+
+                    body {
+                        padding: 0;
+                    }
+
+                    .ticket {
+                        max-width: none;
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <div class="ticket">
+
+                <div class="center">
+
+                    <h2>${ticket.table_nom}</h2>
+
+                    <h3>
+                        Ticket N° ${ticket.id_ticket}
+                    </h3>
+
+                    <div class="date">
+                        ${afficherDateLocale(ticket.date_enreg)}
+                    </div>
+
+                </div>
+
+                <div class="separator"></div>
+
+                ${commandesHTML}
+
+                <div class="separator"></div>
+
+                <div class="total">
+
+                    <span>TOTAL</span>
+
+                    <span>
+                        ${Number(ticket.montant_total || 0).toFixed(2)}
+                        ${ticket.devise}
+                    </span>
+
+                </div>
+
+            </div>
+
+            <script>
+
+                window.onload = function() {
+                    window.print();
+                };
+
+            <\/script>
+
+        </body>
+
+        </html>
+
+    `);
+
+    printWindow.document.close();
 }
 
 function ajouterCategorieDansSelect(categorie) {
@@ -1286,12 +1537,56 @@ function parseJwt(token) {
     }
 }
 
+function surveillerExpirationToken() {
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        window.location.href = './user.php';
+        return;
+    }
+
+    const payload = parseJwt(token);
+
+    if (!payload || !payload.exp) {
+        console.warn("Token invalide ou sans expiration");
+        return;
+    }
+
+    const maintenant = Math.floor(Date.now() / 1000);
+    const tempsRestant = payload.exp - maintenant;
+
+    if (tempsRestant <= 0) {
+        localStorage.removeItem('token');
+        window.location.href = './user.php';
+        return;
+    }
+
+    console.log(
+        "⏳ Token valide encore",
+        tempsRestant,
+        "secondes"
+    );
+
+    setTimeout(() => {
+
+        console.log("⏰ Token expiré");
+
+        localStorage.removeItem('token');
+
+        window.location.href = './user.php';
+
+    }, tempsRestant * 1000);
+}
+
 // const headers = {
 //     'Content-Type': 'application/json',
 //     'Authorization': 'Bearer ' + token
 // };
 
 if (token) {
+    surveillerExpirationToken();
+
     const payload = parseJwt(token);
 
     if (payload && payload.data && payload.data.login) {
@@ -1485,6 +1780,9 @@ $('#table').on('submit', async function(e) {
                     ${isOpen ? "Ouvert" : "Fermé"}
                 </span>`,
                 `
+                <button class="icon-btn change change-statu" data-id="${result.data.id_table}">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
                 <button class="icon-btn view view-service" data-id="${result.data.id_table}">
                     <i class="fa-solid fa-eye"></i>
                 </button>
@@ -1500,6 +1798,7 @@ $('#table').on('submit', async function(e) {
                 result.data.id_table,
                 result.data.id_etablissement
             ];
+            alert('Le serveur à été crée et recevra un email contenant ces informations de connexion')
 
             if(isEdit && editingRow) {
                 // ⚡ Mettre à jour uniquement la ligne modifiée
@@ -1533,8 +1832,8 @@ $(document).on('click', '.view-service', async function() {
             const e = result.data;
             $('.modal-service input[name="id"]').val(idTable);
             $('.code').html('<b>Code du service</b>'+' : '+e.code);
-            $('.date_ouverture').html("<b>Date d'ouverture</b>"+' : '+e.date_heure_ouverture);
-            $('.date_fermeture').html('<b>Date de fermeture</b>'+' : '+e.date_heure_fermeture);
+            $('.date_ouverture').html("<b>Date d'ouverture</b>"+' : '+afficherDateLocale(e.date_heure_ouverture));
+            $('.date_fermeture').html('<b>Date de fermeture</b>'+' : '+afficherDateLocale(e.date_heure_fermeture));
             $('.user').html('<b>Serveur</b>'+' : '+e.login);
             $('.modal-service .modal-title').text("detail du service");
             $('.modal-service').modal({backdrop:'static', keyboard:false});
@@ -1545,6 +1844,109 @@ $(document).on('click', '.view-service', async function() {
         console.error(err);
         alert("Erreur serveur : " + err.message);
     }
+});
+
+$(document).on('click', '.change-statu', async function () {
+
+    const idTable = $(this).data('id');
+
+    console.log("🪑 Table cliquée :", idTable);
+
+    try {
+
+        const response = await fetch(
+            `/api-commande/routes/table.php?id=${idTable}`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: idTable
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        console.log("📦 Réponse changement statut :", result);
+
+        if (!result.success) {
+
+            alert(
+                result.message ||
+                "Impossible de changer le statut de la table"
+            );
+
+            return;
+        }
+
+
+        const table = result.data;
+
+        console.log("🪑 Table mise à jour :", table);
+
+        const isOpen = table.statu === "Ouvert";
+
+        tables.rows().every(function () {
+
+            const row = this.node();
+
+            const id = $(row).find('.change-statu').data('id');
+
+            if (Number(id) === Number(idTable)) {
+
+                this.data([
+                     result.data.nom,
+                    `<span class="badge ${isOpen ? "success" : "danger"}">
+                        ${isOpen ? "Ouvert" : "Fermé"}
+                    </span>`,
+                    `
+                    <button class="icon-btn change change-statu" data-id="${result.data.id_table}">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                    <button class="icon-btn view view-service" data-id="${result.data.id_table}">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    <button class="icon-btn edit-table" data-id="${result.data.id_table}">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="icon-btn qr" data-id="${result.data.id_table}">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </button>
+                    <button class="icon-btn danger delete-table" data-id="${result.data.id_table}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    `
+
+                ]).draw(false);
+
+            }
+
+        });
+
+
+        console.log(
+            "✅ Table",
+            idTable,
+            "→",
+            table.statu
+        );
+
+    } catch (err) {
+
+        console.error(
+            "❌ Erreur changement statut :",
+            err
+        );
+
+        alert(
+            "Erreur serveur : " + err.message
+        );
+
+    }
+
 });
 
 
@@ -1605,33 +2007,197 @@ $(document).on('click', '.delete-table', async function () {
 
 
 $(document).on('click', '.qr', async function () {
+
     const id = $(this).data('id');
+
+    console.log("🧾 Génération QR pour table :", id);
+
     try {
-        const response = await fetch(`/api-commande/routes/qrcode.php?id=${id}`, {
-            method: 'GET',
-            headers: {'Authorization': 'Bearer ' + token}
-        });
+
+        // ==========================
+        // RÉCUPÉRER LE NOM DE TABLE
+        // ==========================
+
+        const nomTable =
+            tableMap.get(Number(id)) ||
+            "Table " + id;
+
+        $('#qrTableName').text(nomTable);
+
+        // ==========================
+        // CHARGER LE QR
+        // ==========================
+
+        const response = await fetch(
+            `/api-commande/routes/qrcode.php?id=${id}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            }
+        );
+
         if (!response.ok) {
+
             const errorText = await response.text();
-            throw new Error(errorText || 'Erreur génération QR');
+
+            throw new Error(
+                errorText || "Erreur génération QR"
+            );
+
         }
+
+        // ==========================
+        // RÉCUPÉRER L'IMAGE
+        // ==========================
+
         const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
 
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `qrcode_table_${id}.png`;
+        const url = URL.createObjectURL(blob);
 
-        document.body.appendChild(a);
-        a.click();
+        // ==========================
+        // AFFICHER DANS LA MODAL
+        // ==========================
 
-        a.remove();
-        window.URL.revokeObjectURL(url);
+        $('#qrImage').attr('src', url);
+
+        // Sauvegarder l'URL pour l'impression
+        $('#printQrBtn').data('qr-url', url);
+
+        // Sauvegarder le nom
+        $('#printQrBtn').data('table-name', nomTable);
+
+        // ==========================
+        // OUVRIR LA MODAL
+        // ==========================
+
+        $('.modal-qrcode').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
 
     } catch (err) {
-        console.error(err);
-        alert("Erreur serveur : " + err.message);
+
+        console.error("❌ Erreur QR :", err);
+
+        alert(
+            "Erreur lors de la génération du QR code : " +
+            err.message
+        );
+
     }
+
+});
+
+$('#printQrBtn').on('click', function () {
+
+    const qrUrl = $(this).data('qr-url');
+
+    const tableName = $(this).data('table-name');
+
+    if (!qrUrl) {
+
+        alert("QR code introuvable.");
+
+        return;
+
+    }
+
+    const printWindow = window.open(
+        '',
+        '_blank',
+        'width=500,height=600'
+    );
+
+    printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>QR Code - ${tableName}</title>
+
+            <style>
+
+                body {
+
+                    margin: 0;
+
+                    padding: 30px;
+
+                    text-align: center;
+
+                    font-family: Arial, sans-serif;
+
+                }
+
+                h2 {
+
+                    margin-bottom: 20px;
+
+                }
+
+                img {
+
+                    width: 300px;
+
+                    height: 300px;
+
+                    object-fit: contain;
+
+                }
+
+                @media print {
+
+                    body {
+
+                        padding: 0;
+
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <h2>${tableName}</h2>
+
+            <img
+                src="${qrUrl}"
+                onload="window.print()"
+            >
+
+        </body>
+
+        </html>
+
+    `);
+
+    printWindow.document.close();
+
+});
+
+$('.modal-qrcode').on('hidden.bs.modal', function () {
+
+    const qrUrl = $('#printQrBtn').data('qr-url');
+
+    if (qrUrl) {
+
+        URL.revokeObjectURL(qrUrl);
+
+    }
+
+    $('#qrImage').attr('src', '');
+
+    $('#printQrBtn').removeData('qr-url');
+    $('#printQrBtn').removeData('table-name');
+
 });
 
 /* =========================
@@ -1776,6 +2342,7 @@ $('#produit').on('submit', async function(e) {
                 image,
                 result.data.nom,
                 result.data.prix,
+                getNomCategorie(result.data.id_categorie),
                 `<button class="icon-btn edit-produit" data-id="${result.data.id_produit}">
                     <i class="fa-solid fa-pen"></i>
                 </button>
@@ -1975,6 +2542,38 @@ $(document).on('click', '.delete-user', async function () {
         console.error(err);
         alert("Erreur serveur : " + err.message);
     }
+});
+
+$(document).on('click', '.print-ticket', function () {
+
+    const idTicket = String(
+        $(this).data('ticket-id')
+    ).trim();
+
+    const ticket = allOrders.find(t => {
+
+        return String(
+            t.id_ticket ||
+            t.idTicket ||
+            ""
+        ).trim() === idTicket;
+
+    });
+
+    if (!ticket) {
+
+        console.warn(
+            "Ticket introuvable :",
+            idTicket
+        );
+
+        alert("Commande introuvable.");
+
+        return;
+    }
+
+    imprimerTicket(ticket);
+
 });
 
 const toggle = document.getElementById("menuToggle");

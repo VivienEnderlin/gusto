@@ -175,7 +175,7 @@ class Commande extends BaseModel {
                 json_encode($data['commande']),
                 $data['montant_total'],
                 $data['devise'],
-                date("Y-m-d H:i:s", time() + 3600),
+                gmdate("Y-m-d H:i:s"),
                 "En attente"
             ]
         );
