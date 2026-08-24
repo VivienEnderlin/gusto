@@ -2574,6 +2574,19 @@ $(document).on('click', '.print-ticket', function () {
         return;
     }
 
+    // ==============================
+    // RÉCUPÉRER LE NOM DE LA TABLE
+    // ==============================
+
+    ticket.table_nom =
+        tableMap.get(Number(ticket.id_table)) ||
+        ticket.table_nom ||
+        ticket.table ||
+        "Table inconnue";
+
+    console.log("🪑 ID TABLE :", ticket.id_table);
+    console.log("🪑 NOM TABLE :", ticket.table_nom);
+
     imprimerTicket(ticket);
 
 });
