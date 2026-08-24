@@ -64,13 +64,8 @@ function connectSocket() {
 
 function getNomCategorie(idCategorie) {
 
-    const option = document.querySelector(
-        `.select option[value="${idCategorie}"]`
-    );
-
-    return option
-        ? option.textContent.trim()
-        : "Catégorie inconnue";
+    return categorieMap.get(Number(idCategorie))
+        || "Catégorie inconnue";
 }
 
 function afficherDateLocale(dateUTC) {
@@ -921,6 +916,7 @@ function recevoirMessage(event) {
 
 let allOrders = []; // on stocke toutes les commandes
 const tableMap = new Map();
+const categorieMap = new Map()
 const menuItems = document.querySelectorAll(".menu li");
 const sections = document.querySelectorAll(".content-section");
 
@@ -969,7 +965,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         // ======================
         // CHARGEMENT PARALLÈLE
         // ======================
-        const [statsRes, tableRes, produitRes, userRes, orderRes, catsRes] = await Promise.all([
+        const [statsRes, tableRes, catsRes, produitRes, userRes, orderRes] = await Promise.all([
 
             fetch('/api-commande/routes/statistique.php', {
                 method: 'GET',
@@ -977,6 +973,11 @@ document.addEventListener("DOMContentLoaded", async function () {
             }).then(r => r.json()),
 
             fetch('/api-commande/routes/table.php', {
+                method: 'GET',
+                headers: {'Authorization': 'Bearer ' + token}
+            }).then(r => r.json()),
+
+            fetch('/api-commande/routes/categorie.php', {
                 method: 'GET',
                 headers: {'Authorization': 'Bearer ' + token}
             }).then(r => r.json()),
@@ -994,21 +995,16 @@ document.addEventListener("DOMContentLoaded", async function () {
             fetch('/api-commande/routes/commande.php', {
                 method: 'GET',
                 headers: {'Authorization': 'Bearer ' + token}
-            }).then(r => r.json()),
-
-            fetch('/api-commande/routes/categorie.php', {
-                method: 'GET',
-                headers: {'Authorization': 'Bearer ' + token}
             }).then(r => r.json())
 
         ]);
 
         console.log("STATS:", statsRes);
         console.log("TABLES:", tableRes);
+        console.log("CATS:", catsRes);
         console.log("PRODUITS:", produitRes);
         console.log("USERS:", userRes);
         console.log("ORDERS:", orderRes);
-        console.log("CATS:", catsRes);
 
         // ======================
         // GRAPHIQUES
@@ -1060,6 +1056,37 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
         // ======================
+        // CATEGORIE
+        // ======================
+
+        if (catsRes?.success && Array.isArray(catsRes.data)) {
+
+            cats.clear();
+
+            catsRes.data.forEach(cat => {
+
+                categorieMap.set(
+                    Number(cat.id_categorie),
+                    cat.libelle
+                );
+
+                cats.row.add([
+                    cat.libelle,
+                    `<button class="icon-btn edit-cat" data-id="${cat.id_categorie}">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="icon-btn danger delete-cat" data-id="${cat.id_categorie}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    `
+                ]);
+
+            });
+
+            cats.draw();
+        }
+
+        // ======================
         // PRODUITS
         // ======================
         if (produitRes?.success && Array.isArray(produitRes.data)) {
@@ -1093,31 +1120,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             produits.draw();
         }
 
-        // ======================
-        // CATEGORIE
-        // ======================
-
-        if (catsRes?.success && Array.isArray(catsRes.data)) {
-
-            cats.clear();
-
-            catsRes.data.forEach(cat => {
-
-                cats.row.add([
-                    cat.libelle,
-                    `<button class="icon-btn edit-cat" data-id="${cat.id_categorie}">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button class="icon-btn danger delete-cat" data-id="${cat.id_categorie}">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                    `
-                ]);
-
-            });
-
-            cats.draw();
-        }
 
         // ======================
         // UTILISATEUR
