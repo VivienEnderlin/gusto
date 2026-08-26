@@ -365,11 +365,6 @@
                     </div>
 
                     <div class="modal-footer">
-
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            Fermer
-                        </button>
-
                         <button type="button" class="btn btn-primary" id="printQrBtn">
                             <i class="fa-solid fa-print"></i>
                             Imprimer

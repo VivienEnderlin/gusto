@@ -1141,6 +1141,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                     <button class="icon-btn danger delete-user" data-id="${utilisateur.id_utilisateur}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
+                    <button class="icon-btn primary reset-user" data-id="${utilisateur.id_utilisateur}" title="Réinitialiser le mot de passe">
+                        <i class="fa-solid fa-key"></i>
+                    </button>
                     `
                 ]);
 
@@ -1800,7 +1803,6 @@ $('#table').on('submit', async function(e) {
                 result.data.id_table,
                 result.data.id_etablissement
             ];
-            alert('Le serveur à été crée et recevra un email contenant ces informations de connexion')
 
             if(isEdit && editingRow) {
                 // ⚡ Mettre à jour uniquement la ligne modifiée
@@ -2466,10 +2468,14 @@ $('#user').on('submit', async function(e) {
                 </button>
                 <button class="icon-btn danger delete-user" data-id="${result.data.id_utilisateur}">
                     <i class="fa-solid fa-trash"></i>
+                </button>
+                <button class="icon-btn primary reset-user" data-id="${result.data.id_utilisateur}" title="Réinitialiser le mot de passe">
+                    <i class="fa-solid fa-key"></i>
                 </button>`,
                 result.data.id_utilisateur,
                 result.data.id_etablissement
             ];
+            alert('Le serveur à été crée et recevra un email contenant ces informations de connexion')
 
             if(isEdit && editingRow) {
                 editingRow.data(rowData).draw(false);
@@ -2545,6 +2551,55 @@ $(document).on('click', '.delete-user', async function () {
         alert("Erreur serveur : " + err.message);
     }
 });
+
+$(document).on('click', '.reset-user', async function () {
+
+    const id = $(this).data('id');
+
+    if (!confirm("Voulez-vous vraiment modifier le mot de passe ?")) return;
+
+    try {
+
+        const response = await fetch(
+            `/api-commande/routes/employe.php?id=${id}`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+            }
+        );
+
+        const result = await response.json();
+
+        if (result.success) {
+
+            alert(
+                "Le mot de passe a été modifié.\n" +
+                "Le nouveau mot de passe a été envoyé au serveur par email."
+            );
+
+        } else {
+
+            alert(
+                result.message ||
+                "Impossible de modifier le mot de passe."
+            );
+        }
+
+    } 
+    catch (error) {
+
+        console.error("Erreur reset :", error);
+
+        alert(
+            "Erreur serveur : " + error.message
+        );
+    }
+});
+
+
 
 $(document).on('click', '.print-ticket', function () {
 

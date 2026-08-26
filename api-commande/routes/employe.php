@@ -78,6 +78,26 @@ if ($method === 'DELETE') {
 }
 
 // ========================
+// PATCH : changer statut
+// ========================
+if ($method === 'PATCH') {
+
+    $id = $inputData['id'] ?? $_GET['id'] ?? null;
+
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'ID required'
+        ]);
+        exit;
+    }
+    // 🔥 on passe maintenant les données
+    $controller->reset((int)$id, $inputData);
+    exit;
+}
+
+// ========================
 // Méthodes non autorisées
 // ========================
 http_response_code(405);

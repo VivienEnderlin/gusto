@@ -345,6 +345,8 @@
         .icon-btn.danger{ background:#ffe6e6; color:var(--danger); }
         .icon-btn.qr{ background:#fff5df; color:var(--warning); }
         .icon-btn.view{ background:#e7f4ff; color:#3498db; }
+        .icon-btn.primary{ background:#e7f4ff; color:blue; }
+ 
 
         .badge.success{
             background:#dff9e8;

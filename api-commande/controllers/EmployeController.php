@@ -107,4 +107,53 @@ class EmployeController {
         exit;
     }
 
+    // =========================
+    // RÉINITIALISER LE MOT DE PASSE
+    // =========================
+    public function reset($id, $data = []) {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $id_etablissement = $this->user->id_etablissement;
+
+        // Vérifier que l'utilisateur appartient bien à l'établissement
+        $e = $this->model->getByIdAndEtablissement(
+            $id,
+            $id_etablissement
+        );
+
+        if (!$e) {
+            http_response_code(404);
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'Employee not found'
+            ]);
+
+            exit;
+        }
+
+        // Réinitialiser le mot de passe
+        $result = $this->model->resetPassword(
+            $id,
+            $id_etablissement
+        );
+
+        // Retourner le résultat du model
+        if (!$result['success']) {
+            http_response_code(500);
+
+            echo json_encode($result);
+            exit;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Mot de passe réinitialisé et envoyé par email.'
+        ]);
+
+        exit;
+    }
+
+    
+
 }

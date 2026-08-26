@@ -68,8 +68,7 @@ class EtablissementController {
 
         if (!empty($_FILES['logo'])) {
             $upload = uploadfile(
-                ['png','jpg','jpeg','gif','ico'],
-                __DIR__ . '/../uploads/images/'
+                ['png','jpg','jpeg','gif','ico']
             );
             $data['logo'] = json_encode($upload);
         }
@@ -106,8 +105,7 @@ class EtablissementController {
         // Gestion du logo
         if (!empty($_FILES['logo']) && $_FILES['logo']['error'] !== 4) {
             $upload = uploadfile(
-                ['png','jpg','jpeg','gif','ico'],
-                __DIR__ . '/../uploads/images/'
+                ['png','jpg','jpeg','gif','ico']
             );
             $data['logo'] = json_encode($upload);
         } else {
@@ -137,3 +135,5 @@ class EtablissementController {
         exit;
     }
 }
+
+
