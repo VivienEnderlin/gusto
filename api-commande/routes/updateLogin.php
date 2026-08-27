@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../core/Cors.php';
 require_once __DIR__ . './../models/Utilisateur.php';
 require_once __DIR__ . './../core/Auth.php';
 require_once __DIR__ . './../core/Middleware.php';
