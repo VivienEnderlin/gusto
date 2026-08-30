@@ -1,104 +1,71 @@
 <?php
-
 require_once __DIR__ . '/../core/Cors.php';
 require_once __DIR__ . '/../controllers/EtablissementController.php';
 require_once __DIR__ . '/../core/Middleware.php';
 
 header('Content-Type: application/json; charset=utf-8');
-
 $user = Middleware::checkAuth();
 
 $controller = new EtablissementController();
-
 $method = $_SERVER['REQUEST_METHOD'];
 
 
-// =====================================================
-// GET : liste ou détail
-// =====================================================
-
-if ($method === 'GET') {
-
-    $id = isset($_GET['id'])
-        ? (int) $_GET['id']
-        : null;
-
-    if ($id) {
-
-        $controller->show($id);
-
-    } else {
-
-        $controller->index();
-    }
-
-    exit;
-}
-
-
-// =====================================================
-// POST : AJOUT OU MODIFICATION
-// =====================================================
+// ========================
+// Lire le body JSON (POST)
+// ========================
+$inputData = [];
 
 if ($method === 'POST') {
+    $raw = file_get_contents('php://input');
+    $decoded = json_decode($raw, true);
 
-    /*
-     * Si le formulaire contient un fichier,
-     * PHP place automatiquement les champs texte
-     * dans $_POST et les fichiers dans $_FILES.
-     *
-     * On utilise donc directement $_POST.
-     */
+    if ($raw && !$decoded) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Invalid JSON'
+        ]);
+        exit;
+    }
 
-    $inputData = $_POST;
+    $inputData = $decoded ?? $_POST;
+}
 
-
-    // =================================================
-    // ID
-    // =================================================
-
-    $id = !empty($inputData['id'])
-        ? (int) $inputData['id']
-        : null;
-
-
-    // =================================================
-    // MODIFICATION
-    // =================================================
+// ========================
+// GET : liste ou détail
+// ========================
+if ($method === 'GET') {
+    $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
 
     if ($id) {
-
-        $controller->update(
-            $id,
-            $inputData
-        );
-
+        $controller->show($id);
+    } else {
+        $controller->index();
     }
-
-    // =================================================
-    // AJOUT
-    // =================================================
-
-    else {
-
-        $controller->store(
-            $inputData
-        );
-    }
-
     exit;
 }
 
+// ========================
+// POST : ajouter ou modifier
+// ========================
+if ($method === 'POST') {
+    $id = !empty($inputData['id']) ? (int)$inputData['id'] : null;
 
-// =====================================================
-// MÉTHODE NON AUTORISÉE
-// =====================================================
+    if ($id) {
+        $controller->update($id, $inputData);
+    } else {
+        $controller->store($inputData);
+    }
+    exit;
+}
 
+// ========================
+// Méthodes non autorisées
+// ========================
 http_response_code(405);
-
 echo json_encode([
     'success' => false,
     'message' => 'Unauthorised method'
 ]);
-
 exit;
+?>

@@ -1,3 +1,4 @@
+```php
 <?php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -8,33 +9,38 @@ if (file_exists(__DIR__ . '/../../.env')) {
 }
 
 use Aws\S3\S3Client;
+use Aws\Exception\AwsException;
+use Aws\Credentials\Credentials;
 
 
 /**
- * Upload des fichiers vers Amazon S3
+ * ============================================================
+ * UPLOAD DES FICHIERS VERS AMAZON S3
+ * ============================================================
  */
 function uploadfile(array $typeFileAllowed, string $link = ''): array
 {
     $back = [];
 
-    // =====================================================
-    // VERIFIER $_FILES
-    // =====================================================
-
+    // Aucun fichier envoyé
     if (empty($_FILES)) {
         return [];
     }
 
 
-    // =====================================================
+    // =========================================================
     // CONFIGURATION AWS
-    // =====================================================
+    // =========================================================
 
-    $bucket = $_ENV['AWS_BUCKET'] ?? getenv('AWS_BUCKET');
-    $region = $_ENV['AWS_REGION'] ?? getenv('AWS_REGION');
-    $accessKey = $_ENV['AWS_ACCESS_KEY_ID'] ?? getenv('AWS_ACCESS_KEY_ID');
-    $secretKey = $_ENV['AWS_SECRET_ACCESS_KEY'] ?? getenv('AWS_SECRET_ACCESS_KEY');
+    $bucket = getenv('AWS_BUCKET');
+    $region = getenv('AWS_REGION');
+    $accessKey = getenv('AWS_ACCESS_KEY_ID');
+    $secretKey = getenv('AWS_SECRET_ACCESS_KEY');
 
+
+    // =========================================================
+    // VÉRIFIER LA CONFIGURATION
+    // =========================================================
 
     if (
         empty($bucket) ||
@@ -46,47 +52,55 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
         http_response_code(500);
 
         echo json_encode([
-            'success' => false,
-            'message' => 'Configuration Amazon S3 manquante'
+            "success" => false,
+            "message" => "Configuration Amazon S3 manquante"
         ]);
 
         exit;
     }
 
 
-    // =====================================================
-    // CREATION CLIENT S3
-    // =====================================================
+    // =========================================================
+    // IDENTIFIANTS AWS
+    // =========================================================
+
+    $credentials = new Credentials(
+        $accessKey,
+        $secretKey
+    );
+
+
+    // =========================================================
+    // CLIENT AMAZON S3
+    // =========================================================
 
     try {
 
-        $s3 = new S3Client([
-            'version' => 'latest',
-            'region' => $region,
-            'credentials' => [
-                'key' => $accessKey,
-                'secret' => $secretKey
+        $s3 = new S3Client(
+            $credentials,
+            [
+                'region' => $region
             ]
-        ]);
+        );
 
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
 
         http_response_code(500);
 
         echo json_encode([
-            'success' => false,
-            'message' => 'Impossible de créer le client Amazon S3',
-            'error' => $e->getMessage(),
-            'type' => get_class($e)
+            "success" => false,
+            "message" => "Impossible de créer le client Amazon S3",
+            "error" => $e->getMessage(),
+            "type" => get_class($e)
         ]);
 
         exit;
     }
 
 
-    // =====================================================
+    // =========================================================
     // TRAITEMENT DES FICHIERS
-    // =====================================================
+    // =========================================================
 
     foreach ($_FILES as $value) {
 
@@ -95,9 +109,9 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
         }
 
 
-        // =================================================
+        // =====================================================
         // FICHIER UNIQUE
-        // =================================================
+        // =====================================================
 
         if (!is_array($value['name'])) {
 
@@ -107,31 +121,33 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
         }
 
 
-        // =================================================
+        // =====================================================
         // PLUSIEURS FICHIERS
-        // =================================================
+        // =====================================================
 
         foreach ($value['name'] as $key => $filename) {
 
+            // Aucun fichier
             if (!$filename) {
                 continue;
             }
 
 
             // =================================================
-            // ERREUR UPLOAD
+            // VÉRIFIER ERREUR UPLOAD
             // =================================================
 
-            $uploadError = $value['error'][$key] ?? UPLOAD_ERR_NO_FILE;
-
-            if ($uploadError !== UPLOAD_ERR_OK) {
+            if (
+                !isset($value['error'][$key]) ||
+                $value['error'][$key] !== UPLOAD_ERR_OK
+            ) {
 
                 http_response_code(400);
 
                 echo json_encode([
-                    'success' => false,
-                    'message' => 'Erreur lors de l\'upload du fichier',
-                    'upload_error' => $uploadError
+                    "success" => false,
+                    "message" => "Erreur lors de l'upload du fichier",
+                    "error_code" => $value['error'][$key] ?? null
                 ]);
 
                 exit;
@@ -142,15 +158,16 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
             // FICHIER TEMPORAIRE
             // =================================================
 
-            $tmpFile = $value['tmp_name'][$key] ?? '';
+            $tmpFile = $value['tmp_name'][$key];
 
-            if (!$tmpFile || !file_exists($tmpFile)) {
+
+            if (!file_exists($tmpFile)) {
 
                 http_response_code(400);
 
                 echo json_encode([
-                    'success' => false,
-                    'message' => 'Fichier temporaire introuvable'
+                    "success" => false,
+                    "message" => "Fichier temporaire introuvable"
                 ]);
 
                 exit;
@@ -171,9 +188,9 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
                 http_response_code(400);
 
                 echo json_encode([
-                    'success' => false,
-                    'message' => 'Type de fichier non supporté',
-                    'extension' => $extension
+                    "success" => false,
+                    "message" => "Type de fichier non supporté",
+                    "extension" => $extension
                 ]);
 
                 exit;
@@ -181,18 +198,19 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
 
 
             // =================================================
-            // HASH
+            // HASH DU FICHIER
             // =================================================
 
             $hash = sha1_file($tmpFile);
+
 
             if ($hash === false) {
 
                 http_response_code(500);
 
                 echo json_encode([
-                    'success' => false,
-                    'message' => 'Impossible de calculer le hash du fichier'
+                    "success" => false,
+                    "message" => "Impossible de calculer le hash du fichier"
                 ]);
 
                 exit;
@@ -200,14 +218,14 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
 
 
             // =================================================
-            // NOM FICHIER
+            // NOM DU FICHIER
             // =================================================
 
             $newName = $hash . '.' . $extension;
 
 
             // =================================================
-            // CHEMIN S3
+            // CHEMIN DANS S3
             // =================================================
 
             $keyName = 'images/' . $newName;
@@ -217,27 +235,15 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
             // TYPE MIME
             // =================================================
 
-            try {
+            $mimeType = mime_content_type($tmpFile);
 
-                $contentType = mime_content_type($tmpFile);
-
-            } catch (Throwable $e) {
-
-                http_response_code(500);
-
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Impossible de déterminer le type MIME',
-                    'error' => $e->getMessage(),
-                    'type' => get_class($e)
-                ]);
-
-                exit;
+            if (!$mimeType) {
+                $mimeType = 'application/octet-stream';
             }
 
 
             // =================================================
-            // UPLOAD S3
+            // ENVOYER VERS AMAZON S3
             // =================================================
 
             try {
@@ -246,12 +252,12 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
                     'Bucket' => $bucket,
                     'Key' => $keyName,
                     'SourceFile' => $tmpFile,
-                    'ContentType' => $contentType
+                    'ContentType' => $mimeType
                 ]);
 
 
                 // =================================================
-                // URL
+                // URL DE L'IMAGE
                 // =================================================
 
                 $url =
@@ -266,18 +272,28 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
                 $back[] = $url;
 
 
-            } catch (Throwable $e) {
+            } catch (AwsException $e) {
 
                 http_response_code(500);
 
                 echo json_encode([
-                    'success' => false,
-                    'message' => 'Erreur Amazon S3',
-                    'error' => $e->getMessage(),
-                    'type' => get_class($e),
-                    'bucket' => $bucket,
-                    'region' => $region,
-                    'key' => $keyName
+                    "success" => false,
+                    "message" => "Erreur Amazon S3",
+                    "error" => $e->getAwsErrorMessage(),
+                    "aws_code" => $e->getAwsErrorCode()
+                ]);
+
+                exit;
+
+            } catch (\Throwable $e) {
+
+                http_response_code(500);
+
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Erreur lors de l'envoi vers Amazon S3",
+                    "error" => $e->getMessage(),
+                    "type" => get_class($e)
                 ]);
 
                 exit;
@@ -286,20 +302,34 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
     }
 
 
+    // =========================================================
+    // RETOURNER LES URLS
+    // =========================================================
+
     return $back;
 }
 
 
 /**
- * Supprimer une image de S3
+ * ============================================================
+ * SUPPRIMER UNE IMAGE DE S3
+ * ============================================================
  */
 function deleteFileFromS3(string $imageUrl): bool
 {
-    $bucket = $_ENV['AWS_BUCKET'] ?? getenv('AWS_BUCKET');
-    $region = $_ENV['AWS_REGION'] ?? getenv('AWS_REGION');
-    $accessKey = $_ENV['AWS_ACCESS_KEY_ID'] ?? getenv('AWS_ACCESS_KEY_ID');
-    $secretKey = $_ENV['AWS_SECRET_ACCESS_KEY'] ?? getenv('AWS_SECRET_ACCESS_KEY');
+    // =========================================================
+    // CONFIGURATION AWS
+    // =========================================================
 
+    $bucket = getenv('AWS_BUCKET');
+    $region = getenv('AWS_REGION');
+    $accessKey = getenv('AWS_ACCESS_KEY_ID');
+    $secretKey = getenv('AWS_SECRET_ACCESS_KEY');
+
+
+    // =========================================================
+    // VÉRIFIER LA CONFIGURATION
+    // =========================================================
 
     if (
         empty($bucket) ||
@@ -307,42 +337,75 @@ function deleteFileFromS3(string $imageUrl): bool
         empty($accessKey) ||
         empty($secretKey)
     ) {
+
         return false;
     }
 
 
+    // =========================================================
+    // IDENTIFIANTS AWS
+    // =========================================================
+
+    $credentials = new Credentials(
+        $accessKey,
+        $secretKey
+    );
+
+
+    // =========================================================
+    // CLIENT S3
+    // =========================================================
+
     try {
 
-        $s3 = new S3Client([
-            'version' => 'latest',
-            'region' => $region,
-            'credentials' => [
-                'key' => $accessKey,
-                'secret' => $secretKey
+        $s3 = new S3Client(
+            $credentials,
+            [
+                'region' => $region
             ]
-        ]);
+        );
+
+    } catch (\Throwable $e) {
+
+        return false;
+    }
 
 
-        $path = parse_url($imageUrl, PHP_URL_PATH);
+    // =========================================================
+    // RÉCUPÉRER LE CHEMIN DU FICHIER
+    // =========================================================
 
-        if (!$path) {
-            return false;
-        }
+    $path = parse_url($imageUrl, PHP_URL_PATH);
 
 
-        $key = ltrim($path, '/');
+    if (!$path) {
+        return false;
+    }
 
+
+    $key = ltrim($path, '/');
+
+
+    // =========================================================
+    // SUPPRESSION
+    // =========================================================
+
+    try {
 
         $s3->deleteObject([
             'Bucket' => $bucket,
             'Key' => $key
         ]);
 
-
         return true;
 
-    } catch (Throwable $e) {
+    } catch (AwsException $e) {
+
+        return false;
+
+    } catch (\Throwable $e) {
 
         return false;
     }
 }
+```
