@@ -7,6 +7,40 @@ if (file_exists(__DIR__ . '/../../.env')) {
     $dotenv->load();
 }
 
+header('Content-Type: application/json; charset=utf-8');
+
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
+set_exception_handler(function (Throwable $e) {
+    http_response_code(500);
+
+    echo json_encode([
+        'success' => false,
+        'type' => 'EXCEPTION',
+        'message' => $e->getMessage(),
+        'file' => basename($e->getFile()),
+        'line' => $e->getLine()
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+});
+
+set_error_handler(function ($severity, $message, $file, $line) {
+    http_response_code(500);
+
+    echo json_encode([
+        'success' => false,
+        'type' => 'PHP_ERROR',
+        'message' => $message,
+        'file' => basename($file),
+        'line' => $line
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+});
+
+
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
 
