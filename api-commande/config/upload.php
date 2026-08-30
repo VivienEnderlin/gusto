@@ -7,10 +7,6 @@ if (file_exists(__DIR__ . '/../../.env')) {
     $dotenv->load();
 }
 
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
-
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
 
