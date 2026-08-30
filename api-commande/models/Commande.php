@@ -230,12 +230,12 @@ class Commande extends BaseModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function updateCommandeJsonRow($id_commande, $json)
+    public function updateCommandeJsonRow($id_commande, $json, $montant_total)
     {
         return $this->set(
             "commande",
-            ["commande"],
-            [$json],
+            ["commande", "montant_total"],
+            [$json, $montant_total],
             "WHERE id_commande = ?",
             [$id_commande]
         );

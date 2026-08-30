@@ -44,10 +44,24 @@ if ($method === 'GET') {
 // ========================
 if ($method === 'POST') {
     $id = !empty($inputData['id']) ? (int)$inputData['id'] : null;
+    $id_ticket = $_GET['id_ticket'] ?? null;
+    $id_item = $_GET['id_item'] ?? null;
 
     // 👉 CAS 1 : CRÉATION
-    if (!$id) {
+    if (!$id && !$id_ticket && !$id_item) {
         $controller->store($inputData);
+        exit;
+    }
+
+    // 👉 CAS 2 : MODIF
+
+    if ($id_ticket && $id_item) {
+         $id_nouveau = $inputData['id_nouveau'] ?? null;
+        $libelle    = $inputData['libelle'] ?? null;
+        $quantite   = $inputData['quantite'] ?? null;
+        $prix       = $inputData['prix'] ?? null;
+        $total      = $inputData['total'] ?? null;
+        $controller->updateItemFromCommande($id_ticket, $id_item, $id_nouveau, $libelle, $quantite, $prix, $total);
         exit;
     }
 
@@ -63,7 +77,7 @@ if ($method === 'POST') {
         exit;
     }
     
-    // 👉 CAS 3 : UPDATE
+    // 👉 CAS 4 : UPDATE
     $controller->update($id, $inputData);
     exit;
 }

@@ -193,6 +193,156 @@ class CommandeController {
         exit;
     }
 
+    public function updateItemFromCommande(
+        $id_ticket,
+        $id_item,
+        $id_nouveau,
+        $libelle,
+        $quantite,
+        $prix,
+        $total
+    ) {
+
+        header('Content-Type: application/json; charset=utf-8');
+
+        $id_etablissement = $this->getEtablissementId();
+
+        // ==========================================================
+        // RÉCUPÉRER TOUTES LES LIGNES DU TICKET
+        // ==========================================================
+
+        $rows = $this->commande->getAllByTicket(
+            $id_ticket,
+            $id_etablissement
+        );
+
+        if (!$rows || count($rows) === 0) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Commande not found'
+            ]);
+            exit;
+        }
+
+        $found = false;
+        $totalGlobal = 0;
+
+        // ==========================================================
+        // PARCOURIR LES LIGNES DU TICKET
+        // ==========================================================
+
+        foreach ($rows as $row) {
+
+            $items = json_decode(
+                $row['commande'],
+                true
+            );
+
+            if (!is_array($items)) {
+                $items = [];
+            }
+
+            // ======================================================
+            // CHERCHER L'ITEM À MODIFIER
+            // ======================================================
+
+            foreach ($items as &$item) {
+
+                if (
+                    isset($item['id']) &&
+                    (string)$item['id'] ===
+                    (string)$id_item
+                ) {
+
+                    // ==============================================
+                    // MODIFICATION
+                    // ==============================================
+
+                    $item['id'] = $id_nouveau;
+
+                    $item['libelle'] = $libelle;
+
+                    $item['quantite'] = (int)$quantite;
+
+                    $item['prix'] = (float)$prix;
+
+                    $item['total'] = (float)$total;
+
+                    $found = true;
+
+                    break;
+                }
+            }
+
+            unset($item);
+
+            // ======================================================
+            // RECALCUL DU TOTAL DE CETTE LIGNE
+            // ======================================================
+
+            $montantTotal = 0;
+
+            foreach ($items as $item) {
+
+                $prixItem = (float)(
+                    $item['prix'] ?? 0
+                );
+
+                $qteItem = (int)(
+                    $item['quantite'] ?? 1
+                );
+
+                $montantTotal +=
+                    $prixItem * $qteItem;
+            }
+
+            // ======================================================
+            // TOTAL GLOBAL DU TICKET
+            // ======================================================
+
+            $totalGlobal += $montantTotal;
+
+            // ======================================================
+            // SAUVEGARDER
+            // ======================================================
+
+            $this->commande->updateCommandeJsonRow(
+                $row['id_commande'],
+                json_encode(
+                    $items,
+                    JSON_UNESCAPED_UNICODE
+                ),
+                $montantTotal
+            );
+        }
+
+        // ==========================================================
+        // ITEM INTROUVABLE
+        // ==========================================================
+
+        if (!$found) {
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'Item not found'
+            ]);
+
+            exit;
+        }
+
+        // ==========================================================
+        // SUCCÈS
+        // ==========================================================
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Item updated successfully',
+            'total' => $totalGlobal
+        ]);
+
+        exit;
+    }
+
     // =========================
     // SUPPRIMER UNE COMMANDE
     // =========================
@@ -256,11 +406,24 @@ class CommandeController {
                 );
 
             } else {
+                // 🔥 Recalcul du montant de cette ligne
+                $montantTotal = 0;
+
+                foreach ($items as $item) {
+
+                    $prix = (float)($item['prix'] ?? 0);
+                    $qte  = (int)($item['qte'] ?? 1);
+
+                    $montantTotal += $prix * $qte;
+                }
+
+                // 🔥 Ajouter au total global du ticket
+                $totalGlobal += $montantTotal;
 
                 // 🔄 UPDATE NORMAL
                 $this->commande->updateCommandeJsonRow(
                     $row['id_commande'],
-                    json_encode($items, JSON_UNESCAPED_UNICODE)
+                    json_encode($items, JSON_UNESCAPED_UNICODE), $montantTotal
                 );
             }
         }
