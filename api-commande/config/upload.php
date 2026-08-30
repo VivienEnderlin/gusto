@@ -186,15 +186,6 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
 
             try {
 
-                 echo json_encode([
-        'test' => 'avant S3',
-        'bucket' => $bucket,
-        'region' => $region,
-        'file' => $tmpFile
-    ]);
-
-    exit;
-
                 // =================================================
                 // ENVOYER LE FICHIER DANS S3
                 // =================================================
@@ -223,7 +214,7 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
                 $back[] = $url;
 
 
-            } catch (\Throwable $e) {
+            } catch (AwsException $e) {
 
                 http_response_code(500);
 

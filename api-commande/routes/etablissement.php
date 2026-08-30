@@ -16,33 +16,19 @@ $method = $_SERVER['REQUEST_METHOD'];
 $inputData = [];
 
 if ($method === 'POST') {
+    $raw = file_get_contents('php://input');
+    $decoded = json_decode($raw, true);
 
-    // Si on reçoit un formulaire avec fichier
-    if (!empty($_FILES)) {
-        $inputData = $_POST;
-    } 
-    // Sinon, on reçoit du JSON
-    else {
-        $raw = file_get_contents('php://input');
-
-        if (!empty($raw)) {
-            $decoded = json_decode($raw, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                http_response_code(400);
-
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Invalid JSON',
-                    'error' => json_last_error_msg()
-                ]);
-
-                exit;
-            }
-
-            $inputData = $decoded;
-        }
+    if ($raw && !$decoded) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Invalid JSON'
+        ]);
+        exit;
     }
+
+    $inputData = $decoded ?? $_POST;
 }
 
 // ========================

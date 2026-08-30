@@ -10,7 +10,7 @@ class EtablissementController {
     public function __construct() {
         Middleware::checkAuth();
         $this->etablissement = new Etablissement();
-        error_reporting(E_ALL);
+        error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
     }
 
     // =========================
@@ -103,28 +103,14 @@ class EtablissementController {
         }
 
         // Gestion du logo
-        if (
-    !empty($_FILES['logo']) &&
-    $_FILES['logo']['error'] !== UPLOAD_ERR_NO_FILE
-) {
-
-    error_log("3 - AVANT UPLOAD");
-
-    $upload = uploadfile([
-        'png',
-        'jpg',
-        'jpeg',
-        'gif',
-        'ico'
-    ]);
-
-    error_log("4 - APRES UPLOAD");
-
-    $data['logo'] = json_encode($upload);
-
-} else {
-    $data['logo'] = $e['logo'];
-}
+        if (!empty($_FILES['logo']) && $_FILES['logo']['error'] !== 4) {
+            $upload = uploadfile(
+                ['png','jpg','jpeg','gif','ico']
+            );
+            $data['logo'] = json_encode($upload);
+        } else {
+            $data['logo'] = $e['logo']; // garder l'ancien
+        }
 
         // Mise à jour
         $this->etablissement->update($id, $data);
