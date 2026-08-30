@@ -186,46 +186,41 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
 
             try {
 
-                // =================================================
-                // ENVOYER LE FICHIER DANS S3
-                // =================================================
+    error_log("1 - AVANT S3");
 
-                $s3->putObject([
-                    'Bucket' => $bucket,
-                    'Key' => $keyName,
-                    'SourceFile' => $tmpFile,
-                    'ContentType' => mime_content_type($tmpFile)
-                ]);
+    $s3->putObject([
+        'Bucket' => $bucket,
+        'Key' => $keyName,
+        'SourceFile' => $tmpFile,
+        'ContentType' => mime_content_type($tmpFile)
+    ]);
 
+    error_log("2 - APRES S3");
 
-                // =================================================
-                // URL DE L'IMAGE
-                // =================================================
+    $url =
+        'https://' .
+        $bucket .
+        '.s3.' .
+        $region .
+        '.amazonaws.com/' .
+        $keyName;
 
-                $url =
-                    'https://' .
-                    $bucket .
-                    '.s3.' .
-                    $region .
-                    '.amazonaws.com/' .
-                    $keyName;
+    $back[] = $url;
 
+} catch (\Throwable $e) {
 
-                $back[] = $url;
+    error_log("ERREUR S3 : " . $e->getMessage());
 
+    http_response_code(500);
 
-            } catch (AwsException $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erreur pendant upload',
+        'error' => $e->getMessage()
+    ]);
 
-                http_response_code(500);
-
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Erreur Amazon S3",
-                    "error" => $e->getAwsErrorMessage()
-                ]);
-
-                exit;
-            }
+    exit;
+}
         }
     }
 
