@@ -26,16 +26,12 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
     // CONFIGURATION AWS
     // =====================================================
 
-    $bucket = $_ENV['AWS_BUCKET'] ?? getenv('AWS_BUCKET');
-    $region = $_ENV['AWS_REGION'] ?? getenv('AWS_REGION');
-    $accessKey = $_ENV['AWS_ACCESS_KEY_ID'] ?? getenv('AWS_ACCESS_KEY_ID');
-    $secretKey = $_ENV['AWS_SECRET_ACCESS_KEY'] ?? getenv('AWS_SECRET_ACCESS_KEY');
+    $bucket = getenv('AWS_BUCKET');
+    $region = getenv('AWS_REGION');
+    $accessKey = getenv('AWS_ACCESS_KEY_ID');
+    $secretKey = getenv('AWS_SECRET_ACCESS_KEY');
 
-
-    // =====================================================
-    // VERIFIER LA CONFIGURATION
-    // =====================================================
-
+    // Vérifier la configuration
     if (
         empty($bucket) ||
         empty($region) ||
@@ -79,10 +75,7 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
         }
 
 
-        // =================================================
-        // FICHIER UNIQUE
-        // =================================================
-
+        // Fichier unique
         if (!is_array($value['name'])) {
 
             $value['name'] = [$value['name']];
@@ -91,10 +84,7 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
         }
 
 
-        // =================================================
-        // PLUSIEURS FICHIERS
-        // =================================================
-
+        // Plusieurs fichiers
         foreach ($value['name'] as $key => $filename) {
 
             if (!$filename) {
@@ -122,12 +112,12 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
             }
 
 
-            // =================================================
-            // FICHIER TEMPORAIRE
-            // =================================================
-
             $tmpFile = $value['tmp_name'][$key];
 
+
+            // =================================================
+            // VERIFIER FICHIER
+            // =================================================
 
             if (!file_exists($tmpFile)) {
 
@@ -183,10 +173,7 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
             }
 
 
-            // =================================================
-            // NOM DU FICHIER
-            // =================================================
-
+            // Nom du fichier
             $newName = $hash . '.' . $extension;
 
 
@@ -197,27 +184,7 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
             $keyName = 'images/' . $newName;
 
 
-            // =================================================
-            // ENVOI VERS S3
-            // =================================================
-
             try {
-
-                // =================================================
-                // TEST AVANT S3
-                // =================================================
-
-                echo json_encode([
-                    'debug' => 'AVANT S3',
-                    'bucket' => $bucket,
-                    'region' => $region,
-                    'key' => $keyName,
-                    'tmpFile' => $tmpFile,
-                    'exists' => file_exists($tmpFile)
-                ]);
-
-                exit;
-
 
                 // =================================================
                 // ENVOYER LE FICHIER DANS S3
@@ -272,19 +239,11 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
  */
 function deleteFileFromS3(string $imageUrl): bool
 {
-    // =====================================================
-    // CONFIGURATION AWS
-    // =====================================================
+    $bucket = getenv('AWS_BUCKET');
+    $region = getenv('AWS_REGION');
+    $accessKey = getenv('AWS_ACCESS_KEY_ID');
+    $secretKey = getenv('AWS_SECRET_ACCESS_KEY');
 
-    $bucket = $_ENV['AWS_BUCKET'] ?? getenv('AWS_BUCKET');
-    $region = $_ENV['AWS_REGION'] ?? getenv('AWS_REGION');
-    $accessKey = $_ENV['AWS_ACCESS_KEY_ID'] ?? getenv('AWS_ACCESS_KEY_ID');
-    $secretKey = $_ENV['AWS_SECRET_ACCESS_KEY'] ?? getenv('AWS_SECRET_ACCESS_KEY');
-
-
-    // =====================================================
-    // VERIFIER CONFIGURATION
-    // =====================================================
 
     if (
         empty($bucket) ||
@@ -295,10 +254,6 @@ function deleteFileFromS3(string $imageUrl): bool
         return false;
     }
 
-
-    // =====================================================
-    // CONNEXION S3
-    // =====================================================
 
     $s3 = new S3Client([
         'version' => 'latest',
@@ -323,10 +278,6 @@ function deleteFileFromS3(string $imageUrl): bool
 
     $key = ltrim($path, '/');
 
-
-    // =====================================================
-    // SUPPRESSION S3
-    // =====================================================
 
     try {
 
