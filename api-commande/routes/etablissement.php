@@ -1,71 +1,104 @@
 <?php
+
 require_once __DIR__ . '/../core/Cors.php';
 require_once __DIR__ . '/../controllers/EtablissementController.php';
 require_once __DIR__ . '/../core/Middleware.php';
 
 header('Content-Type: application/json; charset=utf-8');
+
 $user = Middleware::checkAuth();
 
 $controller = new EtablissementController();
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 
-// ========================
-// Lire le body JSON (POST)
-// ========================
-$inputData = [];
-
-if ($method === 'POST') {
-    $raw = file_get_contents('php://input');
-    $decoded = json_decode($raw, true);
-
-    if ($raw && !$decoded) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid JSON'
-        ]);
-        exit;
-    }
-
-    $inputData = $decoded ?? $_POST;
-}
-
-// ========================
+// =====================================================
 // GET : liste ou détail
-// ========================
+// =====================================================
+
 if ($method === 'GET') {
-    $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+
+    $id = isset($_GET['id'])
+        ? (int) $_GET['id']
+        : null;
 
     if ($id) {
+
         $controller->show($id);
+
     } else {
+
         $controller->index();
     }
+
     exit;
 }
 
-// ========================
-// POST : ajouter ou modifier
-// ========================
+
+// =====================================================
+// POST : AJOUT OU MODIFICATION
+// =====================================================
+
 if ($method === 'POST') {
-    $id = !empty($inputData['id']) ? (int)$inputData['id'] : null;
+
+    /*
+     * Si le formulaire contient un fichier,
+     * PHP place automatiquement les champs texte
+     * dans $_POST et les fichiers dans $_FILES.
+     *
+     * On utilise donc directement $_POST.
+     */
+
+    $inputData = $_POST;
+
+
+    // =================================================
+    // ID
+    // =================================================
+
+    $id = !empty($inputData['id'])
+        ? (int) $inputData['id']
+        : null;
+
+
+    // =================================================
+    // MODIFICATION
+    // =================================================
 
     if ($id) {
-        $controller->update($id, $inputData);
-    } else {
-        $controller->store($inputData);
+
+        $controller->update(
+            $id,
+            $inputData
+        );
+
     }
+
+    // =================================================
+    // AJOUT
+    // =================================================
+
+    else {
+
+        $controller->store(
+            $inputData
+        );
+    }
+
     exit;
 }
 
-// ========================
-// Méthodes non autorisées
-// ========================
+
+// =====================================================
+// MÉTHODE NON AUTORISÉE
+// =====================================================
+
 http_response_code(405);
+
 echo json_encode([
     'success' => false,
     'message' => 'Unauthorised method'
 ]);
+
 exit;
-?>
