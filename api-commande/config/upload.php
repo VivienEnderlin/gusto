@@ -186,41 +186,55 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
 
             try {
 
-    error_log("1 - AVANT S3");
-
-    $s3->putObject([
-        'Bucket' => $bucket,
-        'Key' => $keyName,
-        'SourceFile' => $tmpFile,
-        'ContentType' => mime_content_type($tmpFile)
-    ]);
-
-    error_log("2 - APRES S3");
-
-    $url =
-        'https://' .
-        $bucket .
-        '.s3.' .
-        $region .
-        '.amazonaws.com/' .
-        $keyName;
-
-    $back[] = $url;
-
-} catch (\Throwable $e) {
-
-    error_log("ERREUR S3 : " . $e->getMessage());
-
-    http_response_code(500);
-
-    echo json_encode([
-        'success' => false,
-        'message' => 'Erreur pendant upload',
-        'error' => $e->getMessage()
+                 echo json_encode([
+        'test' => 'avant S3',
+        'bucket' => $bucket,
+        'region' => $region,
+        'file' => $tmpFile
     ]);
 
     exit;
-}
+
+                // =================================================
+                // ENVOYER LE FICHIER DANS S3
+                // =================================================
+
+                $s3->putObject([
+                    'Bucket' => $bucket,
+                    'Key' => $keyName,
+                    'SourceFile' => $tmpFile,
+                    'ContentType' => mime_content_type($tmpFile)
+                ]);
+
+
+                // =================================================
+                // URL DE L'IMAGE
+                // =================================================
+
+                $url =
+                    'https://' .
+                    $bucket .
+                    '.s3.' .
+                    $region .
+                    '.amazonaws.com/' .
+                    $keyName;
+
+
+                $back[] = $url;
+
+
+            } catch (\Throwable $e) {
+
+                http_response_code(500);
+
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Erreur Amazon S3",
+                    "error" => $e->getAwsErrorMessage()
+                ]);
+
+                exit;
+            }
         }
     }
 
