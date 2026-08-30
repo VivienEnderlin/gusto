@@ -1,4 +1,3 @@
-```php
 <?php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -408,4 +407,4 @@ function deleteFileFromS3(string $imageUrl): bool
         return false;
     }
 }
-```
+
