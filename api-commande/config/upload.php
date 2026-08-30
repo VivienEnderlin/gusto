@@ -26,10 +26,19 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
     // CONFIGURATION AWS
     // =====================================================
 
-    $bucket = getenv('AWS_BUCKET');
-    $region = getenv('AWS_REGION');
-    $accessKey = getenv('AWS_ACCESS_KEY_ID');
-    $secretKey = getenv('AWS_SECRET_ACCESS_KEY');
+    $bucket = $_ENV['AWS_BUCKET'] ?? getenv('AWS_BUCKET');
+$region = $_ENV['AWS_REGION'] ?? getenv('AWS_REGION');
+$accessKey = $_ENV['AWS_ACCESS_KEY_ID'] ?? getenv('AWS_ACCESS_KEY_ID');
+$secretKey = $_ENV['AWS_SECRET_ACCESS_KEY'] ?? getenv('AWS_SECRET_ACCESS_KEY');
+
+var_dump([
+    'bucket' => $bucket,
+    'region' => $region,
+    'accessKey' => $accessKey ? 'OK' : 'VIDE',
+    'secretKey' => $secretKey ? 'OK' : 'VIDE'
+]);
+
+exit;
 
     // Vérifier la configuration
     if (
