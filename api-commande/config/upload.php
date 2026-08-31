@@ -9,6 +9,7 @@ if (file_exists(__DIR__ . '/../../.env')) {
 
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
+use Aws\Credentials\Credentials;
 
 
 /**
@@ -66,15 +67,15 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
     // =====================================================
 try {
 
-    var_dump("UPLOAD 6 : création du client S3");
+    $credentials = new Credentials(
+        $accessKey,
+        $secretKey
+    );
 
     $s3 = new S3Client([
         'version' => 'latest',
         'region' => $region,
-        'credentials' => [
-            'key' => $accessKey,
-            'secret' => $secretKey
-        ]
+        'credentials' => $credentials
     ]);
 
     var_dump("UPLOAD 7 : client S3 créé");
@@ -290,13 +291,15 @@ function deleteFileFromS3(string $imageUrl): bool
     }
 
 
+    $credentials = new Credentials(
+        $accessKey,
+        $secretKey
+    );
+
     $s3 = new S3Client([
         'version' => 'latest',
         'region' => $region,
-        'credentials' => [
-            'key' => $accessKey,
-            'secret' => $secretKey
-        ]
+        'credentials' => $credentials
     ]);
 
 
