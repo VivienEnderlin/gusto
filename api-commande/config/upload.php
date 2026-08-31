@@ -64,7 +64,10 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
     // =====================================================
     // CONNEXION A AMAZON S3
     // =====================================================
-var_dump("UPLOAD 6 : création du client S3");
+try {
+
+    var_dump("UPLOAD 6 : création du client S3");
+
     $s3 = new S3Client([
         'version' => 'latest',
         'region' => $region,
@@ -73,7 +76,18 @@ var_dump("UPLOAD 6 : création du client S3");
             'secret' => $secretKey
         ]
     ]);
+
     var_dump("UPLOAD 7 : client S3 créé");
+
+} catch (\Throwable $e) {
+
+    var_dump("ERREUR CREATION S3");
+    var_dump("MESSAGE :", $e->getMessage());
+    var_dump("FICHIER :", $e->getFile());
+    var_dump("LIGNE :", $e->getLine());
+
+    exit;
+}
 
 
     // =====================================================
