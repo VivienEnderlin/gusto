@@ -9,7 +9,7 @@ if (file_exists(__DIR__ . '/../../.env')) {
 
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
-use Aws\Credentials\Credentials;
+use Aws\Common\Credentials\Credentials;
 
 
 /**
@@ -86,7 +86,7 @@ try {
     var_dump("MESSAGE :", $e->getMessage());
     var_dump("FICHIER :", $e->getFile());
     var_dump("LIGNE :", $e->getLine());
-
+ exit; // ← remets celui-ci
 }
 
 
