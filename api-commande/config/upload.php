@@ -87,7 +87,6 @@ try {
     var_dump("FICHIER :", $e->getFile());
     var_dump("LIGNE :", $e->getLine());
 
-    exit;
 }
 
 
