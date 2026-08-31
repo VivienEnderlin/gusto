@@ -248,6 +248,8 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
             try {
 
                 var_dump("UPLOAD 11 : putObject va être exécuté");
+                var_dump("CURL VERSION :", curl_version());
+var_dump("PHP VERSION :", PHP_VERSION);
 
                 $s3->putObject([
                     'Bucket' => $bucket,
@@ -259,20 +261,7 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
                 var_dump("UPLOAD 12 : putObject terminé");
 
 
-                // =================================================
-                // URL DE L'IMAGE
-                // =================================================
-
-                $url =
-                    'https://' .
-                    $bucket .
-                    '.s3.' .
-                    $region .
-                    '.amazonaws.com/' .
-                    $keyName;
-
-
-                $back[] = $url;
+                
 
 
             } catch (\Throwable $e) {
