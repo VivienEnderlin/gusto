@@ -261,8 +261,6 @@ var_dump("PHP VERSION :", PHP_VERSION);
                 var_dump("UPLOAD 12 : putObject terminé");
 
 
-                
-
 
             } catch (\Throwable $e) {
 
