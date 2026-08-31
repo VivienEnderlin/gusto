@@ -9,10 +9,6 @@ $user = Middleware::checkAuth();
 $controller = new EtablissementController();
 $method = $_SERVER['REQUEST_METHOD'];
 
-var_dump("ETAPE 1 : route atteinte");
-var_dump("METHOD :", $method);
-;
-
 
 // ========================
 // Lire le body JSON (POST)
@@ -20,12 +16,6 @@ var_dump("METHOD :", $method);
 $inputData = [];
 
 if ($method === 'POST') {
-
-    var_dump("ETAPE 2 : POST détecté");
-var_dump("RAW :", file_get_contents('php://input'));
-var_dump("POST :", $_POST);
-var_dump("FILES :", $_FILES);
-
     $raw = file_get_contents('php://input');
     $decoded = json_decode($raw, true);
 

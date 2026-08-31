@@ -16,11 +16,14 @@ use Aws\Exception\AwsException;
  */
 function uploadfile(array $typeFileAllowed, string $link = ''): array
 {
+    var_dump("UPLOAD 1 : fonction uploadfile atteinte");
     $back = [];
 
     if (empty($_FILES)) {
+         var_dump("UPLOAD 2 : $_FILES est vide");
         return [];
     }
+     var_dump("UPLOAD 3 : $_FILES contient un fichier");
 
     // =====================================================
     // CONFIGURATION AWS
@@ -30,6 +33,11 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
     $region = getenv('AWS_REGION');
     $accessKey = getenv('AWS_ACCESS_KEY_ID');
     $secretKey = getenv('AWS_SECRET_ACCESS_KEY');
+    var_dump("UPLOAD 4 : configuration récupérée");
+    var_dump("bucket =", $bucket);
+    var_dump("region =", $region);
+    var_dump("accessKey présent =", !empty($accessKey));
+    var_dump("secretKey présent =", !empty($secretKey));
 
     // Vérifier la configuration
     if (
@@ -37,7 +45,9 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
         empty($region) ||
         empty($accessKey) ||
         empty($secretKey)
-    ) {
+    ) 
+    {
+        var_dump("UPLOAD ERREUR : configuration AWS manquante");
 
         http_response_code(500);
 
@@ -48,12 +58,13 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
 
         exit;
     }
+    var_dump("UPLOAD 5 : configuration AWS OK");
 
 
     // =====================================================
     // CONNEXION A AMAZON S3
     // =====================================================
-
+var_dump("UPLOAD 6 : création du client S3");
     $s3 = new S3Client([
         'version' => 'latest',
         'region' => $region,
@@ -62,13 +73,16 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
             'secret' => $secretKey
         ]
     ]);
+    var_dump("UPLOAD 7 : client S3 créé");
 
 
     // =====================================================
     // TRAITEMENT DES FICHIERS
     // =====================================================
+    var_dump("UPLOAD 8 : début traitement fichier");
 
     foreach ($_FILES as $value) {
+         var_dump("UPLOAD 9 : fichier trouvé");
 
         if (!isset($value['name'])) {
             continue;
@@ -182,9 +196,15 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
             // =================================================
 
             $keyName = 'images/' . $newName;
+            var_dump("UPLOAD 10 : avant envoi S3");
+var_dump("Nom :", $filename);
+var_dump("Extension :", $extension);
+var_dump("Temp :", $tmpFile);
+var_dump("Key :", $keyName);
 
 
             try {
+                 var_dump("UPLOAD 11 : putObject va être exécuté");
 
                 // =================================================
                 // ENVOYER LE FICHIER DANS S3
@@ -196,6 +216,7 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
                     'SourceFile' => $tmpFile,
                     'ContentType' => mime_content_type($tmpFile)
                 ]);
+                var_dump("UPLOAD 12 : putObject terminé");
 
 
                 // =================================================
