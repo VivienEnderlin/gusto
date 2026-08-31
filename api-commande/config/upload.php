@@ -9,7 +9,6 @@ if (file_exists(__DIR__ . '/../../.env')) {
 
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
-use Aws\Common\Credentials\Credentials;
 
 
 /**
@@ -18,13 +17,16 @@ use Aws\Common\Credentials\Credentials;
 function uploadfile(array $typeFileAllowed, string $link = ''): array
 {
     var_dump("UPLOAD 1 : fonction uploadfile atteinte");
+
     $back = [];
 
     if (empty($_FILES)) {
-         var_dump("UPLOAD 2 : $_FILES est vide");
+        var_dump("UPLOAD 2 : \$_FILES est vide");
         return [];
     }
-     var_dump("UPLOAD 3 : $_FILES contient un fichier");
+
+    var_dump("UPLOAD 3 : \$_FILES contient un fichier");
+
 
     // =====================================================
     // CONFIGURATION AWS
@@ -34,20 +36,25 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
     $region = getenv('AWS_REGION');
     $accessKey = getenv('AWS_ACCESS_KEY_ID');
     $secretKey = getenv('AWS_SECRET_ACCESS_KEY');
+
     var_dump("UPLOAD 4 : configuration récupérée");
     var_dump("bucket =", $bucket);
     var_dump("region =", $region);
     var_dump("accessKey présent =", !empty($accessKey));
     var_dump("secretKey présent =", !empty($secretKey));
 
-    // Vérifier la configuration
+
+    // =====================================================
+    // VERIFIER CONFIGURATION AWS
+    // =====================================================
+
     if (
         empty($bucket) ||
         empty($region) ||
         empty($accessKey) ||
         empty($secretKey)
-    ) 
-    {
+    ) {
+
         var_dump("UPLOAD ERREUR : configuration AWS manquante");
 
         http_response_code(500);
@@ -59,51 +66,56 @@ function uploadfile(array $typeFileAllowed, string $link = ''): array
 
         exit;
     }
+
     var_dump("UPLOAD 5 : configuration AWS OK");
 
 
     // =====================================================
     // CONNEXION A AMAZON S3
     // =====================================================
-try {
 
-    $credentials = new Credentials(
-        $accessKey,
-        $secretKey
-    );
+    try {
 
-    $s3 = new S3Client([
-        'version' => 'latest',
-        'region' => $region,
-        'credentials' => $credentials
-    ]);
+        var_dump("UPLOAD 6 : création du client S3");
 
-    var_dump("UPLOAD 7 : client S3 créé");
+        $s3 = S3Client::factory([
+            'key'    => $accessKey,
+            'secret' => $secretKey,
+            'region' => $region
+        ]);
 
-} catch (\Throwable $e) {
+        var_dump("UPLOAD 7 : client S3 créé");
 
-    var_dump("ERREUR CREATION S3");
-    var_dump("MESSAGE :", $e->getMessage());
-    var_dump("FICHIER :", $e->getFile());
-    var_dump("LIGNE :", $e->getLine());
- exit; // ← remets celui-ci
-}
+    } catch (\Throwable $e) {
+
+        var_dump("ERREUR CREATION S3");
+        var_dump("MESSAGE :", $e->getMessage());
+        var_dump("FICHIER :", $e->getFile());
+        var_dump("LIGNE :", $e->getLine());
+
+        exit;
+    }
 
 
     // =====================================================
     // TRAITEMENT DES FICHIERS
     // =====================================================
+
     var_dump("UPLOAD 8 : début traitement fichier");
 
     foreach ($_FILES as $value) {
-         var_dump("UPLOAD 9 : fichier trouvé");
+
+        var_dump("UPLOAD 9 : fichier trouvé");
 
         if (!isset($value['name'])) {
             continue;
         }
 
 
-        // Fichier unique
+        // =================================================
+        // FICHIER UNIQUE
+        // =================================================
+
         if (!is_array($value['name'])) {
 
             $value['name'] = [$value['name']];
@@ -112,7 +124,10 @@ try {
         }
 
 
-        // Plusieurs fichiers
+        // =================================================
+        // PLUSIEURS FICHIERS
+        // =================================================
+
         foreach ($value['name'] as $key => $filename) {
 
             if (!$filename) {
@@ -139,6 +154,10 @@ try {
                 exit;
             }
 
+
+            // =================================================
+            // FICHIER TEMPORAIRE
+            // =================================================
 
             $tmpFile = $value['tmp_name'][$key];
 
@@ -201,7 +220,10 @@ try {
             }
 
 
-            // Nom du fichier
+            // =================================================
+            // NOM DU FICHIER
+            // =================================================
+
             $newName = $hash . '.' . $extension;
 
 
@@ -210,19 +232,22 @@ try {
             // =================================================
 
             $keyName = 'images/' . $newName;
-            var_dump("UPLOAD 10 : avant envoi S3");
-var_dump("Nom :", $filename);
-var_dump("Extension :", $extension);
-var_dump("Temp :", $tmpFile);
-var_dump("Key :", $keyName);
 
+
+            var_dump("UPLOAD 10 : avant envoi S3");
+            var_dump("Nom :", $filename);
+            var_dump("Extension :", $extension);
+            var_dump("Temp :", $tmpFile);
+            var_dump("Key :", $keyName);
+
+
+            // =================================================
+            // ENVOI VERS S3
+            // =================================================
 
             try {
-                 var_dump("UPLOAD 11 : putObject va être exécuté");
 
-                // =================================================
-                // ENVOYER LE FICHIER DANS S3
-                // =================================================
+                var_dump("UPLOAD 11 : putObject va être exécuté");
 
                 $s3->putObject([
                     'Bucket' => $bucket,
@@ -230,6 +255,7 @@ var_dump("Key :", $keyName);
                     'SourceFile' => $tmpFile,
                     'ContentType' => mime_content_type($tmpFile)
                 ]);
+
                 var_dump("UPLOAD 12 : putObject terminé");
 
 
@@ -249,21 +275,20 @@ var_dump("Key :", $keyName);
                 $back[] = $url;
 
 
-            } catch (AwsException $e) {
+            } catch (\Throwable $e) {
 
-                http_response_code(500);
-
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Erreur Amazon S3",
-                    "error" => $e->getAwsErrorMessage()
-                ]);
+                var_dump("ERREUR PUTOBJECT");
+                var_dump("MESSAGE :", $e->getMessage());
+                var_dump("FICHIER :", $e->getFile());
+                var_dump("LIGNE :", $e->getLine());
 
                 exit;
             }
         }
     }
 
+
+    var_dump("UPLOAD 13 : uploadfile terminé");
 
     return $back;
 }
@@ -290,16 +315,22 @@ function deleteFileFromS3(string $imageUrl): bool
     }
 
 
-    $credentials = new Credentials(
-        $accessKey,
-        $secretKey
-    );
+    // =====================================================
+    // CONNEXION S3
+    // =====================================================
 
-    $s3 = new S3Client([
-        'version' => 'latest',
-        'region' => $region,
-        'credentials' => $credentials
-    ]);
+    try {
+
+        $s3 = S3Client::factory([
+            'key'    => $accessKey,
+            'secret' => $secretKey,
+            'region' => $region
+        ]);
+
+    } catch (\Throwable $e) {
+
+        return false;
+    }
 
 
     // =====================================================
@@ -316,6 +347,10 @@ function deleteFileFromS3(string $imageUrl): bool
     $key = ltrim($path, '/');
 
 
+    // =====================================================
+    // SUPPRESSION
+    // =====================================================
+
     try {
 
         $s3->deleteObject([
@@ -325,7 +360,7 @@ function deleteFileFromS3(string $imageUrl): bool
 
         return true;
 
-    } catch (AwsException $e) {
+    } catch (\Throwable $e) {
 
         return false;
     }
