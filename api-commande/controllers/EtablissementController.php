@@ -64,12 +64,20 @@ class EtablissementController {
     // AJOUT
     // =========================
     public function store($data) {
+        var_dump("ETAPE 3 : STORE ATTEINT");
+var_dump("DATA :", $data);
+var_dump("FILES :", $_FILES);
+
         header('Content-Type: application/json; charset=utf-8');
 
         if (!empty($_FILES['logo'])) {
+            var_dump("ETAPE 4 : logo détecté");
+    var_dump($_FILES['logo']);
             $upload = uploadfile(
                 ['png','jpg','jpeg','gif','ico']
             );
+             var_dump("ETAPE 5 : upload terminé");
+    var_dump($upload);
             $data['logo'] = json_encode($upload);
         }
 
@@ -93,6 +101,9 @@ class EtablissementController {
 // MODIFIER
     // =========================
     public function update($id, $data) {
+        var_dump("ETAPE 3 : STORE ATTEINT");
+var_dump("DATA :", $data);
+var_dump("FILES :", $_FILES);
         header('Content-Type: application/json; charset=utf-8');
 
         // Récupération de l'existant
@@ -104,9 +115,13 @@ class EtablissementController {
 
         // Gestion du logo
         if (!empty($_FILES['logo']) && $_FILES['logo']['error'] !== 4) {
+            var_dump("ETAPE 4 : logo détecté");
+    var_dump($_FILES['logo']);
             $upload = uploadfile(
                 ['png','jpg','jpeg','gif','ico']
             );
+            var_dump("ETAPE 5 : upload terminé");
+    var_dump($upload);
             $data['logo'] = json_encode($upload);
         } else {
             $data['logo'] = $e['logo']; // garder l'ancien
