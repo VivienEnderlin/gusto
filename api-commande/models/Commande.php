@@ -203,11 +203,33 @@ class Commande extends BaseModel {
 
    public function deleteByTicket($id_ticket, $id_etablissement) {
 
+        $stmt = $this->personnalSelect(
+            "commande",
+            "id_commande",
+            "WHERE id_ticket = ? AND id_etablissement = ? AND etat NOT IN (?, ?)
+             LIMIT 1",
+            [$id_ticket, $id_etablissement, "Payé", "Servi"]
+        );
+
+        $commande = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $stmt->closeCursor();
+
+        // ========================================
+        // 2. Aucune commande supprimable
+        // ========================================
+
+        if (!$commande) {
+            return 0;
+        }
+
         return $this->personalDelete(
             "commande",
-            "WHERE id_ticket = ? AND id_etablissement = ? AND etat = ?",
-            [$id_ticket, $id_etablissement, "En attente"]
+            "WHERE id_ticket = ? AND id_etablissement = ? AND etat NOT IN (?, ?)",
+            [$id_ticket, $id_etablissement, "Payé", "Servi"]
+
         );
+        return 1;
     }
 
     public function deleteByIdCommande($id_commande){
