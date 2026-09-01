@@ -205,8 +205,8 @@ class Commande extends BaseModel {
 
         return $this->personalDelete(
             "commande",
-            "WHERE id_ticket = ? AND id_etablissement = ? AND etat NOT IN (?, ?)",
-            [$id_ticket, $id_etablissement, "Payé", "Servi"]
+            "WHERE id_ticket = ? AND id_etablissement = ? AND etat = ?",
+            [$id_ticket, $id_etablissement, "En attente"]
         );
     }
 
